@@ -1,28 +1,15 @@
-import uuid
-import datetime
-
 from app.main import db
 from app.main.model.user import User
+from app.main.util.exception.UserException import UserAlreadyExistsException
 
 
-def create_user(data):
-    user = User.query.filter_by(email=data['email']).first()
+def create_user(new_user):
+    user = User.query.filter_by(email=new_user.email).first()
     if not user:
-        new_user = User(
-            email=data['email'],
-            firstname=data['firstname'],
-            lastname=data['lastname'],
-            password=data['password'],
-            registered_on=datetime.datetime.utcnow()
-        )
         save_changes(new_user)
         return generate_token(new_user)
     else:
-        response_object = {
-            'status': 'fail',
-            'message': 'User already exists. Please Log in.',
-        }
-        return response_object, 409
+        raise UserAlreadyExistsException
 
 
 def get_all_users():
