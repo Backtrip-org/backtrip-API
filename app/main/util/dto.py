@@ -18,3 +18,13 @@ class AuthDto:
         'email': fields.String(required=True, description='The email address'),
         'password': fields.String(required=True, description='The user password '),
     })
+
+
+class TripDto:
+    api = Namespace('trip', description='trip related operations')
+    trip = api.model('trip', {
+        'id': fields.Integer(required=False, description='trip id'),
+        'name': fields.String(required=True, description='trip name'),
+        'picture_path': fields.String(required=False, description='trip picture path'),
+        'creator_id': fields.String(required=False, description='creator id'),
+    })
