@@ -61,13 +61,10 @@ class User(Resource):
 class UserTrips(Resource):
     @api.doc('list_of_user_trips')
     @api.marshal_list_with(_trip, envelope='data')
+    @user_token_required
     def get(self, user_id):
         user = get_user(user_id)
         if not user:
             api.abort(404, 'User not found.')
         else:
-            trips = user.users_trips
-            if not trips:
-                api.abort(404, 'Trips not found.')
-            else:
-                return trips
+            return user.users_trips
