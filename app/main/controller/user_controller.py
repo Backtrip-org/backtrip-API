@@ -5,12 +5,14 @@ from flask_restplus import Resource
 
 from ..util.decorator import token_required, admin_token_required, user_token_required
 from ..util.dto import UserDto
-from ..service.user_service import create_user, get_all_users, get_a_user
+from ..util.dto import TripDto
+from ..service.user_service import create_user, get_all_users, get_user
 from ..model.user import User as UserModel
 from ..util.exception.UserException import UserAlreadyExistsException
 
 api = UserDto.api
 _user = UserDto.user
+_trip = TripDto.trip
 
 
 @api.route('/')
@@ -47,8 +49,22 @@ class User(Resource):
     @api.marshal_with(_user)
     @user_token_required
     def get(self, user_id):
-        user = get_a_user(user_id)
+        user = get_user(user_id)
         if not user:
             api.abort(404, 'User not found.')
         else:
             return user
+
+
+@api.route('/<user_id>/trips')
+@api.param('user_id', 'The User identifier')
+class UserTrips(Resource):
+    @api.doc('list_of_user_trips')
+    @api.marshal_list_with(_trip, envelope='data')
+    @user_token_required
+    def get(self, user_id):
+        user = get_user(user_id)
+        if not user:
+            api.abort(404, 'User not found.')
+        else:
+            return user.users_trips

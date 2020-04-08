@@ -16,7 +16,7 @@ def get_all_users():
     return User.query.all()
 
 
-def get_a_user(id):
+def get_user(id):
     return User.query.filter_by(id=id).first()
 
 

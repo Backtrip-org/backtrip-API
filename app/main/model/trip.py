@@ -1,6 +1,5 @@
-from sqlalchemy.orm import relationship
-
 from .. import db
+from ..model.users_trips import users_trips
 
 
 class Trip(db.Model):
@@ -10,3 +9,5 @@ class Trip(db.Model):
     name = db.Column(db.String(20), unique=False)
     picture_path = db.Column(db.String(255), unique=False, default=False)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    users_trips = db.relationship('User', secondary=users_trips)
