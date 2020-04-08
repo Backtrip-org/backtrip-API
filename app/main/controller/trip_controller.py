@@ -14,7 +14,6 @@ _trip = TripDto.trip
 
 @api.route('/')
 class TripList(Resource):
-    @api.response(201, 'Trip successfully created.')
     @api.doc('create a new trip')
     @api.expect(_trip, validate=True)
     @api.marshal_with(_trip)
@@ -28,7 +27,7 @@ class TripList(Resource):
                 picture_path=trip_dto['picture_path'],
                 creator_id=response.get('data').get('id')
             )
-            return create_trip(trip=new_trip)
+            return create_trip(trip=new_trip), 201
         except TripAlreadyExistsException as e:
             api.abort(409, e.value)
 
