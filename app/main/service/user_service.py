@@ -29,6 +29,7 @@ def generate_token(user):
     try:
         auth_token = user.encode_auth_token(user.id)
         response_object = {
+            'id': user.id,
             'status': 'success',
             'message': 'Successfully registered.',
             'Authorization': auth_token.decode()

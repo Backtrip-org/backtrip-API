@@ -12,6 +12,7 @@ class Auth:
                 auth_token = user.encode_auth_token(user.id)
                 if auth_token:
                     response_object = {
+                        'id': user.id,
                         'status': 'success',
                         'message': 'Successfully logged in.',
                         'Authorization': auth_token.decode()

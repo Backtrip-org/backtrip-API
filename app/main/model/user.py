@@ -13,8 +13,8 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     registered_on = db.Column(db.DateTime, nullable=False)
     admin = db.Column(db.Boolean, nullable=False, default=False)
-    firstname = db.Column(db.String(50), unique=True)
-    lastname = db.Column(db.String(50), unique=True)
+    firstname = db.Column(db.String(50))
+    lastname = db.Column(db.String(50))
     password_hash = db.Column(db.String(100))
     picture_path = db.Column(db.String(255), unique=False, default=False)
 
