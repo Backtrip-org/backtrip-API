@@ -1,5 +1,6 @@
 from app.main import db
 from app.main.model.trip import Trip
+from app.main.model.step import Step
 from app.main.util.exception.TripException import TripAlreadyExistsException
 
 
@@ -10,6 +11,10 @@ def create_trip(trip):
         return trip
     else:
         raise TripAlreadyExistsException()
+
+
+def create_step(step):
+    save_changes(step)
 
 
 def save_changes(data):

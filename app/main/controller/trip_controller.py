@@ -1,15 +1,17 @@
 from flask import request
 from flask_restplus import Resource
 
+from app.main.model.step import Step
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..util.decorator import token_required, admin_token_required, user_token_required
 from ..util.dto import TripDto
-from ..service.trip_service import create_trip
+from ..service.trip_service import create_trip, create_step
 from ..util.exception.TripException import TripAlreadyExistsException
 
 api = TripDto.api
 _trip = TripDto.trip
+_step = TripDto.step
 
 
 @api.route('/')
@@ -30,4 +32,23 @@ class TripList(Resource):
             return create_trip(trip=new_trip), 201
         except TripAlreadyExistsException as e:
             api.abort(409, e.value)
+
+
+@api.route('/<trip_id>/step')
+@api.param('trip_id', 'Identifier of the trip')
+class TripStep(Resource):
+    @api.doc('Create a step in a trip')
+    @api.expect(_step, validate=True)
+    @api.response(201, 'Step successfully created.')
+    @api.response(401, 'Unknown access token.')
+    @api.marshal_with(_step)
+    @token_required
+    def post(self, trip_id):
+        step_dto = request.json
+        new_step = Step(
+            name=step_dto['name'],
+            trip_id=trip_id,
+            start_datetime=step_dto['start_datetime']
+        )
+        return create_step(step=new_step)
 
