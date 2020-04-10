@@ -7,7 +7,8 @@ from ..service.auth_helper import Auth
 from ..util.decorator import token_required, admin_token_required, user_token_required
 from ..util.dto import TripDto
 from ..service.trip_service import create_trip, create_step, trip_exists
-from ..util.exception.TripException import TripAlreadyExistsException
+from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
+from ..util.exception.GlobalException import StringTooLongException
 
 api = TripDto.api
 _trip = TripDto.trip
@@ -40,19 +41,21 @@ class TripStep(Resource):
     @api.doc('Create a step in a trip')
     @api.expect(_step, validate=True)
     @api.response(201, 'Step successfully created.')
+    @api.response(400, 'Name is too long.')
     @api.response(401, 'Unknown access token.')
     @api.response(404, 'Unknown trip.')
     @api.marshal_with(_step)
     @token_required
     def post(self, trip_id):
-        if not trip_exists(trip_id):
-            api.abort(404, 'Trip with id {} does not exists.'.format(str(trip_id)))
-
         step_dto = request.json
         new_step = Step(
             name=step_dto['name'],
             trip_id=trip_id,
             start_datetime=step_dto['start_datetime']
         )
-        return create_step(step=new_step)
-
+        try:
+            return create_step(step=new_step), 201
+        except TripNotFoundException as e:
+            api.abort(404, e.value)
+        except StringTooLongException as e:
+            api.abort(400, e.value)
