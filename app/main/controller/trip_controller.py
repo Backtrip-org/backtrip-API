@@ -6,7 +6,7 @@ from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..util.decorator import token_required, admin_token_required, user_token_required
 from ..util.dto import TripDto
-from ..service.trip_service import create_trip, create_step
+from ..service.trip_service import create_trip, create_step, trip_exists
 from ..util.exception.TripException import TripAlreadyExistsException
 
 api = TripDto.api
@@ -41,9 +41,13 @@ class TripStep(Resource):
     @api.expect(_step, validate=True)
     @api.response(201, 'Step successfully created.')
     @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown trip.')
     @api.marshal_with(_step)
     @token_required
     def post(self, trip_id):
+        if not trip_exists(trip_id):
+            api.abort(404, 'Trip with id {} does not exists.'.format(str(trip_id)))
+
         step_dto = request.json
         new_step = Step(
             name=step_dto['name'],
