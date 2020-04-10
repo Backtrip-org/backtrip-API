@@ -62,7 +62,7 @@ class TestTripController(BaseTestCase):
                                                 data=step_payload, content_type='application/json')
         self.assertEqual(create_step_response.status_code, 201)
 
-    def test_create_trip_should_raise_bad_request(self):
+    def test_create_step_should_raise_bad_request(self):
         register_user(self)
         login_response = login_user(self)
         headers = dict(Authorization=json.loads(login_response.data.decode())['Authorization'])
@@ -75,7 +75,7 @@ class TestTripController(BaseTestCase):
                                                 data=step_payload, content_type='application/json')
         self.assertEqual(create_step_response.status_code, 400)
 
-    def test_create_trip_should_raise_not_found(self):
+    def test_create_step_should_raise_not_found(self):
         register_user(self)
         login_response = login_user(self)
         headers = dict(Authorization=json.loads(login_response.data.decode())['Authorization'])
@@ -88,7 +88,7 @@ class TestTripController(BaseTestCase):
                                                 data=step_payload, content_type='application/json')
         self.assertEqual(create_step_response.status_code, 404)
 
-    def test_create_trip_should_raise_unauthorized(self):
+    def test_create_step_should_raise_unauthorized(self):
         register_user(self)
         login_response = login_user(self)
         headers = dict(Authorization=json.loads(login_response.data.decode())['Authorization'])
@@ -101,6 +101,38 @@ class TestTripController(BaseTestCase):
         create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
                                                 data=step_payload, content_type='application/json')
         self.assertEqual(create_step_response.status_code, 401)
+
+    def test_get_step_should_return_ok(self):
+        register_user(self)
+        login_response = login_user(self)
+        headers = dict(Authorization=json.loads(login_response.data.decode())['Authorization'])
+        trip_payload = json.dumps(dict(name='trip', picture_path='picture/path'))
+        create_trip_response = \
+            self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
+        trip_id = json.loads(create_trip_response.data.decode())['id']
+        step_payload = json.dumps(dict(name='step', start_datetime='2020-04-10 21:00:00'))
+        create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
+                                                data=step_payload, content_type='application/json')
+        step_id = json.loads(create_step_response.data.decode())['id']
+        step = self.client.get('/trip/{}/step/{}'.format(str(trip_id), str(step_id)), headers=headers,
+                               data=step_payload, content_type='application/json')
+        self.assertEqual(step.status_code, 200)
+
+    def test_get_uncreated_step_should_return_not_found(self):
+        register_user(self)
+        login_response = login_user(self)
+        headers = dict(Authorization=json.loads(login_response.data.decode())['Authorization'])
+        trip_payload = json.dumps(dict(name='trip', picture_path='picture/path'))
+        create_trip_response = \
+            self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
+        trip_id = json.loads(create_trip_response.data.decode())['id']
+        step_payload = json.dumps(dict(name='step', start_datetime='2020-04-10 21:00:00'))
+        create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
+                                                data=step_payload, content_type='application/json')
+        step_id = json.loads(create_step_response.data.decode())['id']
+        step = self.client.get('/trip/{}/step/{}'.format(str(trip_id), str(step_id + 1)), headers=headers,
+                               data=step_payload, content_type='application/json')
+        self.assertEqual(step.status_code, 404)
 
 
 if __name__ == '__main__':
