@@ -3,8 +3,10 @@ import datetime
 
 from app.main.model.user import User
 from app.main.model.trip import Trip
-from app.main.service.trip_service import create_trip
-from app.main.util.exception.TripException import TripAlreadyExistsException
+from app.main.model.step import Step
+from app.main.service.trip_service import create_trip, create_step
+from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
+from app.main.util.exception.GlobalException import StringTooLongException
 from app.test.base import BaseTestCase
 from app.main import db
 
@@ -22,10 +24,18 @@ def create_user(email):
 
 def get_trip_object(name, creator_id):
     return Trip(
-            name=name,
-            picture_path="picture/path",
-            creator_id=creator_id
-        )
+        name=name,
+        picture_path="picture/path",
+        creator_id=creator_id
+    )
+
+
+def get_step_object(name, trip_id, start_datetime):
+    return Step(
+        name=name,
+        trip_id=trip_id,
+        start_datetime=start_datetime
+    )
 
 
 class TestTripService(BaseTestCase):
@@ -48,6 +58,30 @@ class TestTripService(BaseTestCase):
         create_trip(get_trip_object(name="trip", creator_id=user1.id))
         user2_trip = create_trip(get_trip_object(name="trip", creator_id=user2.id))
         self.assertIsInstance(user2_trip, Trip)
+
+    def test_create_step_should_succeed(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object(name="trip", creator_id=user.id))
+        start_datetime = "2020-04-10 21:00:00"
+        step = create_step(get_step_object(name="step", trip_id=trip.id, start_datetime=start_datetime))
+        self.assertIsInstance(step, Step)
+
+    def test_create_step_should_raise_tripnotfoundexception(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object(name="trip", creator_id=user.id))
+        start_datetime = "2020-04-10 21:00:00"
+
+        with self.assertRaises(TripNotFoundException):
+            create_step(get_step_object(name="step", trip_id=trip.id + 1, start_datetime=start_datetime))
+
+    def test_create_step_with_long_name_should_raise_strintoolongexeption(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object(name="trip", creator_id=user.id))
+        start_datetime = "2020-04-10 21:00:00"
+        name = 's' * 30
+
+        with self.assertRaises(StringTooLongException):
+            create_step(get_step_object(name=name, trip_id=trip.id, start_datetime=start_datetime))
 
 
 if __name__ == '__main__':
