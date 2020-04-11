@@ -3,6 +3,8 @@ from app.main.model.step import Step
 from app.main.model.trip import Trip
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.GlobalException import StringTooLongException
+from app.main.util.exception.UserException import UserEmailNotFoundException
+from .user_service import get_user_by_email
 
 
 def create_trip(trip):
@@ -23,6 +25,19 @@ def create_step(step):
 
     save_changes(step)
     return step
+
+
+def invite_to_trip(trip_id, user_to_invite_email):
+    trip = get_trip_by_id(trip_id)
+    if trip is None:
+        raise TripNotFoundException(trip_id)
+    user = get_user_by_email(user_to_invite_email)
+    if user is None:
+        raise UserEmailNotFoundException(user_to_invite_email)
+
+    trip.users_trips.append(user)
+    save_changes(trip)
+    pass
 
 
 def save_changes(data):
