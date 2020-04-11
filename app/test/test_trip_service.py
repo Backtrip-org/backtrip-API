@@ -4,9 +4,10 @@ import datetime
 from app.main.model.user import User
 from app.main.model.trip import Trip
 from app.main.model.step import Step
-from app.main.service.trip_service import create_trip, create_step, get_step
+from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.GlobalException import StringTooLongException
+from app.main.util.exception.UserException import UserEmailNotFoundException
 from app.test.base import BaseTestCase
 from app.main import db
 
@@ -82,6 +83,29 @@ class TestTripService(BaseTestCase):
 
         with self.assertRaises(StringTooLongException):
             create_step(get_step_object(name=name, trip_id=trip.id, start_datetime=start_datetime))
+
+    def test_invite_to_trip_should_succeed(self):
+        creator = create_user("creator@mail.fr")
+        participant = create_user("participant@mail.fr")
+        trip = create_trip(get_trip_object(name="trip", creator_id=creator.id))
+        invite_to_trip(trip_id=trip.id, user_to_invite_email=participant.email)
+        participants_email = map(lambda user: user.email, trip.users_trips)
+        self.assertTrue(participant.email in participants_email)
+
+    def test_invite_to_trip_should_raise_tripnotfoundexception(self):
+        creator = create_user("creator@mail.fr")
+        participant = create_user("participant@mail.fr")
+        trip = create_trip(get_trip_object(name="trip", creator_id=creator.id))
+
+        with self.assertRaises(TripNotFoundException):
+            invite_to_trip(trip_id=trip.id + 1, user_to_invite_email=participant.email)
+
+    def test_invite_to_trip_should_raise_useremailnotfoundexception(self):
+        creator = create_user("creator@mail.fr")
+        trip = create_trip(get_trip_object(name="trip", creator_id=creator.id))
+
+        with self.assertRaises(UserEmailNotFoundException):
+            invite_to_trip(trip_id=trip.id, user_to_invite_email="participant@mail.fr")
 
     def test_get_step_should_return_step(self):
         user = create_user("user1@mail.fr")
