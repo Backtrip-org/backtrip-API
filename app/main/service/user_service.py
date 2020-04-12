@@ -20,6 +20,10 @@ def get_user(id):
     return User.query.filter_by(id=id).first()
 
 
+def get_user_by_email(email):
+    return User.query.filter_by(email=email).first()
+
+
 def save_changes(data):
     db.session.add(data)
     db.session.commit()

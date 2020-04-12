@@ -5,11 +5,11 @@ from app.main.model.trip import Trip
 from app.test.base import BaseTestCase
 
 
-def register_user(self):
+def register_user(self, email='example@gmail.com'):
     return self.client.post(
         '/user/',
         data=json.dumps(dict(
-            email='example@gmail.com',
+            email=email,
             firstname='firstname',
             lastname='lastname',
             password='123456'
@@ -102,6 +102,65 @@ class TestTripController(BaseTestCase):
                                                 data=step_payload, content_type='application/json')
         self.assertEqual(create_step_response.status_code, 401)
 
+    def test_invite_to_trip_should_return_no_content(self):
+        register_user(self)
+        participant_email = 'participant@mail.com'
+        register_user(self, participant_email)
+        login_response = login_user(self)
+        headers = dict(Authorization=json.loads(login_response.data.decode())['Authorization'])
+        trip_payload = json.dumps(dict(name='trip', picture_path='picture/path'))
+        create_trip_response = \
+            self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
+        trip_id = json.loads(create_trip_response.data.decode())['id']
+        invitation_payload = json.dumps(dict(email=participant_email))
+        invitation_response = self.client.post('/trip/{}/invite'.format(str(trip_id)), headers=headers,
+                                               data=invitation_payload, content_type='application/json')
+        self.assertEqual(invitation_response.status_code, 204)
+
+    def test_invite_to_trip_should_return_bad_request(self):
+        register_user(self)
+        participant_email = 'participant@mail.com'
+        login_response = login_user(self)
+        headers = dict(Authorization=json.loads(login_response.data.decode())['Authorization'])
+        trip_payload = json.dumps(dict(name='trip', picture_path='picture/path'))
+        create_trip_response = \
+            self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
+        trip_id = json.loads(create_trip_response.data.decode())['id']
+        invitation_payload = json.dumps(dict(email=participant_email))
+        invitation_response = self.client.post('/trip/{}/invite'.format(str(trip_id)), headers=headers,
+                                               data=invitation_payload, content_type='application/json')
+        self.assertEqual(invitation_response.status_code, 400)
+
+    def test_invite_to_trip_should_return_unauthorized(self):
+        register_user(self)
+        participant_email = 'participant@mail.com'
+        register_user(self, participant_email)
+        login_response = login_user(self)
+        headers = dict(Authorization=json.loads(login_response.data.decode())['Authorization'])
+        trip_payload = json.dumps(dict(name='trip', picture_path='picture/path'))
+        create_trip_response = \
+            self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
+        trip_id = json.loads(create_trip_response.data.decode())['id']
+        invitation_payload = json.dumps(dict(email=participant_email))
+        headers['Authorization'] = ''
+        invitation_response = self.client.post('/trip/{}/invite'.format(str(trip_id)), headers=headers,
+                                               data=invitation_payload, content_type='application/json')
+        self.assertEqual(invitation_response.status_code, 401)
+
+    def test_invite_to_trip_should_return_not_found(self):
+        register_user(self)
+        participant_email = 'participant@mail.com'
+        register_user(self, participant_email)
+        login_response = login_user(self)
+        headers = dict(Authorization=json.loads(login_response.data.decode())['Authorization'])
+        trip_payload = json.dumps(dict(name='trip', picture_path='picture/path'))
+        create_trip_response = \
+            self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
+        trip_id = json.loads(create_trip_response.data.decode())['id']
+        invitation_payload = json.dumps(dict(email=participant_email))
+        invitation_response = self.client.post('/trip/{}/invite'.format(str(trip_id + 1)), headers=headers,
+                                               data=invitation_payload, content_type='application/json')
+        self.assertEqual(invitation_response.status_code, 404)
     def test_get_step_should_return_ok(self):
         register_user(self)
         login_response = login_user(self)

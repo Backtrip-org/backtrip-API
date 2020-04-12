@@ -4,3 +4,11 @@ class UserAlreadyExistsException(Exception):
 
     def __str__(self):
         return repr(self.value)
+
+
+class UserEmailNotFoundException(Exception):
+    def __init__(self, user_email):
+        self.value = "User with email '{}' does not exist.".format(user_email)
+
+    def __str__(self):
+        return repr(self.value)

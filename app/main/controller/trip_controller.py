@@ -6,9 +6,10 @@ from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..util.decorator import token_required, admin_token_required, user_token_required
 from ..util.dto import TripDto
-from ..service.trip_service import create_trip, create_step, trip_exists, get_step
+from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from ..util.exception.GlobalException import StringTooLongException
+from ..util.exception.UserException import UserEmailNotFoundException
 
 api = TripDto.api
 _trip = TripDto.trip
@@ -60,6 +61,25 @@ class TripStep(Resource):
         except TripNotFoundException as e:
             api.abort(404, e.value)
         except StringTooLongException as e:
+            api.abort(400, e.value)
+
+
+@api.route("/<trip_id>/invite")
+@api.param('trip_id', 'Identifier of the trip')
+class TripInvitation(Resource):
+    @api.doc('Invite someone to a trip')
+    @api.response(204, 'User as been added to trip')
+    @api.response(400, 'User email not found')
+    @api.response(401, 'Unknown access token')
+    @api.response(404, 'Trip not found')
+    @token_required
+    def post(self, trip_id):
+        try:
+            invite_to_trip(trip_id, request.json['email'])
+            return '', 204
+        except TripNotFoundException as e:
+            api.abort(404, e.value)
+        except UserEmailNotFoundException as e:
             api.abort(400, e.value)
 
 
