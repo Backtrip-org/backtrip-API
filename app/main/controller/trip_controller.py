@@ -6,7 +6,7 @@ from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..util.decorator import token_required, admin_token_required, user_token_required
 from ..util.dto import TripDto
-from ..service.trip_service import create_trip, create_step, trip_exists
+from ..service.trip_service import create_trip, create_step, trip_exists, get_step
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from ..util.exception.GlobalException import StringTooLongException
 
@@ -20,6 +20,8 @@ class TripList(Resource):
     @api.doc('create a new trip')
     @api.expect(_trip, validate=True)
     @api.marshal_with(_trip)
+    @api.response(201, 'Trip successfully created.')
+    @api.response(409, 'Trip already exist.')
     @token_required
     def post(self):
         try:
@@ -59,3 +61,20 @@ class TripStep(Resource):
             api.abort(404, e.value)
         except StringTooLongException as e:
             api.abort(400, e.value)
+
+
+@api.route('/<trip_id>/step/<step_id>')
+@api.param('trip_id', 'Identifier of the trip')
+@api.param('step_id', 'Identifier of the step')
+class TripStepWithId(Resource):
+    @api.doc('Get step in a trip')
+    @api.marshal_with(_step)
+    @api.response(404, 'Unknown step.')
+    @api.response(200, 'Step detail.')
+    @token_required
+    def get(self, trip_id, step_id):
+        step = get_step(step_id)
+        if not step:
+            api.abort(404, 'Step not found')
+        else:
+            return step

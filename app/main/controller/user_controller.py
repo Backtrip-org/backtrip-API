@@ -19,13 +19,15 @@ _trip = TripDto.trip
 class UserList(Resource):
     @api.doc('list_of_registered_users')
     @api.marshal_list_with(_user, envelope='data')
+    @api.response(200, 'List of users.')
     @admin_token_required
     def get(self):
         return get_all_users()
 
-    @api.response(201, 'User successfully created.')
     @api.doc('create a new user')
     @api.expect(_user, validate=True)
+    @api.response(201, 'User successfully created.')
+    @api.response(409, 'User already exist.')
     def post(self):
         data = request.json
         new_user = UserModel(
@@ -43,10 +45,11 @@ class UserList(Resource):
 
 @api.route('/<user_id>')
 @api.param('user_id', 'The User identifier')
-@api.response(404, 'User not found.')
 class User(Resource):
     @api.doc('get a user')
     @api.marshal_with(_user)
+    @api.response(200, 'User detail.')
+    @api.response(404, 'User not found.')
     @user_token_required
     def get(self, user_id):
         user = get_user(user_id)
@@ -61,6 +64,8 @@ class User(Resource):
 class UserTrips(Resource):
     @api.doc('list_of_user_trips')
     @api.marshal_list_with(_trip, envelope='data')
+    @api.response(200, 'User trips.')
+    @api.response(404, 'User not found.')
     @user_token_required
     def get(self, user_id):
         user = get_user(user_id)

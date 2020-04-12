@@ -37,3 +37,6 @@ def get_trip_by_id(trip_id):
 def trip_exists(trip_id):
     return get_trip_by_id(trip_id) is not None
 
+
+def get_step(step_id):
+    return Step.query.filter_by(id=step_id).first()
