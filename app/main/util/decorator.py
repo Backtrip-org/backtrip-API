@@ -29,8 +29,7 @@ def admin_token_required(f):
         if not user:
             return data, status
 
-        admin = user.get('admin')
-        if not admin:
+        if not user.admin:
             abort(401, 'Unauthorized, admin token required.')
 
         return f(*args, **kwargs)
@@ -47,7 +46,7 @@ def user_token_required(f):
         if not user:
             return data, status
 
-        user_id = user.get('id')
+        user_id = user.id
         if user_id != int(kwargs.get('user_id')):
             abort(401, "Unauthorized, you can't access to this user.")
 

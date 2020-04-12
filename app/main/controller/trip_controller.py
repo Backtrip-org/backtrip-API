@@ -30,7 +30,8 @@ class TripList(Resource):
             new_trip = Trip(
                 name=trip_dto['name'],
                 picture_path=trip_dto['picture_path'],
-                creator_id=response.get('data').get('id')
+                creator_id=response.get('data').id,
+                users_trips=[response.get('data')]
             )
             return create_trip(trip=new_trip), 201
         except TripAlreadyExistsException as e:
