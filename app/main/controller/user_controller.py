@@ -20,6 +20,7 @@ class UserList(Resource):
     @api.doc('list_of_registered_users')
     @api.marshal_list_with(_user, envelope='data')
     @api.response(200, 'List of users.')
+    @api.response(401, 'Unknown access token.')
     @admin_token_required
     def get(self):
         return get_all_users()
@@ -49,6 +50,7 @@ class User(Resource):
     @api.doc('get a user')
     @api.marshal_with(_user)
     @api.response(200, 'User detail.')
+    @api.response(401, 'Unknown access token.')
     @api.response(404, 'User not found.')
     @user_token_required
     def get(self, user_id):
@@ -65,6 +67,7 @@ class UserTrips(Resource):
     @api.doc('list_of_user_trips')
     @api.marshal_list_with(_trip, envelope='data')
     @api.response(200, 'User trips.')
+    @api.response(401, 'Unknown access token.')
     @api.response(404, 'User not found.')
     @user_token_required
     def get(self, user_id):

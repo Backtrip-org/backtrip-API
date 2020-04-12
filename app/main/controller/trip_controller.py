@@ -69,8 +69,9 @@ class TripStep(Resource):
 class TripStepWithId(Resource):
     @api.doc('Get step in a trip')
     @api.marshal_with(_step)
-    @api.response(404, 'Unknown step.')
     @api.response(200, 'Step detail.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown step.')
     @token_required
     def get(self, trip_id, step_id):
         step = get_step(step_id)
