@@ -65,12 +65,7 @@ class Auth:
                 user = User.query.filter_by(id=resp).first()
                 response_object = {
                     'status': 'success',
-                    'data': {
-                        'id': user.id,
-                        'email': user.email,
-                        'admin': user.admin,
-                        'registered_on': str(user.registered_on)
-                    }
+                    'data': user
                 }
                 return response_object, 200
             response_object = {
