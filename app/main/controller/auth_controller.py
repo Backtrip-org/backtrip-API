@@ -11,6 +11,7 @@ user_auth = AuthDto.user_auth
 @api.route('/login')
 class UserLogin(Resource):
     @api.doc('user login')
+    @api.response(400, 'Email or password incorrect.')
     @api.expect(user_auth, validate=True)
     def post(self):
         post_data = request.json

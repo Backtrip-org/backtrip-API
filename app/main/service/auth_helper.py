@@ -23,7 +23,7 @@ class Auth:
                     'status': 'fail',
                     'message': 'email or password does not match.'
                 }
-                return response_object, 401
+                return response_object, 400
 
         except Exception as e:
             print(e)
