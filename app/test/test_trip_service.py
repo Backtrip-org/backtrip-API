@@ -4,7 +4,7 @@ import datetime
 from app.main.model.user import User
 from app.main.model.trip import Trip
 from app.main.model.step import Step
-from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step
+from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.GlobalException import StringTooLongException
 from app.main.util.exception.UserException import UserEmailNotFoundException
@@ -122,6 +122,23 @@ class TestTripService(BaseTestCase):
         created_step = create_step(get_step_object(name="step", trip_id=trip.id, start_datetime=start_datetime))
         step = get_step(created_step.id + 1)
         self.assertEqual(step, None)
+
+    def test_get_timeline_should_return_steps_ordered(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object(name="trip", creator_id=user.id))
+        created_step_1 = create_step(get_step_object(name="step", trip_id=trip.id, start_datetime="2020-04-10 21:00:00"))
+        created_step_2 = create_step(get_step_object(name="step", trip_id=trip.id, start_datetime="2020-04-05 21:00:00"))
+        timeline = get_timeline(trip.id)
+
+        self.assertEqual(timeline[0].id, created_step_2.id)
+        self.assertEqual(timeline[1].id, created_step_1.id)
+
+    def test_get_timeline_should_raise_tripnotfoundexception(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object(name="trip", creator_id=user.id))
+
+        with self.assertRaises(TripNotFoundException):
+            get_timeline(trip.id + 1)
 
 
 if __name__ == '__main__':
