@@ -32,10 +32,10 @@ class UserList(Resource):
     def post(self):
         data = request.json
         new_user = UserModel(
-            email=data['email'],
-            firstname=data['firstname'],
-            lastname=data['lastname'],
-            password=data['password'],
+            email=data.get('email'),
+            firstname=data.get('firstname'),
+            lastname=data.get('lastname'),
+            password=data.get('password'),
             registered_on=datetime.datetime.utcnow()
         )
         try:

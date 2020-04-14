@@ -32,25 +32,25 @@ class TestAuthBlueprint(BaseTestCase):
     def test_registered_user_login(self):
         user_response = register_user(self)
         response_data = json.loads(user_response.data.decode())
-        self.assertTrue(response_data['Authorization'])
+        self.assertTrue(response_data.get('Authorization'))
         self.assertEqual(user_response.status_code, 201)
 
         login_response = login_user(self)
         data = json.loads(login_response.data.decode())
-        self.assertTrue(data['Authorization'])
+        self.assertTrue(data.get('Authorization'))
         self.assertEqual(login_response.status_code, 200)
 
     def test_valid_logout(self):
         with self.client:
             user_response = register_user(self)
             response_data = json.loads(user_response.data.decode())
-            self.assertTrue(response_data['Authorization'])
+            self.assertTrue(response_data.get('Authorization'))
             self.assertEqual(user_response.status_code, 201)
 
             # registered user login
             login_response = login_user(self)
             data = json.loads(login_response.data.decode())
-            self.assertTrue(data['Authorization'])
+            self.assertTrue(data.get('Authorization'))
             self.assertEqual(login_response.status_code, 200)
 
             # valid token logout
@@ -63,7 +63,7 @@ class TestAuthBlueprint(BaseTestCase):
                 )
             )
             data = json.loads(response.data.decode())
-            self.assertTrue(data['status'] == 'success')
+            self.assertTrue(data.get('status') == 'success')
             self.assertEqual(response.status_code, 200)
 
 

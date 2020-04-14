@@ -29,8 +29,8 @@ class TripList(Resource):
             trip_dto = request.json
             response, status = Auth.get_logged_in_user(request)
             new_trip = Trip(
-                name=trip_dto['name'],
-                picture_path=trip_dto['picture_path'],
+                name=trip_dto.get('name'),
+                picture_path=trip_dto.get('picture_path'),
                 creator_id=response.get('data').id,
                 users_trips=[response.get('data')]
             )
@@ -53,9 +53,9 @@ class TripStep(Resource):
     def post(self, trip_id):
         step_dto = request.json
         new_step = Step(
-            name=step_dto['name'],
+            name=step_dto.get('name'),
             trip_id=trip_id,
-            start_datetime=step_dto['start_datetime']
+            start_datetime=step_dto.get('start_datetime')
         )
         try:
             return create_step(step=new_step), 201
@@ -76,7 +76,7 @@ class TripInvitation(Resource):
     @token_required
     def post(self, trip_id):
         try:
-            invite_to_trip(trip_id, request.json['email'])
+            invite_to_trip(trip_id, request.json.get('email'))
             return '', 204
         except TripNotFoundException as e:
             api.abort(404, e.value)
