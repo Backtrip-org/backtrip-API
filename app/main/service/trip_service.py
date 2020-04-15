@@ -55,3 +55,16 @@ def trip_exists(trip_id):
 
 def get_step(step_id):
     return Step.query.filter_by(id=step_id).first()
+
+
+def get_timeline(trip_id):
+    if not trip_exists(trip_id):
+        raise TripNotFoundException(trip_id)
+    return Step.query.filter_by(trip_id=trip_id).order_by(Step.start_datetime).all()
+
+
+def user_participates_in_trip(user_id, trip_id):
+    if not trip_exists(trip_id):
+        raise TripNotFoundException(trip_id)
+
+    return any(user.id == user_id for user in get_trip_by_id(trip_id).users_trips)
