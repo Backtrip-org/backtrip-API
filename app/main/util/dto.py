@@ -27,7 +27,7 @@ class TripDto:
         'id': fields.Integer(required=False, description='trip id'),
         'name': fields.String(required=True, description='trip name'),
         'picture_path': fields.String(required=False, description='trip picture path'),
-        'creator_id': fields.String(required=False, description='creator id'),
+        'creator_id': fields.Integer(required=False, description='creator id'),
     })
 
     step = api.model('step', {
