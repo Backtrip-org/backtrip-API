@@ -24,3 +24,19 @@ class LogoutAPI(Resource):
     def post(self):
         auth_header = request.headers.get('Authorization')
         return Auth.logout_user(data=auth_header)
+
+
+@api.route('/isUserAlreadyLogged')
+class IsUserAlreadyLogged(Resource):
+    @api.doc('Is user already logged ?')
+    @api.response(200, 'User id.')
+    @api.response(404, 'Unknown user.')
+    def get(self):
+        response, status = Auth.get_logged_in_user(request)
+        if status == 200:
+            response_object = {
+                'id': response.get('data').id
+            }
+            return response_object
+        else:
+            api.abort(404, 'User not found')
