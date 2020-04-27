@@ -28,6 +28,7 @@ class TripDto:
         'name': fields.String(required=True, description='trip name'),
         'picture_path': fields.String(required=False, description='trip picture path'),
         'creator_id': fields.Integer(required=False, description='creator id'),
+        'users_trips': fields.List(fields.Nested(UserDto.user))
     })
 
     step = api.model('step', {
