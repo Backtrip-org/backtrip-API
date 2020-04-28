@@ -1,5 +1,6 @@
-import os
 import unittest
+
+from app.app import socketIo, app
 
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
@@ -11,7 +12,6 @@ from app.main.model import user
 from app.main.model import blacklist
 from app.main.model import trip
 
-app = create_app(os.getenv('BOILERPLATE_ENV') or 'dev')
 app.register_blueprint(blueprint)
 app.app_context().push()
 app.config['ERROR_404_HELP'] = False
@@ -25,7 +25,7 @@ manager.add_command('db', MigrateCommand)
 
 @manager.command
 def run():
-    app.run()
+    socketIo.run(app)
 
 
 @manager.command
