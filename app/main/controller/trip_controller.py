@@ -38,6 +38,8 @@ class TripList(Resource):
             return create_trip(trip=new_trip), 201
         except TripAlreadyExistsException as e:
             api.abort(409, e.value)
+        except StringTooLongException as e:
+            api.abort(400, e.value)
 
 
 @api.route('/<trip_id>/step')

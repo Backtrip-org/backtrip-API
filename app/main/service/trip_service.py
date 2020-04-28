@@ -8,6 +8,9 @@ from .user_service import get_user_by_email
 
 
 def create_trip(trip):
+    if Trip.name_length < len(trip.name):
+        raise StringTooLongException('Name', Trip.name_length)
+
     existing_trip = Trip.query.filter_by(creator_id=trip.creator_id).filter_by(name=trip.name).first()
     if not existing_trip:
         save_changes(trip)
