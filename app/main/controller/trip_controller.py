@@ -22,6 +22,7 @@ class TripList(Resource):
     @api.expect(_trip, validate=True)
     @api.marshal_with(_trip)
     @api.response(201, 'Trip successfully created.')
+    @api.response(401, 'Unknown access token.')
     @api.response(409, 'Trip already exist.')
     @token_required
     def post(self):
