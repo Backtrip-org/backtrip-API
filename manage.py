@@ -1,10 +1,10 @@
 import unittest
 
-from app.app import socketIo, app
+from app.init_app import socketIo, app
 
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
-
+from app.main.controller.chat_controller import chat_message, connect_to_the_room
 from app import blueprint
 from app.main import create_app, db
 
