@@ -33,7 +33,17 @@ class TripDto:
 
     step = api.model('step', {
         'id': fields.Integer(required=False, description='Step id'),
-        'trip_id': fields.Integer(required=False, description='Step name'),
+        'trip_id': fields.Integer(required=False, description='Trip id'),
         'name': fields.String(required=True, description='Step name'),
         'start_datetime': fields.DateTime(required=True, description='Starting datetime of the step')
+    })
+
+
+class ChatMessageDto:
+    api = Namespace('chat_message', description='Chat message related operations')
+    chat_message = api.model('chat_message', {
+        'id': fields.Integer(required=False, description='Chat message id'),
+        'message': fields.String(required=True, description='Message content'),
+        'trip_id': fields.Integer(required=False, description='Trip id'),
+        'user_id': fields.Integer(required=False, description='User id')
     })
