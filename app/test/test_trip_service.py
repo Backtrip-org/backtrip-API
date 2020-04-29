@@ -27,7 +27,8 @@ def get_trip_object(name, creator_id):
     return Trip(
         name=name,
         picture_path="picture/path",
-        creator_id=creator_id
+        creator_id=creator_id,
+        closed=False
     )
 
 
@@ -59,6 +60,11 @@ class TestTripService(BaseTestCase):
         create_trip(get_trip_object(name="trip", creator_id=user1.id))
         user2_trip = create_trip(get_trip_object(name="trip", creator_id=user2.id))
         self.assertIsInstance(user2_trip, Trip)
+
+    def test_create_trip_should_set_closed_to_false(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object(name="trip", creator_id=user.id))
+        self.assertEquals(trip.closed, False)
 
     def test_create_step_should_succeed(self):
         user = create_user("user1@mail.fr")

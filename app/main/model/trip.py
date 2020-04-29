@@ -7,7 +7,8 @@ class Trip(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(20), unique=False)
-    picture_path = db.Column(db.String(255), unique=False)
+    picture_path = db.Column(db.String(255), unique=False, nullable=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    closed = db.Column(db.Boolean, default=False)
 
     users_trips = db.relationship('User', secondary=users_trips)
