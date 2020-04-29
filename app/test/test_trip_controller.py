@@ -57,7 +57,7 @@ class TestTripController(BaseTestCase):
             self.client.post('/trip/', headers=headers, data=payload, content_type='application/json')
         create_trip_response_data = json.loads(create_trip_response.data)
         self.assertEqual(create_trip_response.status_code, 400)
-        self.assertEqual(create_trip_response_data.get('message'), 'Name is too long. Max size is 20 characters.')
+        self.assertEqual(create_trip_response_data.get('message'), 'Name must be between 2 and 20 characters.')
 
     def test_create_step_should_return_created(self):
         register_user(self)
