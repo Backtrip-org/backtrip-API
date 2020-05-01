@@ -6,6 +6,8 @@ from app.main.util.exception.GlobalException import StringTooLongException
 from app.main.util.exception.UserException import UserEmailNotFoundException, UserIdNotFoundException
 from .user_service import get_user_by_email, get_user
 
+from datetime import date
+
 
 def create_trip(trip):
     existing_trip = Trip.query.filter_by(creator_id=trip.creator_id).filter_by(name=trip.name).first()
@@ -77,3 +79,57 @@ def get_finished_trips_by_user(user_id):
 
     closed_trips = list(filter(lambda trip: trip.closed, user.users_trips))
     return closed_trips
+
+
+def get_first_step_of_trip(trip):
+    return Step.query.filter_by(trip_id=trip.id).order_by(Step.start_datetime).first()
+
+
+def is_ongoing_trip(trip, current_date):
+    first_step = get_first_step_of_trip(trip)
+    if not first_step:
+        return False
+
+    if not trip.closed and current_date >= first_step.start_datetime.date():
+        return True
+
+    return False
+
+
+def get_ongoing_trips(trips, current_date):
+    ongoing_trips = list(filter(lambda trip: is_ongoing_trip(trip, current_date), trips))
+    return ongoing_trips
+
+
+def get_ongoing_trips_by_user(user_id, current_date=date.today()):
+    user = get_user(user_id)
+    if not user:
+        raise UserIdNotFoundException(user_id)
+
+    ongoing_trips = get_ongoing_trips(user.users_trips, current_date)
+    return ongoing_trips
+
+
+def is_coming_trip(trip, current_date):
+    first_step = get_first_step_of_trip(trip)
+    if not first_step:
+        return False
+
+    if not trip.closed and current_date < first_step.start_datetime.date():
+        return True
+
+    return False
+
+
+def get_coming_trips(trips, current_date):
+    coming_trips = list(filter(lambda trip: is_coming_trip(trip, current_date), trips))
+    return coming_trips
+
+
+def get_coming_trips_by_user(user_id, current_date=date.today()):
+    user = get_user(user_id)
+    if not user:
+        raise UserIdNotFoundException(user_id)
+
+    coming_trips = get_coming_trips(user.users_trips, current_date)
+    return coming_trips

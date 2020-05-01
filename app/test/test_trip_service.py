@@ -5,7 +5,7 @@ from app.main.model.user import User
 from app.main.model.trip import Trip
 from app.main.model.step import Step
 from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
-    get_finished_trips_by_user
+    get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.GlobalException import StringTooLongException
 from app.main.util.exception.UserException import UserEmailNotFoundException, UserIdNotFoundException
@@ -40,6 +40,78 @@ def get_step_object(name, trip_id, start_datetime):
         trip_id=trip_id,
         start_datetime=start_datetime
     )
+
+
+def close_trip(trip):
+    trip.closed = True
+    return trip
+
+
+def create_trips(trips):
+    created_trips = list(map(create_trip, trips))
+    return created_trips
+
+
+def get_closed_trips(user):
+    closed_trips = [get_trip_object("closed1", user), get_trip_object("closed2", user)]
+
+    closed_trips = list(map(close_trip, closed_trips))
+    closed_trips = create_trips(closed_trips)
+    return closed_trips
+
+
+def get_ongoing_trips(user, current_date=datetime.date.today()):
+    ongoing_trips = [get_trip_object("ongoing1", user)]
+    ongoing_trips = create_trips(ongoing_trips)
+    for trip in ongoing_trips:
+        create_step(get_step_object(name="first",
+                                    trip_id=trip.id,
+                                    start_datetime=datetime.datetime(
+                                        current_date.year,
+                                        current_date.month,
+                                        current_date.day,
+                                        8, 0, 0)
+                                    ))
+        create_step(get_step_object(name="second",
+                                    trip_id=trip.id,
+                                    start_datetime=datetime.datetime(
+                                        current_date.year,
+                                        current_date.month,
+                                        current_date.day,
+                                        10, 0, 0)
+                                    ))
+    return ongoing_trips
+
+
+def get_coming_trips(user, current_date=datetime.date.today()):
+    coming_trips = [get_trip_object("coming1", user), get_trip_object("coming2", user)]
+    coming_trips = create_trips(coming_trips)
+    for trip in coming_trips:
+        create_step(get_step_object(name="first",
+                                    trip_id=trip.id,
+                                    start_datetime=datetime.datetime(
+                                        current_date.year,
+                                        current_date.month,
+                                        current_date.day + 1,
+                                        8, 0, 0)
+                                    ))
+        create_step(get_step_object(name="second",
+                                    trip_id=trip.id,
+                                    start_datetime=datetime.datetime(
+                                        current_date.year,
+                                        current_date.month,
+                                        current_date.day + 1,
+                                        10, 0, 0)
+                                    ))
+    return coming_trips
+
+
+def get_preset_trips(user, current_date=datetime.date.today()):
+    closed_trips = get_closed_trips(user)
+    ongoing_trips = get_ongoing_trips(user, current_date)
+    coming_trips = get_coming_trips(user, current_date)
+    all_trips = [closed_trips, ongoing_trips, coming_trips]
+    return all_trips, closed_trips, ongoing_trips, coming_trips
 
 
 class TestTripService(BaseTestCase):
@@ -156,17 +228,28 @@ class TestTripService(BaseTestCase):
 
     def test_get_finished_trips_should_return_finished_trips(self):
         user = create_user("user1@mail.fr")
-        closed_trips = [get_trip_object("closed1", user), get_trip_object("closed2", user)]
-
-        def close_trip(trip):
-            trip.closed = True
-            return trip
-
-        closed_trips = list(map(close_trip, closed_trips))
-        closed_trips = list(map(create_trip, closed_trips))
-        create_trip(get_trip_object("opened", user))
-
+        trips, closed_trips, ongoing_trips, coming_trips = get_preset_trips(user, datetime.date.today())
         self.assertEqual(get_finished_trips_by_user(user.id), closed_trips)
+
+    def test_get_ongoing_trips_should_return_ongoing_trips(self):
+        user = create_user("user1@mail.fr")
+        today = datetime.date.today()
+        trips, closed_trips, ongoing_trips, coming_trips = get_preset_trips(user, today)
+        self.assertEqual(get_ongoing_trips_by_user(user.id, today), ongoing_trips)
+
+    def test_get_ongoing_trips_should_raise_useridnotfoundexception(self):
+        with self.assertRaises(UserIdNotFoundException):
+            get_ongoing_trips_by_user(1)
+
+    def test_get_coming_trips_should_return_coming_trips(self):
+        user = create_user("user1@mail.fr")
+        today = datetime.date.today()
+        trips, closed_trips, ongoing_trips, coming_trips = get_preset_trips(user, today)
+        self.assertEqual(get_coming_trips_by_user(user.id, today), coming_trips)
+
+    def test_get_coming_trips_should_raise_useridnotfoundexception(self):
+        with self.assertRaises(UserIdNotFoundException):
+            get_coming_trips_by_user(1)
 
 
 if __name__ == '__main__':
