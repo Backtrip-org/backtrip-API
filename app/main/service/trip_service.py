@@ -3,8 +3,8 @@ from app.main.model.step import Step
 from app.main.model.trip import Trip
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.GlobalException import StringTooLongException
-from app.main.util.exception.UserException import UserEmailNotFoundException
-from .user_service import get_user_by_email
+from app.main.util.exception.UserException import UserEmailNotFoundException, UserIdNotFoundException
+from .user_service import get_user_by_email, get_user
 
 
 def create_trip(trip):
@@ -68,3 +68,12 @@ def user_participates_in_trip(user_id, trip_id):
         raise TripNotFoundException(trip_id)
 
     return any(user.id == user_id for user in get_trip_by_id(trip_id).users_trips)
+
+
+def get_finished_trips_by_user(user_id):
+    user = get_user(user_id)
+    if not user:
+        raise UserIdNotFoundException(user_id)
+
+    closed_trips = list(filter(lambda trip: trip.closed, user.users_trips))
+    return closed_trips
