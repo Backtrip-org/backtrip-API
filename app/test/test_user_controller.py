@@ -33,6 +33,7 @@ class TestUserController(BaseTestCase):
         register_user(self)
         login_response = login_user(self)
         headers = dict(Authorization=json.loads(login_response.data)['Authorization'])
+        user_id = json.loads(login_response.data)['id']
 
         trip_payload = json.dumps(dict(name='trip', picture_path='picture/path'))
         create_trip_response = \
@@ -44,7 +45,7 @@ class TestUserController(BaseTestCase):
         self.client.post('/trip/{}/invite'.format(str(trip_id)), headers=headers,
                          data=invitation_payload, content_type='application/json')
 
-        get_trips_response = self.client.get('/user/{}/trips'.format(str(trip_id)), headers=headers)
+        get_trips_response = self.client.get('/user/{}/trips'.format(str(user_id)), headers=headers)
         participants = json.loads(get_trips_response.data).get('data')[0].get('users_trips')
 
         self.assertEqual(get_trips_response.status_code, 200)
