@@ -1,4 +1,5 @@
 from .. import db
+from .users_steps import users_steps
 
 
 class Step(db.Model):
@@ -11,3 +12,5 @@ class Step(db.Model):
     trip_id = db.Column(db.Integer, db.ForeignKey('trip.id'))
     name = db.Column(db.String(name_max_length), unique=False)
     start_datetime = db.Column(db.DateTime)
+
+    users_steps = db.relationship('User', secondary=users_steps)
