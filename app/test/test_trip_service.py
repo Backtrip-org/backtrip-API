@@ -5,12 +5,13 @@ from app.main.model.user import User
 from app.main.model.trip import Trip
 from app.main.model.step import Step
 from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
-    get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user
+    get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user, add_participant_to_step
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
-from app.main.util.exception.UserException import UserEmailNotFoundException, UserIdNotFoundException
+from app.main.util.exception.UserException import UserEmailNotFoundException, UserIdNotFoundException, UserDoesNotParticipatesToTrip
 from app.test.base import BaseTestCase
 from app.main import db
+from util.exception.StepException import StepNotFoundException
 
 
 def create_user(email):
@@ -240,6 +241,12 @@ class TestTripService(BaseTestCase):
     def test_get_finished_trips_should_raise_useridnotfoundexception(self):
         with self.assertRaises(UserIdNotFoundException):
             get_finished_trips_by_user(1)
+    def test_add_participant_to_step_should_add_user(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object("trip", user.id))
+        step = create_step(get_step_object("step", trip.id, "2020-05-03 10:00:00"))
+        step = add_participant_to_step(user.id, step.id)
+        self.assertTrue(user in step.users_steps)
 
     def test_get_finished_trips_should_return_finished_trips(self):
         user = create_user("user1@mail.fr")
@@ -265,6 +272,22 @@ class TestTripService(BaseTestCase):
     def test_get_coming_trips_should_raise_useridnotfoundexception(self):
         with self.assertRaises(UserIdNotFoundException):
             get_coming_trips_by_user(1)
+
+
+    def test_add_participant_to_step_should_raise_stepnotfoundexception(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object("trip", user.id))
+        step = create_step(get_step_object("step", trip.id, "2020-05-03 10:00:00"))
+        with self.assertRaises(StepNotFoundException):
+            add_participant_to_step(user.id, step.id + 1)
+
+    def test_add_participant_to_step_should_raise_userdoesnotparticipatetotrip(self):
+        creator = create_user("user1@mail.fr")
+        usurper = create_user("user2@mail.fr")
+        trip = create_trip(get_trip_object("trip", creator.id))
+        step = create_step(get_step_object("step", trip.id, "2020-05-03 10:00:00"))
+        with self.assertRaises(UserDoesNotParticipatesToTrip):
+            add_participant_to_step(usurper.id, step.id)
 
 
 if __name__ == '__main__':

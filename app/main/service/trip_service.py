@@ -2,8 +2,9 @@ from app.main import db
 from app.main.model.step import Step
 from app.main.model.trip import Trip
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
+from app.main.util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, UserIdNotFoundException
+from util.exception.StepException import StepNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
-from app.main.util.exception.UserException import UserEmailNotFoundException, UserIdNotFoundException
 from .user_service import get_user_by_email, get_user
 
 from datetime import date
@@ -136,3 +137,17 @@ def get_coming_trips_by_user(user_id, current_date=date.today()):
 
     coming_trips = get_coming_trips(user.users_trips, current_date)
     return coming_trips
+
+
+def add_participant_to_step(user_id, step_id):
+    step = get_step(step_id)
+    if not step:
+        raise StepNotFoundException(step_id)
+
+    if not user_participates_in_trip(user_id, step.trip_id):
+        raise UserDoesNotParticipatesToTrip(user_id, step.trip_id)
+
+    user = get_user(user_id)
+    step.users_steps.append(user)
+    save_changes(step)
+    return step
