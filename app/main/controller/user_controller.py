@@ -139,6 +139,6 @@ class UserStepsParticipation(Resource):
             api.abort(404, 'User not found.')
         else:
             try:
-                return get_user_steps_participation(user_id, trip_id)
+                return get_user_steps_participation(user, trip_id)
             except TripNotFoundException as e:
                 api.abort(404, e.value)

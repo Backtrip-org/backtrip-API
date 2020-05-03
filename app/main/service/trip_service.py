@@ -138,8 +138,8 @@ def get_coming_trips_by_user(user_id, current_date=date.today()):
     return coming_trips
 
 
-def get_user_steps_participation(user_id, trip_id):
+def get_user_steps_participation(user, trip_id):
     if not trip_exists(trip_id):
         raise TripNotFoundException(trip_id)
 
-    return any(user.id == user_id for user in get_timeline(trip_id).users_steps)
+    return list(filter(lambda step: step.trip_id == int(trip_id), user.users_steps))
