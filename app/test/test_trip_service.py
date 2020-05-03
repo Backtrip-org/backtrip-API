@@ -241,13 +241,6 @@ class TestTripService(BaseTestCase):
     def test_get_finished_trips_should_raise_useridnotfoundexception(self):
         with self.assertRaises(UserIdNotFoundException):
             get_finished_trips_by_user(1)
-            
-    def test_add_participant_to_step_should_add_user(self):
-        user = create_user("user1@mail.fr")
-        trip = create_trip(get_trip_object("trip", user))
-        step = create_step(get_step_object("step", trip.id, "2020-05-03 10:00:00"))
-        step = add_participant_to_step(user.id, step.id)
-        self.assertTrue(user in step.users_steps)
 
     def test_get_finished_trips_should_return_finished_trips(self):
         user = create_user("user1@mail.fr")
@@ -273,6 +266,13 @@ class TestTripService(BaseTestCase):
     def test_get_coming_trips_should_raise_useridnotfoundexception(self):
         with self.assertRaises(UserIdNotFoundException):
             get_coming_trips_by_user(1)
+
+    def test_add_participant_to_step_should_add_user(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object("trip", user))
+        step = create_step(get_step_object("step", trip.id, "2020-05-03 10:00:00"))
+        step = add_participant_to_step(user.id, step.id)
+        self.assertTrue(user in step.users_steps)
 
     def test_add_participant_to_step_should_raise_stepnotfoundexception(self):
         user = create_user("user1@mail.fr")
