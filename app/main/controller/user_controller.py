@@ -7,8 +7,9 @@ from ..util.decorator import token_required, admin_token_required, user_token_re
 from ..util.dto import UserDto
 from ..util.dto import TripDto
 from ..service.user_service import create_user, get_all_users, get_user
+from ..service.trip_service import get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user
 from ..model.user import User as UserModel
-from ..util.exception.UserException import UserAlreadyExistsException
+from ..util.exception.UserException import UserAlreadyExistsException, UserIdNotFoundException
 
 api = UserDto.api
 _user = UserDto.user
@@ -76,3 +77,42 @@ class UserTrips(Resource):
             api.abort(404, 'User not found.')
         else:
             return user.users_trips
+
+
+@api.route('/<user_id>/trips/finished')
+@api.param('user_id', 'The User identifier')
+class UserTripsFinished(Resource):
+    @api.doc('List of finished trips for the user')
+    @api.marshal_with(_trip)
+    @api.response(200, 'User finished trips.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(401, 'Access token does not correspond to requested user')
+    @user_token_required
+    def get(self, user_id):
+        return get_finished_trips_by_user(user_id)
+
+
+@api.route('/<user_id>/trips/ongoing')
+@api.param('user_id', 'The User identifier')
+class UserTripsOngoing(Resource):
+    @api.doc('List of ongoing trips for the user')
+    @api.marshal_with(_trip)
+    @api.response(200, 'User ongoing trips.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(401, 'Access token does not correspond to requested user')
+    @user_token_required
+    def get(self, user_id):
+        return get_ongoing_trips_by_user(user_id)
+
+
+@api.route('/<user_id>/trips/coming')
+@api.param('user_id', 'The User identifier')
+class UserTripsComing(Resource):
+    @api.doc('List of coming trips for the user')
+    @api.marshal_with(_trip)
+    @api.response(200, 'User coming trips.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(401, 'Access token does not correspond to requested user')
+    @user_token_required
+    def get(self, user_id):
+        return get_coming_trips_by_user(user_id)

@@ -33,6 +33,7 @@ class TestUserController(BaseTestCase):
         register_user(self)
         login_response = login_user(self)
         headers = dict(Authorization=json.loads(login_response.data)['Authorization'])
+        user_id = json.loads(login_response.data)['id']
 
         trip_payload = json.dumps(dict(name='trip', picture_path='picture/path'))
         create_trip_response = \
@@ -42,10 +43,64 @@ class TestUserController(BaseTestCase):
         register_user(self, "friend@mail.com")
         invitation_payload = json.dumps(dict(email="friend@mail.com"))
         self.client.post('/trip/{}/invite'.format(str(trip_id)), headers=headers,
-                                               data=invitation_payload, content_type='application/json')
+                         data=invitation_payload, content_type='application/json')
 
-        get_trips_response = self.client.get('/user/{}/trips'.format(str(trip_id)), headers=headers)
+        get_trips_response = self.client.get('/user/{}/trips'.format(str(user_id)), headers=headers)
         participants = json.loads(get_trips_response.data).get('data')[0].get('users_trips')
 
         self.assertEqual(get_trips_response.status_code, 200)
         self.assertEqual(len(participants), 2)
+
+    def test_get_finished_trips_should_return_200(self):
+        register_user(self)
+        login_response = login_user(self)
+        login_response_data = json.loads(login_response.data)
+        headers = dict(Authorization=login_response_data['Authorization'])
+        user_id = login_response_data['id']
+        finished_trips_response = self.client.get('/user/{}/trips/finished'.format(str(user_id)), headers=headers)
+        self.assertEqual(finished_trips_response.status_code, 200)
+
+    def test_get_finished_trips_should_return_401(self):
+        register_user(self)
+        login_response = login_user(self)
+        login_response_data = json.loads(login_response.data)
+        headers = dict(Authorization="wrong key")
+        user_id = login_response_data['id']
+        finished_trips_response = self.client.get('/user/{}/trips/finished'.format(str(user_id)), headers=headers)
+        self.assertEqual(finished_trips_response.status_code, 401)
+
+    def test_get_ongoing_trips_should_return_200(self):
+        register_user(self)
+        login_response = login_user(self)
+        login_response_data = json.loads(login_response.data)
+        headers = dict(Authorization=login_response_data['Authorization'])
+        user_id = login_response_data['id']
+        finished_trips_response = self.client.get('/user/{}/trips/ongoing'.format(str(user_id)), headers=headers)
+        self.assertEqual(finished_trips_response.status_code, 200)
+
+    def test_get_ongoing_trips_should_return_401(self):
+        register_user(self)
+        login_response = login_user(self)
+        login_response_data = json.loads(login_response.data)
+        headers = dict(Authorization="wrong key")
+        user_id = login_response_data['id']
+        finished_trips_response = self.client.get('/user/{}/trips/ongoing'.format(str(user_id)), headers=headers)
+        self.assertEqual(finished_trips_response.status_code, 401)
+
+    def test_get_coming_trips_should_return_200(self):
+        register_user(self)
+        login_response = login_user(self)
+        login_response_data = json.loads(login_response.data)
+        headers = dict(Authorization=login_response_data['Authorization'])
+        user_id = login_response_data['id']
+        finished_trips_response = self.client.get('/user/{}/trips/coming'.format(str(user_id)), headers=headers)
+        self.assertEqual(finished_trips_response.status_code, 200)
+
+    def test_get_coming_trips_should_return_401(self):
+        register_user(self)
+        login_response = login_user(self)
+        login_response_data = json.loads(login_response.data)
+        headers = dict(Authorization="wrong key")
+        user_id = login_response_data['id']
+        finished_trips_response = self.client.get('/user/{}/trips/coming'.format(str(user_id)), headers=headers)
+        self.assertEqual(finished_trips_response.status_code, 401)
