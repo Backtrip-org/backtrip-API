@@ -241,9 +241,10 @@ class TestTripService(BaseTestCase):
     def test_get_finished_trips_should_raise_useridnotfoundexception(self):
         with self.assertRaises(UserIdNotFoundException):
             get_finished_trips_by_user(1)
+            
     def test_add_participant_to_step_should_add_user(self):
         user = create_user("user1@mail.fr")
-        trip = create_trip(get_trip_object("trip", user.id))
+        trip = create_trip(get_trip_object("trip", user))
         step = create_step(get_step_object("step", trip.id, "2020-05-03 10:00:00"))
         step = add_participant_to_step(user.id, step.id)
         self.assertTrue(user in step.users_steps)
@@ -273,10 +274,9 @@ class TestTripService(BaseTestCase):
         with self.assertRaises(UserIdNotFoundException):
             get_coming_trips_by_user(1)
 
-
     def test_add_participant_to_step_should_raise_stepnotfoundexception(self):
         user = create_user("user1@mail.fr")
-        trip = create_trip(get_trip_object("trip", user.id))
+        trip = create_trip(get_trip_object("trip", user))
         step = create_step(get_step_object("step", trip.id, "2020-05-03 10:00:00"))
         with self.assertRaises(StepNotFoundException):
             add_participant_to_step(user.id, step.id + 1)
@@ -284,7 +284,7 @@ class TestTripService(BaseTestCase):
     def test_add_participant_to_step_should_raise_userdoesnotparticipatetotrip(self):
         creator = create_user("user1@mail.fr")
         usurper = create_user("user2@mail.fr")
-        trip = create_trip(get_trip_object("trip", creator.id))
+        trip = create_trip(get_trip_object("trip", creator))
         step = create_step(get_step_object("step", trip.id, "2020-05-03 10:00:00"))
         with self.assertRaises(UserDoesNotParticipatesToTrip):
             add_participant_to_step(usurper.id, step.id)
