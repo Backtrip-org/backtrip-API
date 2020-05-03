@@ -142,7 +142,7 @@ class TestTripService(BaseTestCase):
 
     def test_create_trip_with_no_name_should_raise_stringlengthoutofrangeexception(self):
         user = create_user("user1@mail.fr")
-        trip = get_trip_object(name='', creator_id=user.id)
+        trip = get_trip_object(name='', creator=user)
         with self.assertRaises(StringLengthOutOfRangeException):
             create_trip(trip)
 
@@ -172,7 +172,7 @@ class TestTripService(BaseTestCase):
 
     def test_create_step_with_no_name_should_raise_stringlengthoutofrangeexception(self):
         user = create_user("user1@mail.fr")
-        trip = create_trip(get_trip_object(name="trip", creator_id=user.id))
+        trip = create_trip(get_trip_object(name="trip", creator=user))
         start_datetime = "2020-04-10 21:00:00"
         name = ''
 

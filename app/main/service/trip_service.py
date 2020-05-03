@@ -2,11 +2,12 @@ from app.main import db
 from app.main.model.step import Step
 from app.main.model.trip import Trip
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
-from app.main.util.exception.GlobalException import StringTooLongException
+from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
 from app.main.util.exception.UserException import UserEmailNotFoundException, UserIdNotFoundException
 from .user_service import get_user_by_email, get_user
 
 from datetime import date
+
 
 def create_trip(trip):
     if not Trip.name_min_length <= len(trip.name) <= Trip.name_max_length:
