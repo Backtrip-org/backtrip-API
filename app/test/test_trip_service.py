@@ -7,7 +7,7 @@ from app.main.model.step import Step
 from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
-from app.main.util.exception.GlobalException import StringTooLongException
+from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
 from app.main.util.exception.UserException import UserEmailNotFoundException, UserIdNotFoundException
 from app.test.base import BaseTestCase
 from app.main import db
@@ -140,6 +140,12 @@ class TestTripService(BaseTestCase):
         trip = create_trip(get_trip_object(name="trip", creator=user))
         self.assertEqual(trip.closed, False)
 
+    def test_create_trip_with_no_name_should_raise_stringlengthoutofrangeexception(self):
+        user = create_user("user1@mail.fr")
+        trip = get_trip_object(name='', creator_id=user.id)
+        with self.assertRaises(StringLengthOutOfRangeException):
+            create_trip(trip)
+
     def test_create_step_should_succeed(self):
         user = create_user("user1@mail.fr")
         trip = create_trip(get_trip_object(name="trip", creator=user))
@@ -155,13 +161,22 @@ class TestTripService(BaseTestCase):
         with self.assertRaises(TripNotFoundException):
             create_step(get_step_object(name="step", trip_id=trip.id + 1, start_datetime=start_datetime))
 
-    def test_create_step_with_long_name_should_raise_strintoolongexeption(self):
+    def test_create_step_with_long_name_should_raise_stringlengthoutofrangeexception(self):
         user = create_user("user1@mail.fr")
         trip = create_trip(get_trip_object(name="trip", creator=user))
         start_datetime = "2020-04-10 21:00:00"
         name = 's' * 30
 
-        with self.assertRaises(StringTooLongException):
+        with self.assertRaises(StringLengthOutOfRangeException):
+            create_step(get_step_object(name=name, trip_id=trip.id, start_datetime=start_datetime))
+
+    def test_create_step_with_no_name_should_raise_stringlengthoutofrangeexception(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object(name="trip", creator_id=user.id))
+        start_datetime = "2020-04-10 21:00:00"
+        name = ''
+
+        with self.assertRaises(StringLengthOutOfRangeException):
             create_step(get_step_object(name=name, trip_id=trip.id, start_datetime=start_datetime))
 
     def test_invite_to_trip_should_succeed(self):

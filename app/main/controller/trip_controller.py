@@ -7,8 +7,8 @@ from ..service.auth_helper import Auth
 from ..util.decorator import token_required, admin_token_required, user_token_required
 from ..util.dto import TripDto
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, user_participates_in_trip
+from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
-from ..util.exception.GlobalException import StringTooLongException
 from ..util.exception.UserException import UserEmailNotFoundException
 
 api = TripDto.api
@@ -39,6 +39,8 @@ class TripList(Resource):
             return create_trip(trip=new_trip), 201
         except TripAlreadyExistsException as e:
             api.abort(409, e.value)
+        except StringLengthOutOfRangeException as e:
+            api.abort(400, e.value)
 
 
 @api.route('/<trip_id>/step')
@@ -63,7 +65,7 @@ class TripStep(Resource):
             return create_step(step=new_step), 201
         except TripNotFoundException as e:
             api.abort(404, e.value)
-        except StringTooLongException as e:
+        except StringLengthOutOfRangeException as e:
             api.abort(400, e.value)
 
 

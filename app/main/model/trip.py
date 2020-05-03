@@ -5,6 +5,9 @@ from ..model.users_trips import users_trips
 class Trip(db.Model):
     __tablename__ = "trip"
 
+    name_min_length = 2
+    name_max_length = 20
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(20), unique=False)
     picture_path = db.Column(db.String(255), unique=False, nullable=True)

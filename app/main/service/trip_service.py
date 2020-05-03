@@ -8,8 +8,10 @@ from .user_service import get_user_by_email, get_user
 
 from datetime import date
 
-
 def create_trip(trip):
+    if not Trip.name_min_length <= len(trip.name) <= Trip.name_max_length:
+        raise StringLengthOutOfRangeException('Name', Trip.name_min_length, Trip.name_max_length)
+
     existing_trip = Trip.query.filter_by(creator_id=trip.creator_id).filter_by(name=trip.name).first()
     if not existing_trip:
         save_changes(trip)
@@ -22,8 +24,8 @@ def create_step(step):
     if not trip_exists(step.trip_id):
         raise TripNotFoundException(step.trip_id)
 
-    if Step.name_length < len(step.name):
-        raise StringTooLongException('Name', Step.name_length)
+    if not Step.name_min_length <= len(step.name) <= Step.name_max_length:
+        raise StringLengthOutOfRangeException('Name', Step.name_min_length, Step.name_max_length)
 
     save_changes(step)
     return step

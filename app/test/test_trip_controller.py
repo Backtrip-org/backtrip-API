@@ -48,6 +48,17 @@ class TestTripController(BaseTestCase):
             self.client.post('/trip/', headers=headers, data=payload, content_type='application/json')
         self.assertEqual(create_second_trip_response.status_code, 409)
 
+    def test_create_trip_with_too_long_name_should_raise_bad_request(self):
+        register_user(self)
+        login_response = login_user(self)
+        headers = dict(Authorization=json.loads(login_response.data)['Authorization'])
+        payload = json.dumps(dict(name='this trip name is too long', picture_path='picture/path'))
+        create_trip_response = \
+            self.client.post('/trip/', headers=headers, data=payload, content_type='application/json')
+        create_trip_response_data = json.loads(create_trip_response.data)
+        self.assertEqual(create_trip_response.status_code, 400)
+        self.assertEqual(create_trip_response_data.get('message'), 'Name must be between 2 and 20 characters.')
+
     def test_create_step_should_return_created(self):
         register_user(self)
         login_response = login_user(self)
