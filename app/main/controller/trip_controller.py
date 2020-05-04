@@ -2,14 +2,16 @@ from flask import request
 from flask_restplus import Resource
 
 from app.main.model.step import Step
+from util.exception.StepException import StepNotFoundException
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..util.decorator import token_required, admin_token_required, user_token_required
 from ..util.dto import TripDto
-from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, user_participates_in_trip
+from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
+    user_participates_in_trip, add_participant_to_step
 from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
-from ..util.exception.UserException import UserEmailNotFoundException
+from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip
 
 api = TripDto.api
 _trip = TripDto.trip
@@ -124,3 +126,24 @@ class TripTimeline(Resource):
             return get_timeline(trip_id), 200
         except TripNotFoundException as e:
             api.abort(404, e.value)
+
+
+@api.route('/<trip_id>/step/<step_id>/participant')
+@api.param('trip_id', 'Identifier of the trip')
+@api.param('step_id', 'Identifier of the step')
+class StepParticipant(Resource):
+    @api.doc('Add participant to step')
+    @api.response(204, 'Participant successfully added.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(401, 'User cannot access this trip.')
+    @api.response(404, 'Step not found.')
+    @token_required
+    def post(self, trip_id, step_id):
+        try:
+            user_id = request.json.get('id')
+            add_participant_to_step(user_id, step_id)
+            return '', 204
+        except StepNotFoundException as e:
+            api.abort(404, e.value)
+        except UserDoesNotParticipatesToTrip as e:
+            api.abort(401, e.value)
