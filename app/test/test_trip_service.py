@@ -238,6 +238,18 @@ class TestTripService(BaseTestCase):
         with self.assertRaises(TripNotFoundException):
             get_timeline(trip.id + 1)
 
+    def test_get_timeline_should_return_participant_of_step(self):
+        user1 = create_user("user1@mail.fr")
+        user2 = create_user("user2@mail.fr")
+        trip = create_trip(get_trip_object(name="trip", creator=user1))
+        invite_to_trip(trip_id=trip.id, user_to_invite_email=user2.email)
+        step = create_step(get_step_object(name="step", trip_id=trip.id, start_datetime="2020-05-04 22:22:00"))
+        add_participant_to_step(user_id=user1.id, step_id=step.id)
+        add_participant_to_step(user_id=user2.id, step_id=step.id)
+        timeline = get_timeline(trip_id=trip.id)
+        participants = [user1, user2]
+        self.assertEqual(timeline[0].users_steps, participants)
+
     def test_get_finished_trips_should_raise_useridnotfoundexception(self):
         with self.assertRaises(UserIdNotFoundException):
             get_finished_trips_by_user(1)

@@ -35,5 +35,6 @@ class TripDto:
         'id': fields.Integer(required=False, description='Step id'),
         'trip_id': fields.Integer(required=False, description='Step name'),
         'name': fields.String(required=True, description='Step name'),
-        'start_datetime': fields.DateTime(required=True, description='Starting datetime of the step')
+        'start_datetime': fields.DateTime(required=True, description='Starting datetime of the step'),
+        'users_steps': fields.List(fields.Nested(UserDto.user))
     })
