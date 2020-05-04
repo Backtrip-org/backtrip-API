@@ -1,10 +1,13 @@
+from flask import jsonify
 from flask_restplus import Resource
+
 from app.init_app import socketIo, send, join_room
 from ..model.chat_message import ChatMessage
 from ..service.chat_message_service import get_messages, save_message
 from ..util.decorator import token_required
 from ..util.dto import ChatMessageDto
 from ..util.exception.TripException import TripNotFoundException
+import json
 
 api = ChatMessageDto.api
 _chat_message = ChatMessageDto.chat_message
@@ -37,10 +40,15 @@ def connect_to_the_room(trip_id):
 
 @socketIo.on('message')
 def chat_message(message, trip_id, user_id):
-    send(message, room=trip_id)
     new_message = ChatMessage(
         message=message,
         trip_id=trip_id,
         user_id=user_id,
     )
-    save_message(new_message)
+    saved_message = save_message(new_message)
+    send({
+        'id': saved_message.id,
+        'message': saved_message.message,
+        'trip_id': saved_message.trip_id,
+        'user_id': saved_message.user_id
+    }, room=trip_id)
