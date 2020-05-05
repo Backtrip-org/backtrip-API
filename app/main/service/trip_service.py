@@ -3,10 +3,9 @@ from app.main.model.step import Step
 from app.main.model.trip import Trip
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, UserIdNotFoundException
-from util.exception.StepException import StepNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
 from .user_service import get_user_by_email, get_user
-
+from ..util.exception.StepException import StepNotFoundException
 from datetime import date
 
 

@@ -2,7 +2,7 @@ from flask import request
 from flask_restplus import Resource
 
 from app.main.model.step import Step
-from util.exception.StepException import StepNotFoundException
+from ..util.exception.StepException import StepNotFoundException
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..util.decorator import token_required, admin_token_required, user_token_required

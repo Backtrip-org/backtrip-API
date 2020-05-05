@@ -6,12 +6,12 @@ from app.main.model.trip import Trip
 from app.main.model.step import Step
 from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user, add_participant_to_step
+from app.main.util.exception.StepException import StepNotFoundException
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
 from app.main.util.exception.UserException import UserEmailNotFoundException, UserIdNotFoundException, UserDoesNotParticipatesToTrip
 from app.test.base import BaseTestCase
 from app.main import db
-from util.exception.StepException import StepNotFoundException
 
 
 def create_user(email):
