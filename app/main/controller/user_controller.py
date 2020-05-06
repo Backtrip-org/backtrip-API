@@ -3,15 +3,13 @@ import datetime
 from flask import request
 from flask_restplus import Resource
 
-from ..util.decorator import token_required, admin_token_required, user_token_required
-from ..util.dto import UserDto
-from ..util.dto import TripDto
-from ..service.user_service import create_user, get_all_users, get_user
-from ..service.trip_service import get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user, \
-    get_user_steps_participation
 from ..model.user import User as UserModel
-from ..util.exception.TripException import TripNotFoundException
-from ..util.exception.UserException import UserAlreadyExistsException, UserIdNotFoundException
+from ..service.trip_service import get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user
+from ..service.user_service import create_user, get_all_users, get_user
+from ..util.decorator import admin_token_required, user_token_required
+from ..util.dto import TripDto
+from ..util.dto import UserDto
+from ..util.exception.UserException import UserAlreadyExistsException
 
 api = UserDto.api
 _user = UserDto.user
@@ -119,26 +117,3 @@ class UserTripsComing(Resource):
     @user_token_required
     def get(self, user_id):
         return get_coming_trips_by_user(user_id)
-
-
-@api.route('/<user_id>/trips/<trip_id>/userStepsParticipation')
-@api.param('user_id', 'The User identifier')
-@api.param('trip_id', 'The Trip identifier')
-class UserStepsParticipation(Resource):
-    @api.doc('Get user steps participation')
-    @api.marshal_with(_step)
-    @api.response(200, 'Steps.')
-    @api.response(401, 'Unknown access token.')
-    @api.response(401, 'You cannot access this steps.')
-    @api.response(404, 'Unknown trip.')
-    @api.response(404, 'Unknown user.')
-    @token_required
-    def get(self, user_id, trip_id):
-        user = get_user(user_id)
-        if not user:
-            api.abort(404, 'User not found.')
-        else:
-            try:
-                return get_user_steps_participation(user, trip_id)
-            except TripNotFoundException as e:
-                api.abort(404, e.value)
