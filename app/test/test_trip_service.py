@@ -104,6 +104,8 @@ def get_coming_trips(user, current_date=datetime.date.today()):
                                         current_date.day + 1,
                                         10, 0, 0)
                                     ))
+
+    coming_trips.append(create_trip(get_trip_object("no steps", user)))
     return coming_trips
 
 
