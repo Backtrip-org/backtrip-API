@@ -114,11 +114,14 @@ def get_ongoing_trips_by_user(user_id, current_date=date.today()):
 
 
 def is_coming_trip(trip, current_date):
-    first_step = get_first_step_of_trip(trip)
-    if not first_step:
+    if trip.closed:
         return False
 
-    if not trip.closed and current_date < first_step.start_datetime.date():
+    first_step = get_first_step_of_trip(trip)
+    if not first_step:
+        return True
+
+    if current_date < first_step.start_datetime.date():
         return True
 
     return False
