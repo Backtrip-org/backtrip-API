@@ -4,6 +4,7 @@ import jwt
 from app.main.model.blacklist import BlacklistToken
 from ..config import key
 from ..model.users_trips import users_trips
+from .users_steps import users_steps
 
 
 class User(db.Model):
@@ -19,6 +20,7 @@ class User(db.Model):
     picture_path = db.Column(db.String(255), unique=False, default=False)
 
     users_trips = db.relationship('Trip', secondary=users_trips)
+    users_steps = db.relationship('Step', secondary=users_steps)
 
     @property
     def password(self):

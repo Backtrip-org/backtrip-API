@@ -2,10 +2,10 @@ from app.main import db
 from app.main.model.step import Step
 from app.main.model.trip import Trip
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
+from app.main.util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, UserIdNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
-from app.main.util.exception.UserException import UserEmailNotFoundException, UserIdNotFoundException
 from .user_service import get_user_by_email, get_user
-
+from ..util.exception.StepException import StepNotFoundException
 from datetime import date
 
 
@@ -114,11 +114,14 @@ def get_ongoing_trips_by_user(user_id, current_date=date.today()):
 
 
 def is_coming_trip(trip, current_date):
-    first_step = get_first_step_of_trip(trip)
-    if not first_step:
+    if trip.closed:
         return False
 
-    if not trip.closed and current_date < first_step.start_datetime.date():
+    first_step = get_first_step_of_trip(trip)
+    if not first_step:
+        return True
+
+    if current_date < first_step.start_datetime.date():
         return True
 
     return False
@@ -143,3 +146,18 @@ def get_user_steps_participation(user, trip_id):
         raise TripNotFoundException(trip_id)
 
     return list(filter(lambda step: step.trip_id == int(trip_id), user.users_steps))
+
+
+def add_participant_to_step(user_id, step_id):
+    step = get_step(step_id)
+    if not step:
+        raise StepNotFoundException(step_id)
+
+    if not user_participates_in_trip(user_id, step.trip_id):
+        raise UserDoesNotParticipatesToTrip(user_id, step.trip_id)
+
+    user = get_user(user_id)
+    step.users_steps.append(user)
+    save_changes(step)
+    return step
+

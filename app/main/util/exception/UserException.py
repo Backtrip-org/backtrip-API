@@ -20,3 +20,11 @@ class UserIdNotFoundException(Exception):
 
     def __str__(self):
         return repr(self.value)
+
+
+class UserDoesNotParticipatesToTrip(Exception):
+    def __init__(self, user_id, trip_id):
+        self.value = "User with id '{}' cannot access to trip id '{}'.".format(user_id, trip_id)
+
+    def __str__(self):
+        return repr(self.value)
