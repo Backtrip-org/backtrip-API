@@ -1,15 +1,10 @@
-import os
-from flask import request, jsonify
+from flask import request
 from flask_restplus import Namespace, Resource
-import uuid
-
-from werkzeug.utils import secure_filename
-
 from util.decorator import token_required
+from util.exception.GlobalException import FileNotFoundException
+from ..service.file_service import upload, download
 
 api = Namespace('file', description='files related operations')
-
-DIRECTORY_PATH = 'files/'
 
 @api.route('/upload')
 class Upload(Resource):
@@ -18,14 +13,18 @@ class Upload(Resource):
     @api.response(400, 'File to upload is missing')
     @token_required
     def post(self):
-        if 'file' not in request.files:
-            api.abort(400, "File to upload is missing")
+        try:
+            filename = upload(request.files)
+            return {'filename': filename}, 201
+        except FileNotFoundException as e:
+            api.abort(400, e.value)
 
-        if not os.path.exists(DIRECTORY_PATH):
-            os.mkdir(DIRECTORY_PATH)
 
-        file = request.files.get('file')
-        filename = secure_filename(str(uuid.uuid4()) + '.' + file.filename.split('.')[-1])
-        file.save(os.path.join(DIRECTORY_PATH, filename))
-
-        return {'filename': filename}, 201
+@api.route('/download/<filename>')
+@api.param('filename', 'Name of the file to upload')
+class Download(Resource):
+    @api.doc('Download a file')
+    @api.response(404, 'File not found')
+    @token_required
+    def get(self, filename):
+        return download(filename)
