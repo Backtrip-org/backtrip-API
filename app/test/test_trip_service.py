@@ -5,11 +5,13 @@ from app.main.model.user import User
 from app.main.model.trip import Trip
 from app.main.model.step import Step
 from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
-    get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user, add_participant_to_step
+    get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user, add_participant_to_step, \
+    get_user_steps_participation
 from app.main.util.exception.StepException import StepNotFoundException
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
-from app.main.util.exception.UserException import UserEmailNotFoundException, UserIdNotFoundException, UserDoesNotParticipatesToTrip
+from app.main.util.exception.UserException import UserEmailNotFoundException, UserIdNotFoundException, \
+    UserDoesNotParticipatesToTrip
 from app.test.base import BaseTestCase
 from app.main import db
 
@@ -302,6 +304,22 @@ class TestTripService(BaseTestCase):
         step = create_step(get_step_object("step", trip.id, "2020-05-03 10:00:00"))
         with self.assertRaises(UserDoesNotParticipatesToTrip):
             add_participant_to_step(usurper.id, step.id)
+
+    def test_get_user_personal_timeline(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object("trip", user))
+        step = create_step(get_step_object("step", trip.id, "2020-05-03 10:00:00"))
+        step2 = create_step(get_step_object("step2", trip.id, "2020-05-03 10:00:00"))
+        step = add_participant_to_step(user.id, step.id)
+        step2 = add_participant_to_step(user.id, step2.id)
+        expected_result = [step, step2]
+
+        self.assertListEqual(get_user_steps_participation(user, trip.id), expected_result)
+
+    def test_get_user_should_return_tripnotfoundexception(self):
+        user = create_user("user1@mail.fr")
+        with self.assertRaises(TripNotFoundException):
+            get_user_steps_participation(user, 5)
 
 
 if __name__ == '__main__':
