@@ -141,6 +141,13 @@ def get_coming_trips_by_user(user_id, current_date=date.today()):
     return coming_trips
 
 
+def get_user_steps_participation(user, trip_id):
+    if not trip_exists(trip_id):
+        raise TripNotFoundException(trip_id)
+
+    return list(filter(lambda step: step.trip_id == int(trip_id), user.users_steps))
+
+
 def add_participant_to_step(user_id, step_id):
     step = get_step(step_id)
     if not step:
@@ -153,3 +160,4 @@ def add_participant_to_step(user_id, step_id):
     step.users_steps.append(user)
     save_changes(step)
     return step
+

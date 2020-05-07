@@ -5,10 +5,11 @@ from app.main.model.step import Step
 from ..util.exception.StepException import StepNotFoundException
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
+from ..service.user_service import get_user
 from ..util.decorator import token_required, admin_token_required, user_token_required
 from ..util.dto import TripDto
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
-    user_participates_in_trip, add_participant_to_step
+    user_participates_in_trip, get_user_steps_participation, add_participant_to_step
 from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip
@@ -126,6 +127,29 @@ class TripTimeline(Resource):
             return get_timeline(trip_id), 200
         except TripNotFoundException as e:
             api.abort(404, e.value)
+
+
+@api.route('/<trip_id>/timeline/personal')
+@api.param('trip_id', 'The Trip identifier')
+class UserStepsParticipation(Resource):
+    @api.doc('Get user steps participation')
+    @api.marshal_with(_step)
+    @api.response(200, 'Steps.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(401, 'You cannot access this steps.')
+    @api.response(404, 'Unknown trip.')
+    @api.response(404, 'Unknown user.')
+    @token_required
+    def get(self, trip_id):
+        user_data, status = Auth.get_logged_in_user(request)
+        user = user_data.get('data')
+        if not user:
+            api.abort(404, 'User not found.')
+        else:
+            try:
+                return get_user_steps_participation(user, trip_id)
+            except TripNotFoundException as e:
+                api.abort(404, e.value)
 
 
 @api.route('/<trip_id>/step/<step_id>/participant')

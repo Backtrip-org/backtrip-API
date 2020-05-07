@@ -3,17 +3,18 @@ import datetime
 from flask import request
 from flask_restplus import Resource
 
-from ..util.decorator import token_required, admin_token_required, user_token_required
-from ..util.dto import UserDto
-from ..util.dto import TripDto
-from ..service.user_service import create_user, get_all_users, get_user
-from ..service.trip_service import get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user
 from ..model.user import User as UserModel
-from ..util.exception.UserException import UserAlreadyExistsException, UserIdNotFoundException
+from ..service.trip_service import get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user
+from ..service.user_service import create_user, get_all_users, get_user
+from ..util.decorator import admin_token_required, user_token_required
+from ..util.dto import TripDto
+from ..util.dto import UserDto
+from ..util.exception.UserException import UserAlreadyExistsException
 
 api = UserDto.api
 _user = UserDto.user
 _trip = TripDto.trip
+_step = TripDto.step
 
 
 @api.route('/')
