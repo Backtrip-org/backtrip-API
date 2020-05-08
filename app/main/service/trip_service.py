@@ -138,7 +138,23 @@ def get_coming_trips_by_user(user_id, current_date=date.today()):
         raise UserIdNotFoundException(user_id)
 
     coming_trips = get_coming_trips(user.users_trips, current_date)
+
+    for trip in coming_trips:
+        trip.countdown = get_countdown(trip, current_date)
+
     return coming_trips
+
+
+def get_countdown(trip, current_date):
+    first_step = get_first_step_of_trip(trip)
+
+    if not first_step or trip.closed:
+        return 0
+
+    if current_date < first_step.start_datetime.date():
+        return (first_step.start_datetime.date() - current_date).days
+
+    return 0
 
 
 def get_user_steps_participation(user, trip_id):

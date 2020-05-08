@@ -14,6 +14,7 @@ from ..util.exception.UserException import UserAlreadyExistsException
 api = UserDto.api
 _user = UserDto.user
 _trip = TripDto.trip
+_coming_trip = TripDto.coming_trip
 _step = TripDto.step
 
 
@@ -110,7 +111,7 @@ class UserTripsOngoing(Resource):
 @api.param('user_id', 'The User identifier')
 class UserTripsComing(Resource):
     @api.doc('List of coming trips for the user')
-    @api.marshal_with(_trip)
+    @api.marshal_with(_coming_trip)
     @api.response(200, 'User coming trips.')
     @api.response(401, 'Unknown access token.')
     @api.response(401, 'Access token does not correspond to requested user')

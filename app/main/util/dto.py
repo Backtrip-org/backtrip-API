@@ -31,6 +31,15 @@ class TripDto:
         'users_trips': fields.List(fields.Nested(UserDto.user))
     })
 
+    coming_trip = api.model('coming trip', {
+        'id': fields.Integer(required=True, description='trip id'),
+        'name': fields.String(required=True, description='trip name'),
+        'picture_path': fields.String(required=False, description='trip picture path'),
+        'creator_id': fields.Integer(required=True, description='creator id'),
+        'countdown': fields.Integer(required=True, description='countdown'),
+        'users_trips': fields.List(fields.Nested(UserDto.user))
+    })
+
     step = api.model('step', {
         'id': fields.Integer(required=False, description='Step id'),
         'trip_id': fields.Integer(required=False, description='Trip id'),
