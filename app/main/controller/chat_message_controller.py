@@ -23,12 +23,7 @@ class ChatMessageList(Resource):
     @token_required
     def get(self, trip_id):
         try:
-            messages = get_messages(trip_id)
-            if not messages:
-                api.abort(404, 'Messages not found')
-            else:
-                return messages
-            return messages, 200
+            return get_messages(trip_id), 200
         except TripNotFoundException as e:
             api.abort(404, e.value)
 
