@@ -283,6 +283,20 @@ class TestTripService(BaseTestCase):
         with self.assertRaises(UserIdNotFoundException):
             get_coming_trips_by_user(1)
 
+    def test_get_coming_trip_should_return_countdown_6(self):
+        user = create_user("user1@mail.fr")
+        today = datetime.date.today()
+        get_coming_trips(user, today + datetime.timedelta(days=5))
+        service_coming_trips = get_coming_trips_by_user(user.id, today)
+        self.assertEqual(6, service_coming_trips[0].countdown)
+
+    def test_get_coming_trip_with_no_step_should_return_countdown_0(self):
+        user = create_user("user1@mail.fr")
+        today = datetime.date.today()
+        get_coming_trips(user, today)
+        service_coming_trips = get_coming_trips_by_user(user.id, today)
+        self.assertEqual(0, service_coming_trips[2].countdown)
+
     def test_add_participant_to_step_should_add_user(self):
         user = create_user("user1@mail.fr")
         trip = create_trip(get_trip_object("trip", user))
