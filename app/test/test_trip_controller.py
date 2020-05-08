@@ -315,6 +315,49 @@ class TestTripController(BaseTestCase):
                                                     content_type='application/json')
         self.assertEqual(add_participant_response.status_code, 404)
 
+    def test_get_personal_timeline_should_return_ok(self):
+        user_id = json.loads(register_user(self).data)['id']
+        login_response = login_user(self)
+        headers = dict(Authorization=json.loads(login_response.data)['Authorization'])
+        trip_payload = json.dumps(dict(name='trip', picture_path='picture/path'))
+        create_trip_response = \
+            self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
+        trip_id = json.loads(create_trip_response.data)['id']
+        step_payload = json.dumps(dict(name='step', start_datetime='2020-05-03 21:20:00'))
+        create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
+                                                data=step_payload, content_type='application/json')
+        step_id = json.loads(create_step_response.data)['id'] + 1
+        add_participant_payload = json.dumps(dict(id=user_id))
+        add_participant_response = self.client.post('trip/{}/step/{}/participant'.format(str(trip_id), str(step_id)),
+                                                    headers=headers, data=add_participant_payload,
+                                                    content_type='application/json')
+        personal_timeline_response = self.client.get('trip/{}/timeline/personal'.format(str(trip_id)),
+                                                     headers=headers,
+                                                     content_type='application/json')
+        self.assertEqual(personal_timeline_response.status_code, 200)
+
+    def test_get_personal_timeline_should_return_404(self):
+        user_id = json.loads(register_user(self).data)['id']
+        login_response = login_user(self)
+        headers = dict(Authorization=json.loads(login_response.data)['Authorization'])
+        trip_payload = json.dumps(dict(name='trip', picture_path='picture/path'))
+        create_trip_response = \
+            self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
+        trip_id = json.loads(create_trip_response.data)['id']
+        step_payload = json.dumps(dict(name='step', start_datetime='2020-05-03 21:20:00'))
+        create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
+                                                data=step_payload, content_type='application/json')
+        step_id = json.loads(create_step_response.data)['id'] + 1
+        add_participant_payload = json.dumps(dict(id=user_id))
+        add_participant_response = self.client.post(
+            'trip/{}/step/{}/participant'.format(str(trip_id), str(step_id)),
+            headers=headers, data=add_participant_payload,
+            content_type='application/json')
+        personal_timeline_response = self.client.get('trip/{}/timeline/personal'.format(str(3)),
+                                                     headers=headers,
+                                                     content_type='application/json')
+        self.assertEqual(personal_timeline_response.status_code, 404)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -20,7 +20,7 @@ class MyTestCase(BaseTestCase):
     def test_get_messages_from_trip(self):
         user1 = create_user("user1@mail.fr")
         user2 = create_user("user2@mail.fr")
-        trip = create_trip(get_trip_object(name="first_trip", creator_id=user1.id))
+        trip = create_trip(get_trip_object(name="first_trip", creator=user1))
         message1 = save_message(get_chat_message_object("first", trip.id, user1.id))
         message2 = save_message(get_chat_message_object("second", trip.id, user1.id))
         message3 = save_message(get_chat_message_object("first", trip.id, user2.id))
