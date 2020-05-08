@@ -4,7 +4,7 @@ import uuid
 from flask import send_from_directory
 from werkzeug.utils import secure_filename
 
-from util.exception.GlobalException import FileNotFoundException
+from ..util.exception.GlobalException import FileNotFoundException
 
 DIRECTORY_PATH = os.getenv('FILES_DIRECTORY')
 

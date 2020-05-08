@@ -1,7 +1,7 @@
 from flask import request
 from flask_restplus import Namespace, Resource
-from util.decorator import token_required
-from util.exception.GlobalException import FileNotFoundException
+from ..util.decorator import token_required
+from ..util.exception.GlobalException import FileNotFoundException
 from ..service.file_service import upload, download
 
 api = Namespace('file', description='files related operations')
