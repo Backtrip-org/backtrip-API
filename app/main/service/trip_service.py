@@ -177,3 +177,5 @@ def add_participant_to_step(user_id, step_id):
     save_changes(step)
     return step
 
+def get_participants_of_step(step_id):
+    return Step.query.filter_by(id=step_id).first().users_steps

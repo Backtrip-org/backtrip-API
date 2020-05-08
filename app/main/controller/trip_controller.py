@@ -5,11 +5,10 @@ from app.main.model.step import Step
 from ..util.exception.StepException import StepNotFoundException
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
-from ..service.user_service import get_user
-from ..util.decorator import token_required, admin_token_required, user_token_required
-from ..util.dto import TripDto
+from ..util.decorator import token_required
+from ..util.dto import TripDto, UserDto
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
-    user_participates_in_trip, get_user_steps_participation, add_participant_to_step
+    user_participates_in_trip, get_user_steps_participation, add_participant_to_step, get_participants_of_step
 from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip
@@ -17,6 +16,7 @@ from ..util.exception.UserException import UserEmailNotFoundException, UserDoesN
 api = TripDto.api
 _trip = TripDto.trip
 _step = TripDto.step
+_user = UserDto.user
 
 
 @api.route('/')
@@ -157,17 +157,20 @@ class UserStepsParticipation(Resource):
 @api.param('step_id', 'Identifier of the step')
 class StepParticipant(Resource):
     @api.doc('Add participant to step')
-    @api.response(204, 'Participant successfully added.')
+    @api.response(200, 'Participant successfully added.')
     @api.response(401, 'Unknown access token.')
     @api.response(401, 'User cannot access this trip.')
     @api.response(404, 'Step not found.')
+    @api.marshal_with(_user)
     @token_required
     def post(self, trip_id, step_id):
         try:
             user_id = request.json.get('id')
             add_participant_to_step(user_id, step_id)
-            return '', 204
+            return get_participants_of_step(step_id)
+            # return '', 204
         except StepNotFoundException as e:
             api.abort(404, e.value)
         except UserDoesNotParticipatesToTrip as e:
+            print('Don\'t participate')
             api.abort(401, e.value)
