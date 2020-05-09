@@ -1,3 +1,5 @@
+import sqlalchemy
+
 from .. import db, flask_bcrypt
 import datetime
 import jwt
@@ -17,7 +19,7 @@ class User(db.Model):
     firstname = db.Column(db.String(50))
     lastname = db.Column(db.String(50))
     password_hash = db.Column(db.String(100))
-    picture_path = db.Column(db.String(255), unique=False, default=False)
+    picture_path = db.Column(db.String(255), unique=False)
 
     users_trips = db.relationship('Trip', secondary=users_trips)
     users_steps = db.relationship('Step', secondary=users_steps)

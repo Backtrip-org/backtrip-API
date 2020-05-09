@@ -1,5 +1,6 @@
 import datetime
 
+import sqlalchemy
 from flask import request
 from flask_restplus import Resource
 
@@ -34,11 +35,13 @@ class UserList(Resource):
     @api.response(409, 'User already exist.')
     def post(self):
         data = request.json
+        picture_path = data.get('picture_path') if data.get('picture_path') != '' else sqlalchemy.null()
         new_user = UserModel(
             email=data.get('email'),
             firstname=data.get('firstname'),
             lastname=data.get('lastname'),
             password=data.get('password'),
+            picture_path=picture_path,
             registered_on=datetime.datetime.utcnow()
         )
         try:
