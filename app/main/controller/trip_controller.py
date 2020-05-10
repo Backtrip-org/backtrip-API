@@ -1,3 +1,4 @@
+import sqlalchemy
 from flask import request
 from flask_restplus import Resource
 
@@ -32,9 +33,10 @@ class TripList(Resource):
         try:
             trip_dto = request.json
             response, status = Auth.get_logged_in_user(request)
+            picture_path = trip_dto.get('picture_path') if trip_dto.get('picture_path') != '' else sqlalchemy.null()
             new_trip = Trip(
                 name=trip_dto.get('name'),
-                picture_path=trip_dto.get('picture_path'),
+                picture_path=picture_path,
                 creator_id=response.get('data').id,
                 users_trips=[response.get('data')],
                 closed=False
