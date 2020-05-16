@@ -67,7 +67,7 @@ class TestTripController(BaseTestCase):
         create_trip_response = \
             self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
         trip_id = json.loads(create_trip_response.data)['id']
-        step_payload = json.dumps(dict(name='step', start_datetime='2020-04-10 21:00:00'))
+        step_payload = json.dumps(dict(name='step', start_datetime='2020-04-10 21:00:00', type='Base'))
         create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
                                                 data=step_payload, content_type='application/json')
         self.assertEqual(create_step_response.status_code, 201)
@@ -93,7 +93,7 @@ class TestTripController(BaseTestCase):
         create_trip_response = \
             self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
         trip_id = json.loads(create_trip_response.data)['id']
-        step_payload = json.dumps(dict(name='s' * 30, start_datetime='2020-04-10 21:00:00'))
+        step_payload = json.dumps(dict(name='s' * 30, start_datetime='2020-04-10 21:00:00', type='Base'))
         create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id + 1)), headers=headers,
                                                 data=step_payload, content_type='application/json')
         self.assertEqual(create_step_response.status_code, 404)
@@ -106,7 +106,7 @@ class TestTripController(BaseTestCase):
         create_trip_response = \
             self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
         trip_id = json.loads(create_trip_response.data)['id']
-        step_payload = json.dumps(dict(name='s' * 30, start_datetime='2020-04-10 21:00:00'))
+        step_payload = json.dumps(dict(name='s' * 30, start_datetime='2020-04-10 21:00:00', type='Base'))
         headers['Authorization'] = ''
         create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
                                                 data=step_payload, content_type='application/json')
@@ -180,7 +180,7 @@ class TestTripController(BaseTestCase):
         create_trip_response = \
             self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
         trip_id = json.loads(create_trip_response.data)['id']
-        step_payload = json.dumps(dict(name='step', start_datetime='2020-04-10 21:00:00'))
+        step_payload = json.dumps(dict(name='step', start_datetime='2020-04-10 21:00:00', type='Base'))
         create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
                                                 data=step_payload, content_type='application/json')
         step_id = json.loads(create_step_response.data)['id']
@@ -196,7 +196,7 @@ class TestTripController(BaseTestCase):
         create_trip_response = \
             self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
         trip_id = json.loads(create_trip_response.data)['id']
-        step_payload = json.dumps(dict(name='step', start_datetime='2020-04-10 21:00:00'))
+        step_payload = json.dumps(dict(name='step', start_datetime='2020-04-10 21:00:00', type='Base'))
         create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
                                                 data=step_payload, content_type='application/json')
         step_id = json.loads(create_step_response.data)['id']
@@ -249,7 +249,7 @@ class TestTripController(BaseTestCase):
         create_trip_response = \
             self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
         trip_id = json.loads(create_trip_response.data)['id']
-        step_payload = json.dumps(dict(name='step', start_datetime='2020-05-03 21:20:00'))
+        step_payload = json.dumps(dict(name='step', start_datetime='2020-05-03 21:20:00', type='Base'))
         create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
                                                 data=step_payload, content_type='application/json')
         step_id = json.loads(create_step_response.data)['id']
@@ -267,7 +267,7 @@ class TestTripController(BaseTestCase):
         create_trip_response = \
             self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
         trip_id = json.loads(create_trip_response.data)['id']
-        step_payload = json.dumps(dict(name='step', start_datetime='2020-05-03 21:20:00'))
+        step_payload = json.dumps(dict(name='step', start_datetime='2020-05-03 21:20:00', type='Base'))
         create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
                                                 data=step_payload, content_type='application/json')
         step_id = json.loads(create_step_response.data)['id']
@@ -287,7 +287,7 @@ class TestTripController(BaseTestCase):
         create_trip_response = \
             self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
         trip_id = json.loads(create_trip_response.data)['id']
-        step_payload = json.dumps(dict(name='step', start_datetime='2020-05-03 21:20:00'))
+        step_payload = json.dumps(dict(name='step', start_datetime='2020-05-03 21:20:00', type='Base'))
         create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
                                                 data=step_payload, content_type='application/json')
         step_id = json.loads(create_step_response.data)['id']
@@ -305,7 +305,7 @@ class TestTripController(BaseTestCase):
         create_trip_response = \
             self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
         trip_id = json.loads(create_trip_response.data)['id']
-        step_payload = json.dumps(dict(name='step', start_datetime='2020-05-03 21:20:00'))
+        step_payload = json.dumps(dict(name='step', start_datetime='2020-05-03 21:20:00', type='Base'))
         create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
                                                 data=step_payload, content_type='application/json')
         step_id = json.loads(create_step_response.data)['id'] + 1
@@ -323,7 +323,7 @@ class TestTripController(BaseTestCase):
         create_trip_response = \
             self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
         trip_id = json.loads(create_trip_response.data)['id']
-        step_payload = json.dumps(dict(name='step', start_datetime='2020-05-03 21:20:00'))
+        step_payload = json.dumps(dict(name='step', start_datetime='2020-05-03 21:20:00', type='Base'))
         create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
                                                 data=step_payload, content_type='application/json')
         step_id = json.loads(create_step_response.data)['id'] + 1
@@ -344,7 +344,7 @@ class TestTripController(BaseTestCase):
         create_trip_response = \
             self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
         trip_id = json.loads(create_trip_response.data)['id']
-        step_payload = json.dumps(dict(name='step', start_datetime='2020-05-03 21:20:00'))
+        step_payload = json.dumps(dict(name='step', start_datetime='2020-05-03 21:20:00', type='Base'))
         create_step_response = self.client.post('/trip/{}/step'.format(str(trip_id)), headers=headers,
                                                 data=step_payload, content_type='application/json')
         step_id = json.loads(create_step_response.data)['id'] + 1
