@@ -1,5 +1,5 @@
 from app.main import db
-from app.main.model.step import Step
+from app.main.model.step.step import Step
 from app.main.model.trip import Trip
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, UserIdNotFoundException

@@ -3,7 +3,7 @@ import datetime
 
 from app.main.model.user import User
 from app.main.model.trip import Trip
-from app.main.model.step import Step
+from app.main.model.step.step import Step
 from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user, add_participant_to_step, \
     get_user_steps_participation

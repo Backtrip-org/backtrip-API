@@ -2,7 +2,7 @@ import sqlalchemy
 from flask import request
 from flask_restplus import Resource
 
-from app.main.model.step import Step
+from app.main.model.step.step import Step
 from ..util.exception.StepException import StepNotFoundException
 from ..model.trip import Trip
 from ..service.auth_helper import Auth

@@ -12,6 +12,10 @@ from app.main.model import user
 from app.main.model import blacklist
 from app.main.model import trip
 from app.main.model import chat_message
+from app.main.model.step import step_transport
+from app.main.model.step import step_food
+from app.main.model.step import step_leisure
+from app.main.model.step import step_lodging
 
 app.register_blueprint(blueprint)
 app.app_context().push()
