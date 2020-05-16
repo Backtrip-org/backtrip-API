@@ -6,13 +6,13 @@ from werkzeug.utils import secure_filename
 
 from app.main import db
 from app.main.model.file import File
-from ..util.exception.GlobalException import FileNotFoundException
+from util.exception.FileException import UploadFileNotFoundException, IdFileNotFoundException
 
 DIRECTORY_PATH = os.getenv('FILES_DIRECTORY')
 
 def upload(files):
     if 'file' not in files:
-        raise FileNotFoundException()
+        raise UploadFileNotFoundException()
 
     if not os.path.exists(DIRECTORY_PATH):
         os.mkdir(DIRECTORY_PATH)
@@ -36,8 +36,19 @@ def upload(files):
 
     return new_file
 
-def download(filename):
-    return send_from_directory(directory=DIRECTORY_PATH, filename=filename)
+def download(file_id):
+    file = File.query.filter_by(id=file_id).first()
+    if not file:
+        raise IdFileNotFoundException(file_id)
+
+    filename = file.id + '.' + file.extension
+    document = send_from_directory(directory=DIRECTORY_PATH, filename=filename)
+
+    document.headers.add('id', file.id)
+    document.headers.add('name', file.name)
+    document.headers.add('extension', file.extension)
+
+    return document
 
 
 def db_save(file):

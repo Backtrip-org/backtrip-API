@@ -1,9 +1,9 @@
-from flask import request
-from flask_restplus import Namespace, Resource
+from flask import request, jsonify, make_response
+from flask_restplus import Resource
 
 from util.dto import FileDto
 from ..util.decorator import token_required
-from ..util.exception.GlobalException import FileNotFoundException
+from ..util.exception.FileException import UploadFileNotFoundException
 from ..service.file_service import upload, download
 
 api = FileDto.api
@@ -19,15 +19,15 @@ class Upload(Resource):
     def post(self):
         try:
             return upload(request.files), 201
-        except FileNotFoundException as e:
+        except UploadFileNotFoundException as e:
             api.abort(400, e.value)
 
 
-@api.route('/download/<filename>')
-@api.param('filename', 'Name of the file to upload')
+@api.route('/download/<file_id>')
+@api.param('file_id', 'Id of the file to upload')
 class Download(Resource):
     @api.doc('Download a file')
     @api.response(404, 'File not found')
     @token_required
-    def get(self, filename):
-        return download(filename)
+    def get(self, file_id):
+        return download(file_id)
