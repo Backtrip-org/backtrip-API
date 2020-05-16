@@ -1,21 +1,24 @@
 from flask import request
 from flask_restplus import Namespace, Resource
+
+from util.dto import FileDto
 from ..util.decorator import token_required
 from ..util.exception.GlobalException import FileNotFoundException
 from ..service.file_service import upload, download
 
-api = Namespace('file', description='files related operations')
+api = FileDto.api
+_file = FileDto.file
 
 @api.route('/upload')
 class Upload(Resource):
     @api.doc('Upload a file')
     @api.response(201, 'Upload successful.')
     @api.response(400, 'File to upload is missing')
+    @api.marshal_with(_file)
     @token_required
     def post(self):
         try:
-            filename = upload(request.files)
-            return {'filename': filename}, 201
+            return upload(request.files), 201
         except FileNotFoundException as e:
             api.abort(400, e.value)
 

@@ -57,3 +57,13 @@ class ChatMessageDto:
         'trip_id': fields.Integer(required=False, description='Trip id'),
         'user_id': fields.Integer(required=False, description='User id')
     })
+
+
+class FileDto:
+    api = Namespace('File', description='File related operations')
+    file = api.model('file', {
+        'id': fields.String(required=False, description='File id as uuid'),
+        'name': fields.String(required=True, description='File name'),
+        'extension': fields.String(required=True, description='File extension'),
+        'created_date': fields.DateTime(required=False, description='File creation date'),
+    })
