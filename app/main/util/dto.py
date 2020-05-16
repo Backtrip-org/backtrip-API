@@ -44,8 +44,16 @@ class TripDto:
         'id': fields.Integer(required=False, description='Step id'),
         'trip_id': fields.Integer(required=False, description='Trip id'),
         'name': fields.String(required=True, description='Step name'),
-        'start_datetime': fields.DateTime(required=True, description='Starting datetime of the step'),
-        'users_steps': fields.List(fields.Nested(UserDto.user))
+        'start_datetime': fields.DateTime(required=True, description='Starting datetime'),
+        'end_datetime': fields.DateTime(required=False, description='End datetime'),
+        'start_address': fields.String(required=False, description='Starting address'),
+        'end_address': fields.String(required=False, description='End address'),
+        'phone_number': fields.String(required=False, description='Phone number'),
+        'reservation_number': fields.String(required=False, description='Reservation number'),
+        'transport_number': fields.String(required=False, description='Transport number'),
+        'type': fields.String(required=True, description='Step type'),
+        'notes': fields.String(required=False, description='Notes'),
+        'users_steps': fields.List(fields.Nested(UserDto.user), required=False)
     })
 
 

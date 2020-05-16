@@ -4,3 +4,11 @@ class StepNotFoundException(Exception):
 
     def __str__(self):
         return repr(self.value)
+
+
+class UnknownStepTypeException(Exception):
+    def __init__(self, step_type):
+        self.value = "Step with type {} does not exist.".format(step_type)
+
+    def __str__(self):
+        return repr(self.value)

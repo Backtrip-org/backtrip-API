@@ -3,6 +3,8 @@ from flask import request
 from flask_restplus import Resource
 
 from app.main.model.step.step import Step
+from ..model.step.step_factory import StepFactory
+from ..model.step.step_food import StepFood
 from ..util.exception.StepException import StepNotFoundException
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
@@ -61,11 +63,8 @@ class TripStep(Resource):
     @token_required
     def post(self, trip_id):
         step_dto = request.json
-        new_step = Step(
-            name=step_dto.get('name'),
-            trip_id=trip_id,
-            start_datetime=step_dto.get('start_datetime')
-        )
+        new_step = StepFactory(step_dto, trip_id).get()
+
         try:
             return create_step(step=new_step), 201
         except TripNotFoundException as e:
