@@ -1,4 +1,3 @@
-from flask import jsonify
 from flask_restplus import Resource
 
 from app.init_app import socketIo, send, join_room
@@ -7,7 +6,6 @@ from ..service.chat_message_service import get_messages, save_message
 from ..util.decorator import token_required
 from ..util.dto import ChatMessageDto
 from ..util.exception.TripException import TripNotFoundException
-import json
 
 api = ChatMessageDto.api
 _chat_message = ChatMessageDto.chat_message

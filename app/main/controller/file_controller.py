@@ -1,7 +1,7 @@
-from flask import request, jsonify, make_response
+from flask import request
 from flask_restplus import Resource
 
-from util.dto import FileDto
+from ..util.dto import FileDto
 from ..util.decorator import token_required
 from ..util.exception.FileException import UploadFileNotFoundException
 from ..service.file_service import upload, download

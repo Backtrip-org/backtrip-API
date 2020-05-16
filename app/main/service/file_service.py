@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 
 from app.main import db
 from app.main.model.file import File
-from util.exception.FileException import UploadFileNotFoundException, IdFileNotFoundException
+from ..util.exception.FileException import UploadFileNotFoundException, IdFileNotFoundException
 
 DIRECTORY_PATH = os.getenv('FILES_DIRECTORY')
 
