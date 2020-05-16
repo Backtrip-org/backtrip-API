@@ -5,7 +5,7 @@ from flask_restplus import Resource
 from app.main.model.step.step import Step
 from ..model.step.step_factory import StepFactory
 from ..model.step.step_food import StepFood
-from ..util.exception.StepException import StepNotFoundException
+from ..util.exception.StepException import StepNotFoundException, UnknownStepTypeException
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..util.decorator import token_required
@@ -57,19 +57,22 @@ class TripStep(Resource):
     @api.expect(_step, validate=True)
     @api.response(201, 'Step successfully created.')
     @api.response(400, 'Name is too long.')
+    @api.response(400, 'Step type is unknown.')
     @api.response(401, 'Unknown access token.')
     @api.response(404, 'Unknown trip.')
     @api.marshal_with(_step)
     @token_required
     def post(self, trip_id):
         step_dto = request.json
-        new_step = StepFactory(step_dto, trip_id).get()
 
         try:
+            new_step = StepFactory(step_dto, trip_id).get()
             return create_step(step=new_step), 201
         except TripNotFoundException as e:
             api.abort(404, e.value)
         except StringLengthOutOfRangeException as e:
+            api.abort(400, e.value)
+        except UnknownStepTypeException as e:
             api.abort(400, e.value)
 
 
