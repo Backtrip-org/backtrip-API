@@ -21,6 +21,16 @@ class AuthDto:
     })
 
 
+class FileDto:
+    api = Namespace('File', description='File related operations')
+    file = api.model('file', {
+        'id': fields.String(required=False, description='File id as uuid'),
+        'name': fields.String(required=True, description='File name'),
+        'extension': fields.String(required=True, description='File extension'),
+        'created_date': fields.DateTime(required=False, description='File creation date'),
+    })
+
+
 class TripDto:
     api = Namespace('trip', description='trip related operations')
     trip = api.model('trip', {
@@ -45,7 +55,8 @@ class TripDto:
         'trip_id': fields.Integer(required=False, description='Trip id'),
         'name': fields.String(required=True, description='Step name'),
         'start_datetime': fields.DateTime(required=True, description='Starting datetime of the step'),
-        'users_steps': fields.List(fields.Nested(UserDto.user))
+        'users_steps': fields.List(fields.Nested(UserDto.user)),
+        'files': fields.List(fields.Nested(FileDto.file))
     })
 
 

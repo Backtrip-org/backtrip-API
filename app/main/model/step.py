@@ -1,4 +1,5 @@
 from .. import db
+from .steps_files import steps_files
 from .users_steps import users_steps
 
 
@@ -14,3 +15,4 @@ class Step(db.Model):
     start_datetime = db.Column(db.DateTime)
 
     users_steps = db.relationship('User', secondary=users_steps)
+    files = db.relationship('File', secondary=steps_files)
