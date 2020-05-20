@@ -1,5 +1,8 @@
 from flask_restplus import Namespace, fields
 
+from app.main.util.dto_utils.nullable_datetime import NullableDateTime
+from app.main.util.dto_utils.nullable_string import NullableString
+
 
 class UserDto:
     api = Namespace('user', description='user related operations')
@@ -45,14 +48,14 @@ class TripDto:
         'trip_id': fields.Integer(required=False, description='Trip id'),
         'name': fields.String(required=True, description='Step name'),
         'start_datetime': fields.DateTime(required=True, description='Starting datetime'),
-        'end_datetime': fields.DateTime(required=False, description='End datetime'),
-        'start_address': fields.String(required=False, description='Starting address'),
-        'end_address': fields.String(required=False, description='End address'),
-        'phone_number': fields.String(required=False, description='Phone number'),
-        'reservation_number': fields.String(required=False, description='Reservation number'),
-        'transport_number': fields.String(required=False, description='Transport number'),
+        'end_datetime': NullableDateTime(required=False, description='End datetime'),
+        'start_address': NullableString(required=False, description='Starting address'),
+        'end_address': NullableString(required=False, description='End address'),
+        'phone_number': NullableString(required=False, description='Phone number'),
+        'reservation_number': NullableString(required=False, description='Reservation number'),
+        'transport_number': NullableString(required=False, description='Transport number'),
         'type': fields.String(required=True, description='Step type'),
-        'notes': fields.String(required=False, description='Notes'),
+        'notes': NullableString(required=False, description='Notes'),
         'users_steps': fields.List(fields.Nested(UserDto.user), required=False)
     })
 
