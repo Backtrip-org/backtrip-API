@@ -4,7 +4,7 @@ from flask_restplus import Resource
 
 from app.main.model.step import Step
 from ..service.file_service import upload
-from ..util.exception.FileException import FileNotFoundException
+from ..util.exception.FileException import FileNotFoundException, UploadFileNotFoundException
 from ..util.exception.StepException import StepNotFoundException
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
@@ -202,3 +202,5 @@ class StepParticipant(Resource):
             api.abort(404, e.value)
         except FileNotFoundException as e:
             api.abort(404, e.value)
+        except UploadFileNotFoundException as e:
+            api.abort(400, e.value)
