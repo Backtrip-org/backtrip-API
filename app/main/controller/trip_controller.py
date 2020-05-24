@@ -187,7 +187,7 @@ class StepParticipant(Resource):
 @api.param('step_id', 'Identifier of the step')
 class StepParticipant(Resource):
     @api.doc('Add document to step')
-    @api.response(200, 'Participant successfully added.')
+    @api.response(200, 'Document successfully added.')
     @api.response(401, 'Unknown access token.')
     @api.response(404, 'Step not found.')
     @api.response(404, 'File not found.')
