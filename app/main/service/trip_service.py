@@ -1,10 +1,13 @@
 from app.main import db
 from app.main.model.step import Step
 from app.main.model.trip import Trip
+from app.main.model.file import File
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
-from app.main.util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, UserIdNotFoundException
+from app.main.util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, \
+    UserIdNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
 from .user_service import get_user_by_email, get_user
+from ..util.exception.FileException import FileNotFoundException
 from ..util.exception.StepException import StepNotFoundException
 from datetime import date
 
@@ -60,6 +63,10 @@ def trip_exists(trip_id):
 
 def get_step(step_id):
     return Step.query.filter_by(id=step_id).first()
+
+
+def get_file(file_id):
+    return File.query.filter_by(id=file_id).first()
 
 
 def get_timeline(trip_id):
@@ -177,5 +184,19 @@ def add_participant_to_step(user_id, step_id):
     save_changes(step)
     return step
 
+
 def get_participants_of_step(step_id):
     return Step.query.filter_by(id=step_id).first().users_steps
+
+
+def add_file_to_step(file_id, step_id):
+    step = get_step(step_id)
+    if not step:
+        raise StepNotFoundException(step_id)
+
+    file = get_file(file_id)
+    if not file:
+        raise FileNotFoundException()
+
+    step.files.append(file)
+    save_changes(step)

@@ -3,13 +3,16 @@ from flask import request
 from flask_restplus import Resource
 
 from app.main.model.step import Step
+from ..service.file_service import upload
+from ..util.exception.FileException import FileNotFoundException, UploadFileNotFoundException
 from ..util.exception.StepException import StepNotFoundException
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..util.decorator import token_required
-from ..util.dto import TripDto, UserDto
+from ..util.dto import TripDto, UserDto, FileDto
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
-    user_participates_in_trip, get_user_steps_participation, add_participant_to_step, get_participants_of_step
+    user_participates_in_trip, get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
+    add_file_to_step
 from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip
@@ -18,6 +21,7 @@ api = TripDto.api
 _trip = TripDto.trip
 _step = TripDto.step
 _user = UserDto.user
+_file = FileDto.file
 
 
 @api.route('/')
@@ -176,3 +180,27 @@ class StepParticipant(Resource):
         except UserDoesNotParticipatesToTrip as e:
             print('Don\'t participate')
             api.abort(401, e.value)
+
+
+@api.route('/<trip_id>/step/<step_id>/document')
+@api.param('trip_id', 'Identifier of the trip')
+@api.param('step_id', 'Identifier of the step')
+class StepParticipant(Resource):
+    @api.doc('Add document to step')
+    @api.response(200, 'Document successfully added.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Step not found.')
+    @api.response(404, 'File not found.')
+    @api.marshal_with(_file)
+    @token_required
+    def post(self, trip_id, step_id):
+        try:
+            file = upload(request.files)
+            add_file_to_step(file.id, step_id)
+            return file
+        except StepNotFoundException as e:
+            api.abort(404, e.value)
+        except FileNotFoundException as e:
+            api.abort(404, e.value)
+        except UploadFileNotFoundException as e:
+            api.abort(400, e.value)
