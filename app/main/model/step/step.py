@@ -1,4 +1,5 @@
 from app.main import db
+from app.main.model.place.place import Place
 from app.main.model.step.step_type import StepType
 from app.main.model.steps_files import steps_files
 from app.main.model.users_steps import users_steps
@@ -15,11 +16,12 @@ class Step(db.Model):
     name = db.Column(db.String(name_max_length), nullable=False, unique=False)
     start_datetime = db.Column(db.DateTime, nullable=False)
     end_datetime = db.Column(db.DateTime)
-    start_address = db.Column(db.String(100))
+    start_address_id = db.Column(db.Integer, db.ForeignKey('place.id'))
     phone_number = db.Column(db.String(15))
     notes = db.Column(db.String(200))
     type = db.Column(db.String(15))
 
+    start_address = db.relationship('Place')
     users_steps = db.relationship('User', secondary=users_steps)
     files = db.relationship('File', secondary=steps_files)
 

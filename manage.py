@@ -7,6 +7,7 @@ from flask_script import Manager
 from app import blueprint
 from app.main import db
 
+
 app.register_blueprint(blueprint)
 app.app_context().push()
 app.config['ERROR_404_HELP'] = False

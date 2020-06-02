@@ -1,3 +1,4 @@
+from app.main.model.place.place import Place
 from app.main.model.step.step import Step
 from app.main.model.step.step_food import StepFood
 from app.main.model.step.step_leisure import StepLeisure
@@ -43,7 +44,7 @@ class StepFactory:
             trip_id=self.trip_id,
             start_datetime=self.step_dto.get('start_datetime'),
             end_datetime=self.step_dto.get('end_datetime'),
-            start_address=self.step_dto.get('start_address'),
+            start_address=Place.from_json(self.step_dto.get('start_address')),
             phone_number=self.step_dto.get('phone_number'),
             notes=self.step_dto.get('notes')
         )
@@ -54,7 +55,7 @@ class StepFactory:
             trip_id=self.trip_id,
             start_datetime=self.step_dto.get('start_datetime'),
             end_datetime=self.step_dto.get('end_datetime'),
-            start_address=self.step_dto.get('start_address'),
+            start_address=Place.from_json(self.step_dto.get('start_address')),
             phone_number=self.step_dto.get('phone_number'),
             notes=self.step_dto.get('notes')
         )
@@ -65,7 +66,7 @@ class StepFactory:
             trip_id=self.trip_id,
             start_datetime=self.step_dto.get('start_datetime'),
             end_datetime=self.step_dto.get('end_datetime'),
-            start_address=self.step_dto.get('start_address'),
+            start_address=Place.from_json(self.step_dto.get('start_address')),
             phone_number=self.step_dto.get('phone_number'),
             notes=self.step_dto.get('notes')
         )
@@ -76,7 +77,7 @@ class StepFactory:
             trip_id=self.trip_id,
             start_datetime=self.step_dto.get('start_datetime'),
             end_datetime=self.step_dto.get('end_datetime'),
-            start_address=self.step_dto.get('start_address'),
+            start_address=Place.from_json(self.step_dto.get('start_address')),
             phone_number=self.step_dto.get('phone_number'),
             notes=self.step_dto.get('notes')
         )
@@ -87,8 +88,8 @@ class StepFactory:
             trip_id=self.trip_id,
             start_datetime=self.step_dto.get('start_datetime'),
             end_datetime=self.step_dto.get('end_datetime'),
-            start_address=self.step_dto.get('start_address'),
-            end_address=self.step_dto.get('end_address'),
+            start_address=Place.from_json(self.step_dto.get('start_address')),
+            end_address=Place.from_json(self.step_dto.get('end_address')),
             phone_number=self.step_dto.get('phone_number'),
             notes=self.step_dto.get('notes'),
             reservation_number=self.step_dto.get('reservation_number'),
@@ -101,8 +102,8 @@ class StepFactory:
             trip_id=self.trip_id,
             start_datetime=self.step_dto.get('start_datetime'),
             end_datetime=self.step_dto.get('end_datetime'),
-            start_address=self.step_dto.get('start_address'),
-            end_address=self.step_dto.get('end_address'),
+            start_address=Place.from_json(self.step_dto.get('start_address')),
+            end_address=Place.from_json(self.step_dto.get('end_address')),
             phone_number=self.step_dto.get('phone_number'),
             notes=self.step_dto.get('notes'),
             reservation_number=self.step_dto.get('reservation_number'),
@@ -115,8 +116,8 @@ class StepFactory:
             trip_id=self.trip_id,
             start_datetime=self.step_dto.get('start_datetime'),
             end_datetime=self.step_dto.get('end_datetime'),
-            start_address=self.step_dto.get('start_address'),
-            end_address=self.step_dto.get('end_address'),
+            start_address=Place.from_json(self.step_dto.get('start_address')),
+            end_address=Place.from_json(self.step_dto.get('end_address')),
             phone_number=self.step_dto.get('phone_number'),
             notes=self.step_dto.get('notes'),
             reservation_number=self.step_dto.get('reservation_number'),
@@ -129,8 +130,8 @@ class StepFactory:
             trip_id=self.trip_id,
             start_datetime=self.step_dto.get('start_datetime'),
             end_datetime=self.step_dto.get('end_datetime'),
-            start_address=self.step_dto.get('start_address'),
-            end_address=self.step_dto.get('end_address'),
+            start_address=Place.from_json(self.step_dto.get('start_address')),
+            end_address=Place.from_json(self.step_dto.get('end_address')),
             phone_number=self.step_dto.get('phone_number'),
             notes=self.step_dto.get('notes'),
             reservation_number=self.step_dto.get('reservation_number'),
@@ -143,12 +144,13 @@ class StepFactory:
             trip_id=self.trip_id,
             start_datetime=self.step_dto.get('start_datetime'),
             end_datetime=self.step_dto.get('end_datetime'),
-            start_address=self.step_dto.get('start_address'),
-            end_address=self.step_dto.get('end_address'),
+            start_address=Place.from_json(self.step_dto.get('start_address')),
+            end_address=Place.from_json(self.step_dto.get('end_address')),
             phone_number=self.step_dto.get('phone_number'),
             notes=self.step_dto.get('notes'),
             reservation_number=self.step_dto.get('reservation_number'),
             transport_number=self.step_dto.get('transport_number')
         )
+
 
 

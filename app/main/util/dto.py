@@ -53,14 +53,30 @@ class TripDto:
         'users_trips': fields.List(fields.Nested(UserDto.user))
     })
 
+    coordinate = api.model('coordinate', {
+        'id': fields.Integer(required=False, description='coordinate id'),
+        'latitude': fields.Float(required=True, description='latitude'),
+        'longitude': fields.Float(required=True, description='longitude'),
+    })
+
+    place = api.model('place', {
+        'id': fields.Integer(required=False, description='place id'),
+        'coordinates': fields.Nested(coordinate),
+        'country': NullableString(required=False, description='country'),
+        'city': NullableString(required=False, description='city'),
+        'postcode': NullableString(required=False, description='postcode'),
+        'name': NullableString(required=False, description='name, e.g. Rue de Rivoli'),
+        'state': NullableString(required=False, description='state, e.g. Île-de-France'),
+    })
+
     step = api.model('step', {
         'id': fields.Integer(required=False, description='Step id'),
         'trip_id': fields.Integer(required=False, description='Trip id'),
         'name': fields.String(required=True, description='Step name'),
         'start_datetime': fields.DateTime(required=True, description='Starting datetime'),
         'end_datetime': NullableDateTime(required=False, description='End datetime'),
-        'start_address': NullableString(required=False, description='Starting address'),
-        'end_address': NullableString(required=False, description='End address'),
+        'start_address': fields.Nested(place),
+        'end_address': fields.Nested(place),
         'phone_number': NullableString(required=False, description='Phone number'),
         'reservation_number': NullableString(required=False, description='Reservation number'),
         'transport_number': NullableString(required=False, description='Transport number'),
