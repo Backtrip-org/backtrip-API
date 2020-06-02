@@ -68,7 +68,7 @@ class TripStep(Resource):
         step_dto = request.json
 
         try:
-            new_step = StepFactory(step_dto, trip_id).get()
+            new_step = StepFactory().get(step_dto, trip_id)
             return create_step(step=new_step), 201
         except TripNotFoundException as e:
             api.abort(404, e.value)

@@ -29,3 +29,15 @@ class Step(db.Model):
         'polymorphic_identity': StepType.Base.name,
         'polymorphic_on': type
     }
+
+    @staticmethod
+    def from_json(dto, trip_id):
+        return Step(
+            name=dto.get('name'),
+            trip_id=trip_id,
+            start_datetime=dto.get('start_datetime'),
+            end_datetime=dto.get('end_datetime'),
+            start_address=Place.from_json(dto.get('start_address')),
+            phone_number=dto.get('phone_number'),
+            notes=dto.get('notes')
+        )
