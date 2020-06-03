@@ -1,6 +1,7 @@
 from flask_restplus import Namespace, fields
 
 from app.main.util.dto_utils.nullable_datetime import NullableDateTime
+from app.main.util.dto_utils.nullable_nested import NullableNested
 from app.main.util.dto_utils.nullable_string import NullableString
 
 
@@ -75,8 +76,8 @@ class TripDto:
         'name': fields.String(required=True, description='Step name'),
         'start_datetime': fields.DateTime(required=True, description='Starting datetime'),
         'end_datetime': NullableDateTime(required=False, description='End datetime'),
-        'start_address': fields.Nested(place),
-        'end_address': fields.Nested(place),
+        'start_address': NullableNested(place, required=False),
+        'end_address': NullableNested(place, required=False),
         'phone_number': NullableString(required=False, description='Phone number'),
         'reservation_number': NullableString(required=False, description='Reservation number'),
         'transport_number': NullableString(required=False, description='Transport number'),
