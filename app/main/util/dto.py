@@ -63,10 +63,12 @@ class TripDto:
     place = api.model('place', {
         'id': fields.Integer(required=False, description='place id'),
         'coordinates': fields.Nested(coordinate),
+        'name': NullableString(required=False, description='name, e.g. Hotel Ritz'),
+        'street': NullableString(required=False, description='street'),
+        'house_number': NullableString(required=False, description='house number'),
         'country': NullableString(required=False, description='country'),
         'city': NullableString(required=False, description='city'),
         'postcode': NullableString(required=False, description='postcode'),
-        'name': NullableString(required=False, description='name, e.g. Rue de Rivoli'),
         'state': NullableString(required=False, description='state, e.g. Île-de-France'),
     })
 
