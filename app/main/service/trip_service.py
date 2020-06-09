@@ -7,6 +7,8 @@ from app.main.util.exception.UserException import UserEmailNotFoundException, Us
     UserIdNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
 from .user_service import get_user_by_email, get_user
+from ..model.expense import Expense
+from ..util.exception.ExpenseException import ExpenseNotFoundException
 from ..util.exception.FileException import FileNotFoundException
 from ..util.exception.StepException import StepNotFoundException
 from datetime import date
@@ -63,6 +65,10 @@ def trip_exists(trip_id):
 
 def get_step(step_id):
     return Step.query.filter_by(id=step_id).first()
+
+
+def get_expense(expense_id):
+    return Expense.query.filter_by(id=expense_id).first()
 
 
 def get_file(file_id):
@@ -206,5 +212,20 @@ def create_expense(expense):
     if not trip_exists(expense.trip_id):
         raise TripNotFoundException(expense.trip_id)
 
+    if not get_user(expense.user_id):
+        raise UserIdNotFoundException(expense.user_id)
+
     save_changes(expense)
     return expense
+
+
+def create_owe(owe):
+    expense = get_expense(owe.expense_id)
+    if not expense:
+        raise ExpenseNotFoundException(owe.expense_id)
+
+    if not get_user(owe.user_id):
+        raise UserIdNotFoundException(owe.user_id)
+
+    save_changes(owe)
+    return owe
