@@ -200,3 +200,11 @@ def add_file_to_step(file_id, step_id):
 
     step.files.append(file)
     save_changes(step)
+
+
+def create_expense(expense):
+    if not trip_exists(expense.trip_id):
+        raise TripNotFoundException(expense.trip_id)
+
+    save_changes(expense)
+    return expense

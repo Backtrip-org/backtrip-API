@@ -79,3 +79,13 @@ class ChatMessageDto:
         'trip_id': fields.Integer(required=False, description='Trip id'),
         'user_id': fields.Integer(required=False, description='User id')
     })
+
+
+class ExpenseDto:
+    api = Namespace('expense', description='Expense create by a user')
+    expense = api.model('expense', {
+        'id': fields.Integer(required=False, description="Expense id"),
+        'cost': fields.Float(required=True, description="Expense value"),
+        'trip_id': fields.Integer(required=False, description='Trip id'),
+        'user_id': fields.Integer(required=False, description='User id')
+    })
