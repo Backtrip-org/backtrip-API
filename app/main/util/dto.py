@@ -95,7 +95,7 @@ class OweDto:
     api = Namespace('owe', description='User owe')
     owe = api.model('owe', {
         'id': fields.Integer(required=False, description="Expense id"),
-        'cost': fields.Float(required=True, description="Expense value"),
+        'cost': fields.Float(required=True, description="Owe value"),
         'expense_id': fields.Integer(required=False, description='Expense id'),
         'user_id': fields.Integer(required=False, description='User id')
     })
