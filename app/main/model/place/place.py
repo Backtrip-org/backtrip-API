@@ -6,14 +6,14 @@ class Place(db.Model):
     __tablename__ = "place"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     coordinates_id = db.Column(db.Integer, db.ForeignKey('coordinate.id'))
-    name = db.Column(db.String(150), unique=False)
-    street = db.Column(db.String(150), unique=False)
-    house_number = db.Column(db.String(10), unique=False)
-    country = db.Column(db.String(60), unique=False)
-    city = db.Column(db.String(85), unique=False)
-    postcode = db.Column(db.String(10), unique=False)
-    state = db.Column(db.String(70), unique=False)
-
+    name = db.Column(db.String(150))
+    street = db.Column(db.String(150))
+    house_number = db.Column(db.String(10))
+    country = db.Column(db.String(60))
+    city = db.Column(db.String(85))
+    postcode = db.Column(db.String(10))
+    state = db.Column(db.String(70))
+    rating = db.Column(db.DECIMAL(3,2))
     coordinates = db.relationship('Coordinate')
 
     @staticmethod
