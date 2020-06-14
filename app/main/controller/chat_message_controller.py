@@ -3,7 +3,7 @@ from flask_restplus import Resource
 from app.init_app import socketIo, send, join_room
 from ..model.chat_message import ChatMessage
 from ..service.chat_message_service import get_messages, save_message
-from ..util.decorator import token_required
+from ..util.decorator import token_required, trip_participant_required
 from ..util.dto import ChatMessageDto
 from ..util.exception.TripException import TripNotFoundException
 
@@ -18,6 +18,7 @@ class ChatMessageList(Resource):
     @api.marshal_with(_chat_message)
     @api.response(200, 'messages details.')
     @api.response(404, 'Messages not found.')
+    @trip_participant_required
     @token_required
     def get(self, trip_id):
         try:

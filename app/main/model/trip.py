@@ -15,3 +15,6 @@ class Trip(db.Model):
     closed = db.Column(db.Boolean, default=False)
 
     users_trips = db.relationship('User', secondary=users_trips)
+
+    def close(self):
+        self.closed = True
