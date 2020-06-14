@@ -1,8 +1,12 @@
 import pycountry
 
 
-def country_lookup(country_name):
-    result = pycountry.countries.lookup(country_name)
-    return None if result is None else result.alpha_2
+def country_to_isocode(country_name):
+    try:
+        result = pycountry.countries.lookup(country_name)
+    except LookupError:
+        return None
+    else:
+        return result.alpha_2
 
 
