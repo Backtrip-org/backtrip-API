@@ -42,6 +42,7 @@ class TripDto:
         'name': fields.String(required=True, description='trip name'),
         'picture_path': fields.String(required=False, description='trip picture path'),
         'creator_id': fields.Integer(required=False, description='creator id'),
+        'closed': fields.Boolean(required=False, description='trip status'),
         'users_trips': fields.List(fields.Nested(UserDto.user))
     })
 
@@ -51,6 +52,7 @@ class TripDto:
         'picture_path': fields.String(required=False, description='trip picture path'),
         'creator_id': fields.Integer(required=True, description='creator id'),
         'countdown': fields.Integer(required=True, description='countdown'),
+        'closed': fields.Boolean(required=False, description='trip status'),
         'users_trips': fields.List(fields.Nested(UserDto.user))
     })
 

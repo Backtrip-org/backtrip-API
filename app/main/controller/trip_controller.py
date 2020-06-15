@@ -13,7 +13,7 @@ from ..util.decorator import token_required, trip_participant_required
 from ..util.dto import TripDto, UserDto, FileDto
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     user_participates_in_trip, get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
-    add_file_to_step, add_ratings
+    add_file_to_step, add_ratings, close_trip
 from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip
@@ -230,12 +230,7 @@ class CloseTrip(Resource):
     @trip_participant_required
     def patch(self, trip_id):
         try:
-            file = upload(request.files)
-            add_file_to_step(file.id, step_id)
-            return file
-        except StepNotFoundException as e:
+            close_trip(trip_id)
+            return 'Trip successfully closed.', 200
+        except TripNotFoundException as e:
             api.abort(404, e.value)
-        except FileNotFoundException as e:
-            api.abort(404, e.value)
-        except UploadFileNotFoundException as e:
-            api.abort(400, e.value)
