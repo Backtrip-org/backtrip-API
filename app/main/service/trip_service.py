@@ -8,6 +8,8 @@ from app.main.util.exception.UserException import UserEmailNotFoundException, Us
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
 from .user_service import get_user_by_email, get_user
 from ..model.expense import Expense
+from ..model.operation import Operation
+from ..model.owe import Owe
 from ..util.exception.ExpenseException import ExpenseNotFoundException
 from ..util.exception.FileException import FileNotFoundException
 from ..util.exception.StepException import StepNotFoundException
@@ -229,3 +231,29 @@ def create_owe(owe):
 
     save_changes(owe)
     return owe
+
+
+def refunds_to_get_for_user(trip_id, payee_id):
+    return Owe.query.filter_by(trip_id=trip_id).filter_by(payee_id=payee_id).all()
+
+
+def get_user_owes(trip_id, emitter_id):
+    return Owe.query.filter_by(trip_id=trip_id).filter_by(emitter_id=emitter_id).all()
+
+
+def calculate_future_operations(refunds_to_get, user_owes):
+    operations = []
+    for owe in refunds_to_get:
+        operation = Operation(owe.emitter_id, owe.payee_id, owe.cost)
+        for user_owe in user_owes:
+            if operation.payee_id == user_owe.emitter_id and operation.emitter_id == user_owe.payee_id:
+                operation.amount -= user_owe.cost
+                user_owes.remove(user_owe)
+                operations.append(operation)
+                break
+
+    for user_owe in user_owes:
+        operation = Operation(user_owe.emitter_id, user_owe.payee_id, user_owe.cost)
+        operations.append(operation)
+
+    return operations

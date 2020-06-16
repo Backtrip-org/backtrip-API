@@ -97,6 +97,7 @@ class OweDto:
         'id': fields.Integer(required=False, description="Expense id"),
         'cost': fields.Float(required=True, description="Owe value"),
         'expense_id': fields.Integer(required=False, description='Expense id'),
-        'user_id': fields.Integer(required=False, description='User id'),
-        'payee_id': fields.Integer(required=False, description='Payee id')
+        'emitter_id': fields.Integer(required=False, description='Emitter id'),
+        'payee_id': fields.Integer(required=False, description='Payee id'),
+        'trip_id': fields.Integer(required=False, description='Trip id'),
     })

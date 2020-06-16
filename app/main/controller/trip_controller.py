@@ -15,7 +15,7 @@ from ..util.decorator import token_required
 from ..util.dto import TripDto, UserDto, FileDto, ExpenseDto, OweDto
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     user_participates_in_trip, get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
-    add_file_to_step, create_expense, create_owe
+    add_file_to_step, create_expense, create_owe, refunds_to_get_for_user, get_user_owes, calculate_future_operations
 from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, \
@@ -257,13 +257,32 @@ class UserOwed(Resource):
 
             owe = Owe(
                 cost=cost,
-                user_id=user_id,
+                emitter_id=user_id,
                 expense_id=expense_id,
-                payee_id=payee_id
+                payee_id=payee_id,
+                trip_id=trip_id
             )
 
             return create_owe(owe)
         except ExpenseNotFoundException as e:
             api.abort(404, e.value)
+        except UserIdNotFoundException as e:
+            api.abort(404, e.value)
+
+
+@api.route('/<trip_id>/transactionsToBeMade/<user_id>')
+@api.param('trip_id', 'Identifier of the trip')
+@api.param('user_id', 'Identifier of the user')
+class TransactionsToBeMade(Resource):
+    @api.doc('Transactions to be made for a specific user')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown user.')
+    @api.marshal_with(_owe)
+    @token_required
+    def post(self, trip_id, user_id):
+        try:
+            refunds_to_get = refunds_to_get_for_user(trip_id, user_id)
+            user_owes = get_user_owes(trip_id, user_id)
+            return calculate_future_operations(refunds_to_get, user_owes)
         except UserIdNotFoundException as e:
             api.abort(404, e.value)
