@@ -7,3 +7,4 @@ class Owe(db.Model):
     cost = db.Column(db.DECIMAL(10, 2), unique=False)
     expense_id = db.Column(db.Integer, db.ForeignKey('expense.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    payee_id = db.Column(db.Integer, db.ForeignKey('user.id'))

@@ -252,12 +252,14 @@ class UserOwed(Resource):
         try:
             expense_id = request.json.get('expense_id')
             user_id = request.json.get('user_id')
+            payee_id = request.json.get('payee_id')
             cost = request.json.get('cost')
 
             owe = Owe(
                 cost=cost,
                 user_id=user_id,
-                expense_id=expense_id
+                expense_id=expense_id,
+                payee_id=payee_id
             )
 
             return create_owe(owe)
