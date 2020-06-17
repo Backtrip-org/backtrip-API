@@ -280,7 +280,7 @@ class TransactionsToBeMade(Resource):
     @api.response(404, 'Unknown user.')
     @api.marshal_with(_operation)
     @token_required
-    def post(self, trip_id, user_id):
+    def get(self, trip_id, user_id):
         try:
             refunds_to_get = refunds_to_get_for_user(trip_id, user_id)
             user_owes = get_user_owes(trip_id, user_id)

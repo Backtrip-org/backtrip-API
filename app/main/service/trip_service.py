@@ -243,20 +243,24 @@ def get_user_owes(trip_id, emitter_id):
 
 def calculate_future_operations(refunds_to_get, user_owes):
     operations = []
+    owes_to_remove = []
     for owe in refunds_to_get:
         operation = Operation(owe.emitter_id, owe.payee_id, owe.cost)
-        for user_owe in user_owes:
-            if operation.payee_id == user_owe.emitter_id and operation.emitter_id == user_owe.payee_id:
-                operation.amount -= user_owe.cost
-                user_owes.remove(user_owe)
-                break
+        add_owes_that_concern_operation(user_owes, operation, owes_to_remove)
         append_operation(operations, operation)
+        remove_done_owes(user_owes, owes_to_remove)
 
-    for user_owe in user_owes:
-        operation = Operation(user_owe.emitter_id, user_owe.payee_id, user_owe.cost)
-        append_operation(operations, operation)
+    add_owes_that_doesnt_concern_any_operation(user_owes, operations)
+    switch_emitter_and_payee_because_of_negative_amount(operations)
 
     return operations
+
+
+def add_owes_that_concern_operation(user_owes, operation, owes_to_remove):
+    for user_owe in user_owes:
+        if operation.payee_id == user_owe.emitter_id and operation.emitter_id == user_owe.payee_id:
+            operation.amount -= user_owe.cost
+            owes_to_remove.append(user_owe)
 
 
 def append_operation(operations, operation):
@@ -265,4 +269,24 @@ def append_operation(operations, operation):
             ope.amount += operation.amount
             return operations
     operations.append(operation)
-    return operations
+
+
+def remove_done_owes(user_owes, owes_to_remove):
+    for oweToRemove in owes_to_remove:
+        if oweToRemove in user_owes:
+            user_owes.remove(oweToRemove)
+
+
+def add_owes_that_doesnt_concern_any_operation(user_owes, operations):
+    for user_owe in user_owes:
+        operation = Operation(user_owe.emitter_id, user_owe.payee_id, user_owe.cost)
+        append_operation(operations, operation)
+
+
+def switch_emitter_and_payee_because_of_negative_amount(operations):
+    for operation in operations:
+        if operation.amount < 0:
+            operation.amount = abs(operation.amount)
+            temp = operation.payee_id
+            operation.payee_id = operation.emitter_id
+            operation.emitter_id = temp
