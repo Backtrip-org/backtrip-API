@@ -101,3 +101,12 @@ class OweDto:
         'payee_id': fields.Integer(required=False, description='Payee id'),
         'trip_id': fields.Integer(required=False, description='Trip id'),
     })
+
+
+class OperationDto:
+    api = Namespace('operation', description='Operation')
+    operation = api.model('operation', {
+        'amount': fields.Float(required=True, description="Amount value"),
+        'emitter_id': fields.Integer(required=False, description='Emitter id'),
+        'payee_id': fields.Integer(required=False, description='Payee id'),
+    })

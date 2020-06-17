@@ -12,7 +12,7 @@ from ..util.exception.StepException import StepNotFoundException, UnknownStepTyp
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..util.decorator import token_required
-from ..util.dto import TripDto, UserDto, FileDto, ExpenseDto, OweDto
+from ..util.dto import TripDto, UserDto, FileDto, ExpenseDto, OweDto, OperationDto
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     user_participates_in_trip, get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
     add_file_to_step, create_expense, create_owe, refunds_to_get_for_user, get_user_owes, calculate_future_operations
@@ -28,6 +28,7 @@ _user = UserDto.user
 _file = FileDto.file
 _expense = ExpenseDto.expense
 _owe = OweDto.owe
+_operation = OperationDto.operation
 
 
 @api.route('/')
@@ -251,13 +252,13 @@ class UserOwed(Resource):
     def post(self, trip_id):
         try:
             expense_id = request.json.get('expense_id')
-            user_id = request.json.get('user_id')
+            emitter_id = request.json.get('emitter_id')
             payee_id = request.json.get('payee_id')
             cost = request.json.get('cost')
 
             owe = Owe(
                 cost=cost,
-                emitter_id=user_id,
+                emitter_id=emitter_id,
                 expense_id=expense_id,
                 payee_id=payee_id,
                 trip_id=trip_id
@@ -277,7 +278,7 @@ class TransactionsToBeMade(Resource):
     @api.doc('Transactions to be made for a specific user')
     @api.response(401, 'Unknown access token.')
     @api.response(404, 'Unknown user.')
-    @api.marshal_with(_owe)
+    @api.marshal_with(_operation)
     @token_required
     def post(self, trip_id, user_id):
         try:

@@ -1,6 +1,3 @@
-from .. import db
-
-
 class Operation:
     emitter_id = 0
     payee_id = 0

@@ -226,8 +226,8 @@ def create_owe(owe):
     if not expense:
         raise ExpenseNotFoundException(owe.expense_id)
 
-    if not get_user(owe.user_id):
-        raise UserIdNotFoundException(owe.user_id)
+    if not get_user(owe.emitter_id):
+        raise UserIdNotFoundException(owe.emitter_id)
 
     save_changes(owe)
     return owe
@@ -249,11 +249,20 @@ def calculate_future_operations(refunds_to_get, user_owes):
             if operation.payee_id == user_owe.emitter_id and operation.emitter_id == user_owe.payee_id:
                 operation.amount -= user_owe.cost
                 user_owes.remove(user_owe)
-                operations.append(operation)
                 break
+        append_operation(operations, operation)
 
     for user_owe in user_owes:
         operation = Operation(user_owe.emitter_id, user_owe.payee_id, user_owe.cost)
-        operations.append(operation)
+        append_operation(operations, operation)
 
+    return operations
+
+
+def append_operation(operations, operation):
+    for ope in operations:
+        if ope.emitter_id == operation.emitter_id and ope.payee_id == operation.payee_id:
+            ope.amount += operation.amount
+            return operations
+    operations.append(operation)
     return operations
