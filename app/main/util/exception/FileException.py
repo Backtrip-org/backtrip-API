@@ -20,3 +20,11 @@ class FileNotFoundException(Exception):
 
     def __str__(self):
         return repr(self.value)
+
+
+class UnknownFileTypeException(Exception):
+    def __init__(self, unknown_file_type):
+        self.value = "Unknown file type: {}".format(unknown_file_type)
+
+    def __str__(self):
+        return repr(self.value)

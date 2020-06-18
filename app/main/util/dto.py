@@ -20,18 +20,19 @@ class UserDto:
 class AuthDto:
     api = Namespace('auth', description='authentication related operations')
     user_auth = api.model('auth_details', {
-        'email': fields.String(required=True, description='The email address'),
-        'password': fields.String(required=True, description='The user password '),
+        'email': fields.String(required=True, description='email address'),
+        'password': fields.String(required=True, description='user password '),
     })
 
 
 class FileDto:
-    api = Namespace('File', description='File related operations')
+    api = Namespace('file', description='file related operations')
     file = api.model('file', {
-        'id': fields.String(required=False, description='File id as uuid'),
-        'name': fields.String(required=True, description='File name'),
-        'extension': fields.String(required=True, description='File extension'),
-        'created_date': fields.DateTime(required=False, description='File creation date'),
+        'id': fields.String(required=False, description='file id as uuid'),
+        'name': fields.String(required=True, description='file name'),
+        'extension': fields.String(required=True, description='file extension'),
+        'type': fields.String(required=True, description='file type : Document or Photo)'),
+        'created_date': fields.DateTime(required=False, description='file creation date'),
     })
 
 
@@ -73,20 +74,20 @@ class TripDto:
     })
 
     step = api.model('step', {
-        'id': fields.Integer(required=False, description='Step id'),
-        'trip_id': fields.Integer(required=False, description='Trip id'),
-        'name': fields.String(required=True, description='Step name'),
-        'start_datetime': fields.DateTime(required=True, description='Starting datetime'),
-        'end_datetime': NullableDateTime(required=False, description='End datetime'),
+        'id': fields.Integer(required=False, description='step id'),
+        'trip_id': fields.Integer(required=False, description='trip id'),
+        'name': fields.String(required=True, description='step name'),
+        'start_datetime': fields.DateTime(required=True, description='starting datetime'),
+        'end_datetime': NullableDateTime(required=False, description='end datetime'),
         'start_address': NullableNested(place, required=False),
         'end_address': NullableNested(place, required=False),
-        'phone_number': NullableString(required=False, description='Phone number'),
-        'reservation_number': NullableString(required=False, description='Reservation number'),
-        'transport_number': NullableString(required=False, description='Transport number'),
-        'type': fields.String(required=True, description='Step type'),
-        'notes': NullableString(required=False, description='Notes'),
-        'users_steps': fields.List(fields.Nested(UserDto.user), required=False),
-        'files': fields.List(fields.Nested(FileDto.file))
+        'phone_number': NullableString(required=False, description='phone number'),
+        'reservation_number': NullableString(required=False, description='reservation number'),
+        'transport_number': NullableString(required=False, description='transport number'),
+        'type': fields.String(required=True, description='step type'),
+        'notes': NullableString(required=False, description='notes'),
+        'users_steps': fields.List(fields.Nested(UserDto.user), required=False, description='participants'),
+        'files': fields.List(fields.Nested(FileDto.file), description='related files')
     })
 
 
