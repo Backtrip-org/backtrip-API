@@ -3,7 +3,7 @@ from flask import request
 from flask_restplus import Resource
 
 from ..model.expense import Expense
-from ..model.owe import Owe
+from ..model.reimbursement import Reimbursement
 from ..service.file_service import upload
 from ..util.exception.ExpenseException import ExpenseNotFoundException
 from ..util.exception.FileException import FileNotFoundException, UploadFileNotFoundException
@@ -12,10 +12,10 @@ from ..util.exception.StepException import StepNotFoundException, UnknownStepTyp
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..util.decorator import token_required
-from ..util.dto import TripDto, UserDto, FileDto, ExpenseDto, OweDto, OperationDto
+from ..util.dto import TripDto, UserDto, FileDto, ExpenseDto, ReimbursementDto, OperationDto
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     user_participates_in_trip, get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
-    add_file_to_step, create_expense, create_owe, refunds_to_get_for_user, get_user_owes, calculate_future_operations
+    add_file_to_step, create_expense, create_reimbursement, refunds_to_get_for_user, get_user_reimbursements, calculate_future_operations
 from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, \
@@ -27,7 +27,7 @@ _step = TripDto.step
 _user = UserDto.user
 _file = FileDto.file
 _expense = ExpenseDto.expense
-_owe = OweDto.owe
+_reimbursement = ReimbursementDto.reimbursement
 _operation = OperationDto.operation
 
 
@@ -240,14 +240,14 @@ class UserExpense(Resource):
             api.abort(404, e.value)
 
 
-@api.route('/<trip_id>/owe')
+@api.route('/<trip_id>/reimbursement')
 @api.param('trip_id', 'Identifier of the trip')
-class UserOwed(Resource):
-    @api.doc('Create a user owe')
+class UserReimbursement(Resource):
+    @api.doc('Create a user reimbursement')
     @api.response(401, 'Unknown access token.')
     @api.response(404, 'Unknown expense.')
     @api.response(404, 'Unknown user.')
-    @api.marshal_with(_owe)
+    @api.marshal_with(_reimbursement)
     @token_required
     def post(self, trip_id):
         try:
@@ -256,7 +256,7 @@ class UserOwed(Resource):
             payee_id = request.json.get('payee_id')
             cost = request.json.get('cost')
 
-            owe = Owe(
+            reimbursement = Reimbursement(
                 cost=cost,
                 emitter_id=emitter_id,
                 expense_id=expense_id,
@@ -264,7 +264,7 @@ class UserOwed(Resource):
                 trip_id=trip_id
             )
 
-            return create_owe(owe)
+            return create_reimbursement(reimbursement)
         except ExpenseNotFoundException as e:
             api.abort(404, e.value)
         except UserIdNotFoundException as e:
@@ -283,7 +283,7 @@ class TransactionsToBeMade(Resource):
     def get(self, trip_id, user_id):
         try:
             refunds_to_get = refunds_to_get_for_user(trip_id, user_id)
-            user_owes = get_user_owes(trip_id, user_id)
-            return calculate_future_operations(refunds_to_get, user_owes)
+            user_reimbursements = get_user_reimbursements(trip_id, user_id)
+            return calculate_future_operations(refunds_to_get, user_reimbursements)
         except UserIdNotFoundException as e:
             api.abort(404, e.value)

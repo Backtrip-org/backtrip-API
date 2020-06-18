@@ -9,7 +9,7 @@ from app.main.util.exception.GlobalException import StringLengthOutOfRangeExcept
 from .user_service import get_user_by_email, get_user
 from ..model.expense import Expense
 from ..model.operation import Operation
-from ..model.owe import Owe
+from ..model.reimbursement import Reimbursement
 from ..util.exception.ExpenseException import ExpenseNotFoundException
 from ..util.exception.FileException import FileNotFoundException
 from ..util.exception.StepException import StepNotFoundException
@@ -221,46 +221,46 @@ def create_expense(expense):
     return expense
 
 
-def create_owe(owe):
-    expense = get_expense(owe.expense_id)
+def create_reimbursement(reimbursement):
+    expense = get_expense(reimbursement.expense_id)
     if not expense:
-        raise ExpenseNotFoundException(owe.expense_id)
+        raise ExpenseNotFoundException(reimbursement.expense_id)
 
-    if not get_user(owe.emitter_id):
-        raise UserIdNotFoundException(owe.emitter_id)
+    if not get_user(reimbursement.emitter_id):
+        raise UserIdNotFoundException(reimbursement.emitter_id)
 
-    save_changes(owe)
-    return owe
+    save_changes(reimbursement)
+    return reimbursement
 
 
 def refunds_to_get_for_user(trip_id, payee_id):
-    return Owe.query.filter_by(trip_id=trip_id).filter_by(payee_id=payee_id).all()
+    return Reimbursement.query.filter_by(trip_id=trip_id).filter_by(payee_id=payee_id).all()
 
 
-def get_user_owes(trip_id, emitter_id):
-    return Owe.query.filter_by(trip_id=trip_id).filter_by(emitter_id=emitter_id).all()
+def get_user_reimbursements(trip_id, emitter_id):
+    return Reimbursement.query.filter_by(trip_id=trip_id).filter_by(emitter_id=emitter_id).all()
 
 
-def calculate_future_operations(refunds_to_get, user_owes):
+def calculate_future_operations(refunds_to_get, user_reimbursements):
     operations = []
-    owes_to_remove = []
-    for owe in refunds_to_get:
-        operation = Operation(owe.emitter_id, owe.payee_id, owe.cost)
-        add_owes_that_concern_operation(user_owes, operation, owes_to_remove)
+    reimbursements_to_remove = []
+    for reimbursement in refunds_to_get:
+        operation = Operation(reimbursement.emitter_id, reimbursement.payee_id, reimbursement.cost)
+        add_reimbursements_that_concern_operation(user_reimbursements, operation, reimbursements_to_remove)
         append_operation(operations, operation)
-        remove_done_owes(user_owes, owes_to_remove)
+        remove_done_reimbursements(user_reimbursements, reimbursements_to_remove)
 
-    add_owes_that_doesnt_concern_any_operation(user_owes, operations)
+    add_reimbursements_that_doesnt_concern_any_operation(user_reimbursements, operations)
     switch_emitter_and_payee_because_of_negative_amount(operations)
 
     return operations
 
 
-def add_owes_that_concern_operation(user_owes, operation, owes_to_remove):
-    for user_owe in user_owes:
-        if operation.payee_id == user_owe.emitter_id and operation.emitter_id == user_owe.payee_id:
-            operation.amount -= user_owe.cost
-            owes_to_remove.append(user_owe)
+def add_reimbursements_that_concern_operation(user_reimbursements, operation, reimbursements_to_remove):
+    for user_reimbursement in user_reimbursements:
+        if operation.payee_id == user_reimbursement.emitter_id and operation.emitter_id == user_reimbursement.payee_id:
+            operation.amount -= user_reimbursement.cost
+            reimbursements_to_remove.append(user_reimbursement)
 
 
 def append_operation(operations, operation):
@@ -272,15 +272,15 @@ def append_operation(operations, operation):
         operations.append(operation)
 
 
-def remove_done_owes(user_owes, owes_to_remove):
-    for oweToRemove in owes_to_remove:
-        if oweToRemove in user_owes:
-            user_owes.remove(oweToRemove)
+def remove_done_reimbursements(user_reimbursements, reimbursements_to_remove):
+    for reimbursementToRemove in reimbursements_to_remove:
+        if reimbursementToRemove in user_reimbursements:
+            user_reimbursements.remove(reimbursementToRemove)
 
 
-def add_owes_that_doesnt_concern_any_operation(user_owes, operations):
-    for user_owe in user_owes:
-        operation = Operation(user_owe.emitter_id, user_owe.payee_id, user_owe.cost)
+def add_reimbursements_that_doesnt_concern_any_operation(user_reimbursements, operations):
+    for user_reimbursement in user_reimbursements:
+        operation = Operation(user_reimbursement.emitter_id, user_reimbursement.payee_id, user_reimbursement.cost)
         append_operation(operations, operation)
 
 

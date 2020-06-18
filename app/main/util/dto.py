@@ -91,11 +91,11 @@ class ExpenseDto:
     })
 
 
-class OweDto:
-    api = Namespace('owe', description='User owe')
-    owe = api.model('owe', {
+class ReimbursementDto:
+    api = Namespace('reimbursement', description='User reimbursement')
+    reimbursement = api.model('reimbursement', {
         'id': fields.Integer(required=False, description="Expense id"),
-        'cost': fields.Float(required=True, description="Owe value"),
+        'cost': fields.Float(required=True, description="Reimbursement value"),
         'expense_id': fields.Integer(required=False, description='Expense id'),
         'emitter_id': fields.Integer(required=False, description='Emitter id'),
         'payee_id': fields.Integer(required=False, description='Payee id'),
