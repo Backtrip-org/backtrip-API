@@ -71,6 +71,7 @@ class TripDto:
         'city': NullableString(required=False, description='city'),
         'postcode': NullableString(required=False, description='postcode'),
         'state': NullableString(required=False, description='state, e.g. Île-de-France'),
+        'rating': fields.Float(required=False, description='place rating according to Yelp')
     })
 
     step = api.model('step', {

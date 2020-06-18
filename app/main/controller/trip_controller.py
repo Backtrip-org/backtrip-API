@@ -4,6 +4,7 @@ from flask_restplus import Resource
 
 from ..model.file.file_type import FileType
 from ..service.file_service import upload
+from ..service.rating_service import get_rating
 from ..util.exception.FileException import FileNotFoundException, UploadFileNotFoundException
 from ..model.step.step_factory import StepFactory
 from ..util.exception.StepException import StepNotFoundException, UnknownStepTypeException
@@ -13,7 +14,7 @@ from ..util.decorator import token_required
 from ..util.dto import TripDto, UserDto, FileDto
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     user_participates_in_trip, get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
-    add_file_to_step
+    add_file_to_step, add_ratings
 from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip
@@ -70,6 +71,8 @@ class TripStep(Resource):
 
         try:
             new_step = StepFactory().get(step_dto, trip_id)
+            add_ratings(new_step)
+
             return create_step(step=new_step), 201
         except TripNotFoundException as e:
             api.abort(404, e.value)
