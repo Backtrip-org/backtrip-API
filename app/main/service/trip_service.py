@@ -60,11 +60,6 @@ def invite_to_trip(trip_id, user_to_invite_email):
     pass
 
 
-def save_changes(data):
-    db.session.add(data)
-    db.session.commit()
-
-
 def get_trip_by_id(trip_id):
     return Trip.query.filter_by(id=trip_id).first()
 
@@ -239,3 +234,19 @@ def create_owe(owe):
 
     save_changes(owe)
     return owe
+
+
+def close_trip(trip_id):
+    trip = get_trip_by_id(trip_id)
+    if trip is None:
+        raise TripNotFoundException(trip_id)
+    if trip.closed:
+        return
+    trip.close()
+    save_changes(trip)
+
+
+def save_changes(data):
+    db.session.add(data)
+    db.session.commit()
+

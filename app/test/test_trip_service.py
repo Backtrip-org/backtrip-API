@@ -6,7 +6,7 @@ from app.main.model.trip import Trip
 from app.main.model.step.step import Step
 from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user, add_participant_to_step, \
-    get_user_steps_participation
+    get_user_steps_participation, close_trip, get_trip_by_id
 from app.main.util.exception.StepException import StepNotFoundException
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
@@ -45,11 +45,6 @@ def get_step_object(name, trip_id, start_datetime):
     )
 
 
-def close_trip(trip):
-    trip.closed = True
-    return trip
-
-
 def create_trips(trips):
     created_trips = list(map(create_trip, trips))
     return created_trips
@@ -57,8 +52,7 @@ def create_trips(trips):
 
 def get_closed_trips(user):
     closed_trips = [get_trip_object("closed1", user), get_trip_object("closed2", user)]
-
-    closed_trips = list(map(close_trip, closed_trips))
+    [trip.close() for trip in closed_trips]
     closed_trips = create_trips(closed_trips)
     return closed_trips
 
@@ -334,6 +328,27 @@ class TestTripService(BaseTestCase):
         user = create_user("user1@mail.fr")
         with self.assertRaises(TripNotFoundException):
             get_user_steps_participation(user, 5)
+
+    def test_close_unknown_trip_should_raise_tripnotfoundexception(self):
+        unknown_trip_id = 1
+        with self.assertRaises(TripNotFoundException):
+            close_trip(unknown_trip_id)
+
+    def test_close_open_trip_should_close_trip(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object("trip", user))
+        self.assertFalse(trip.closed)
+        close_trip(trip.id)
+        self.assertTrue(get_trip_by_id(trip.id).closed)
+
+    def test_close_closed_trip_should_do_nothing(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object("trip", user))
+        self.assertFalse(trip.closed)
+        close_trip(trip.id)
+        self.assertTrue(get_trip_by_id(trip.id).closed)
+        close_trip(trip.id)
+        self.assertTrue(get_trip_by_id(trip.id).closed)
 
 
 if __name__ == '__main__':
