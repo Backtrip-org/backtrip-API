@@ -5,12 +5,13 @@ from flask import send_from_directory
 from werkzeug.utils import secure_filename
 
 from app.main import db
-from app.main.model.file import File
+from app.main.model.file.file import File
 from ..util.exception.FileException import UploadFileNotFoundException, IdFileNotFoundException
 
 DIRECTORY_PATH = os.getenv('FILES_DIRECTORY')
 
-def upload(files):
+
+def upload(files, file_type):
     if 'file' not in files:
         raise UploadFileNotFoundException()
 
@@ -26,7 +27,8 @@ def upload(files):
     new_file = File(
         id=file_id,
         name=file_name,
-        extension=file_extension
+        extension=file_extension,
+        type=file_type
     )
 
     saved_file_name = secure_filename(file_id + '.' + file_extension)
@@ -35,6 +37,7 @@ def upload(files):
     db_save(new_file)
 
     return new_file
+
 
 def download(file_id):
     file = File.query.filter_by(id=file_id).first()

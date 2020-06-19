@@ -1,14 +1,16 @@
 from app.main import db
 from app.main.model.step.step import Step
 from app.main.model.trip import Trip
-from app.main.model.file import File
+from app.main.model.file.file import File
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, \
     UserIdNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
+from .rating_service import get_rating
 from .user_service import get_user_by_email, get_user
 from ..model.expense import Expense
 from ..util.exception.ExpenseException import ExpenseNotFoundException
+from ..model.step.step_transport import StepTransport
 from ..util.exception.FileException import FileNotFoundException
 from ..util.exception.StepException import StepNotFoundException
 from datetime import date
@@ -35,6 +37,14 @@ def create_step(step):
 
     save_changes(step)
     return step
+
+
+def add_ratings(step):
+    if step.start_address is not None:
+        step.start_address.rating = get_rating(step.start_address)
+
+    if isinstance(step, StepTransport) and step.end_address is not None:
+        step.end_address.rating = get_rating(step.end_address)
 
 
 def invite_to_trip(trip_id, user_to_invite_email):
