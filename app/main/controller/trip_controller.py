@@ -2,6 +2,10 @@ import sqlalchemy
 from flask import request
 from flask_restplus import Resource
 
+from ..model.expense import Expense
+from ..model.owe import Owe
+from ..service.file_service import upload
+from ..util.exception.ExpenseException import ExpenseNotFoundException
 from ..model.file.file_type import FileType
 from ..service.file_service import upload
 from ..service.rating_service import get_rating
@@ -11,19 +15,22 @@ from ..util.exception.StepException import StepNotFoundException, UnknownStepTyp
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..util.decorator import token_required
-from ..util.dto import TripDto, UserDto, FileDto
+from ..util.dto import TripDto, UserDto, FileDto, ExpenseDto, OweDto
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     user_participates_in_trip, get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
-    add_file_to_step, add_ratings
+    add_file_to_step, create_expense, create_owe, add_ratings
 from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
-from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip
+from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, \
+    UserIdNotFoundException
 
 api = TripDto.api
 _trip = TripDto.trip
 _step = TripDto.step
 _user = UserDto.user
 _file = FileDto.file
+_expense = ExpenseDto.expense
+_owe = OweDto.owe
 
 
 @api.route('/')
@@ -233,3 +240,57 @@ class StepDocument(Resource):
         except UploadFileNotFoundException as e:
             api.abort(400, e.value)
 
+            
+@api.route('/<trip_id>/expense')
+@api.param('trip_id', 'Identifier of the trip')
+class UserExpense(Resource):
+    @api.doc('Create a user expense')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown trip.')
+    @api.response(404, 'Unknown user.')
+    @api.marshal_with(_expense)
+    @token_required
+    def post(self, trip_id):
+        try:
+            user_id = request.json.get('user_id')
+            cost = request.json.get('cost')
+
+            expense = Expense(
+                cost=cost,
+                user_id=user_id,
+                trip_id=trip_id
+            )
+
+            return create_expense(expense)
+        except TripNotFoundException as e:
+            api.abort(404, e.value)
+        except UserIdNotFoundException as e:
+            api.abort(404, e.value)
+
+
+@api.route('/<trip_id>/owe')
+@api.param('trip_id', 'Identifier of the trip')
+class UserOwed(Resource):
+    @api.doc('Create a user owe')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown expense.')
+    @api.response(404, 'Unknown user.')
+    @api.marshal_with(_owe)
+    @token_required
+    def post(self, trip_id):
+        try:
+            expense_id = request.json.get('expense_id')
+            user_id = request.json.get('user_id')
+            cost = request.json.get('cost')
+
+            owe = Owe(
+                cost=cost,
+                user_id=user_id,
+                expense_id=expense_id
+            )
+
+            return create_owe(owe)
+        except ExpenseNotFoundException as e:
+            api.abort(404, e.value)
+        except UserIdNotFoundException as e:
+            api.abort(404, e.value)
