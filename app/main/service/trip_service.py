@@ -273,8 +273,7 @@ def append_operation(operations, operation):
         if ope.emitter_id == operation.emitter_id and ope.payee_id == operation.payee_id:
             ope.amount += operation.amount
             return operations
-    if operation.amount > 0:
-        operations.append(operation)
+    operations.append(operation)
 
 
 def remove_done_reimbursements(user_reimbursements, reimbursements_to_remove):
