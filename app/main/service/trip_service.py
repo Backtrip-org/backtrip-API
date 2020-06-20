@@ -296,9 +296,6 @@ def switch_emitter_and_payee_because_of_negative_amount(operations):
             temp = operation.payee_id
             operation.payee_id = operation.emitter_id
             operation.emitter_id = temp
-            
-    save_changes(owe)
-    return owe
 
 
 def close_trip(trip_id):

@@ -3,21 +3,22 @@ from flask import request
 from flask_restplus import Resource
 
 from ..model.expense import Expense
-from ..model.reimbursement import Reimbursement
-from ..service.file_service import upload
-from ..util.exception.ExpenseException import ExpenseNotFoundException
 from ..model.file.file_type import FileType
-from ..service.file_service import upload
-from ..util.exception.FileException import FileNotFoundException, UploadFileNotFoundException
+from ..model.reimbursement import Reimbursement
 from ..model.step.step_factory import StepFactory
-from ..util.exception.StepException import StepNotFoundException, UnknownStepTypeException
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
-from ..util.dto import TripDto, UserDto, FileDto, ExpenseDto, ReimbursementDto, OperationDto
+from ..service.file_service import upload
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
-    user_participates_in_trip, get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
-    add_file_to_step, create_expense, create_reimbursement, refunds_to_get_for_user, get_user_reimbursements, calculate_future_operations, close_trip, add_ratings, close_trip
+    get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
+    add_file_to_step, create_expense, create_reimbursement, refunds_to_get_for_user, get_user_reimbursements, \
+    calculate_future_operations, add_ratings, close_trip
+from ..util.decorator import token_required, trip_participant_required
+from ..util.dto import TripDto, UserDto, FileDto, ExpenseDto, ReimbursementDto, OperationDto
+from ..util.exception.ExpenseException import ExpenseNotFoundException
+from ..util.exception.FileException import FileNotFoundException, UploadFileNotFoundException
 from ..util.exception.GlobalException import StringLengthOutOfRangeException
+from ..util.exception.StepException import StepNotFoundException, UnknownStepTypeException
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, \
     UserIdNotFoundException
