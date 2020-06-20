@@ -242,7 +242,7 @@ class TestTripController(BaseTestCase):
         trip_id = json.loads(create_trip_response.data)['id']
         get_timeline_response = self.client.get('/trip/{}/timeline'.format(str(trip_id)), headers=auth_headers_user_2)
         self.assertEqual(get_timeline_response.status_code, 401)
-        self.assertEqual(json.loads(get_timeline_response.data).get('message'), 'You cannot access this timeline.')
+        self.assertEqual(json.loads(get_timeline_response.data).get('message'), 'Unauthorized, you can\'t access this trip')
 
     def test_get_unknown_trip_timeline_should_return_not_found(self):
         register_user(self)

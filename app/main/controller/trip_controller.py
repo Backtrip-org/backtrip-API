@@ -6,16 +6,17 @@ from ..model.expense import Expense
 from ..model.reimbursement import Reimbursement
 from ..service.file_service import upload
 from ..util.exception.ExpenseException import ExpenseNotFoundException
+from ..model.file.file_type import FileType
+from ..service.file_service import upload
 from ..util.exception.FileException import FileNotFoundException, UploadFileNotFoundException
 from ..model.step.step_factory import StepFactory
 from ..util.exception.StepException import StepNotFoundException, UnknownStepTypeException
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
-from ..util.decorator import token_required
 from ..util.dto import TripDto, UserDto, FileDto, ExpenseDto, ReimbursementDto, OperationDto
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     user_participates_in_trip, get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
-    add_file_to_step, create_expense, create_reimbursement, refunds_to_get_for_user, get_user_reimbursements, calculate_future_operations
+    add_file_to_step, create_expense, create_reimbursement, refunds_to_get_for_user, get_user_reimbursements, calculate_future_operations, close_trip, add_ratings, close_trip
 from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, \
@@ -68,14 +69,18 @@ class TripStep(Resource):
     @api.response(400, 'Name is too long.')
     @api.response(400, 'Step type is unknown.')
     @api.response(401, 'Unknown access token.')
+    @api.response(401, 'User cannot access this trip.')
     @api.response(404, 'Unknown trip.')
     @api.marshal_with(_step)
     @token_required
+    @trip_participant_required
     def post(self, trip_id):
         step_dto = request.json
 
         try:
-            new_step = StepFactory(step_dto, trip_id).get()
+            new_step = StepFactory().get(step_dto, trip_id)
+            add_ratings(new_step)
+
             return create_step(step=new_step), 201
         except TripNotFoundException as e:
             api.abort(404, e.value)
@@ -92,8 +97,10 @@ class TripInvitation(Resource):
     @api.response(204, 'User as been added to trip')
     @api.response(400, 'User email not found')
     @api.response(401, 'Unknown access token')
+    @api.response(401, 'User cannot access this trip.')
     @api.response(404, 'Trip not found')
     @token_required
+    @trip_participant_required
     def post(self, trip_id):
         try:
             invite_to_trip(trip_id, request.json.get('email'))
@@ -112,8 +119,10 @@ class TripStepWithId(Resource):
     @api.marshal_with(_step)
     @api.response(200, 'Step detail.')
     @api.response(401, 'Unknown access token.')
+    @api.response(401, 'User cannot access this trip.')
     @api.response(404, 'Unknown step.')
     @token_required
+    @trip_participant_required
     def get(self, trip_id, step_id):
         step = get_step(step_id)
         if not step:
@@ -129,14 +138,12 @@ class TripTimeline(Resource):
     @api.marshal_with(_step)
     @api.response(200, 'Timeline detail.')
     @api.response(401, 'Unknown access token.')
-    @api.response(401, 'You cannot access this timeline.')
+    @api.response(401, 'User cannot access this trip.')
     @api.response(404, 'Unknown trip.')
     @token_required
+    @trip_participant_required
     def get(self, trip_id):
-        response, status = Auth.get_logged_in_user(request)
         try:
-            if not user_participates_in_trip(response.get('data').id, trip_id):
-                api.abort(401, 'You cannot access this timeline.')
             return get_timeline(trip_id), 200
         except TripNotFoundException as e:
             api.abort(404, e.value)
@@ -150,9 +157,11 @@ class UserStepsParticipation(Resource):
     @api.response(200, 'Steps.')
     @api.response(401, 'Unknown access token.')
     @api.response(401, 'You cannot access this steps.')
+    @api.response(401, 'User cannot access this trip.')
     @api.response(404, 'Unknown trip.')
     @api.response(404, 'Unknown user.')
     @token_required
+    @trip_participant_required
     def get(self, trip_id):
         user_data, status = Auth.get_logged_in_user(request)
         user = user_data.get('data')
@@ -176,6 +185,7 @@ class StepParticipant(Resource):
     @api.response(404, 'Step not found.')
     @api.marshal_with(_user)
     @token_required
+    @trip_participant_required
     def post(self, trip_id, step_id):
         try:
             user_id = request.json.get('id')
@@ -192,9 +202,35 @@ class StepParticipant(Resource):
 @api.route('/<trip_id>/step/<step_id>/document')
 @api.param('trip_id', 'Identifier of the trip')
 @api.param('step_id', 'Identifier of the step')
-class StepParticipant(Resource):
+class StepDocument(Resource):
     @api.doc('Add document to step')
     @api.response(200, 'Document successfully added.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(401, 'User cannot access this trip.')
+    @api.response(404, 'Step not found.')
+    @api.response(404, 'File not found.')
+    @api.marshal_with(_file)
+    @trip_participant_required
+    @token_required
+    def post(self, trip_id, step_id):
+        try:
+            file = upload(request.files, FileType.Document)
+            add_file_to_step(file.id, step_id)
+            return file
+        except StepNotFoundException as e:
+            api.abort(404, e.value)
+        except FileNotFoundException as e:
+            api.abort(404, e.value)
+        except UploadFileNotFoundException as e:
+            api.abort(400, e.value)
+
+
+@api.route('/<trip_id>/step/<step_id>/photo')
+@api.param('trip_id', 'Identifier of the trip')
+@api.param('step_id', 'Identifier of the step')
+class StepDocument(Resource):
+    @api.doc('Add photo to step')
+    @api.response(200, 'Photo successfully added.')
     @api.response(401, 'Unknown access token.')
     @api.response(404, 'Step not found.')
     @api.response(404, 'File not found.')
@@ -202,7 +238,7 @@ class StepParticipant(Resource):
     @token_required
     def post(self, trip_id, step_id):
         try:
-            file = upload(request.files)
+            file = upload(request.files, FileType.Photo)
             add_file_to_step(file.id, step_id)
             return file
         except StepNotFoundException as e:
@@ -270,7 +306,7 @@ class UserReimbursement(Resource):
         except UserIdNotFoundException as e:
             api.abort(404, e.value)
 
-
+            
 @api.route('/<trip_id>/transactionsToBeMade/<user_id>')
 @api.param('trip_id', 'Identifier of the trip')
 @api.param('user_id', 'Identifier of the user')
@@ -286,4 +322,22 @@ class TransactionsToBeMade(Resource):
             user_reimbursements = get_user_reimbursements(trip_id, user_id)
             return calculate_future_operations(refunds_to_get, user_reimbursements)
         except UserIdNotFoundException as e:
+            api.abort(404, e.value)
+        
+        
+@api.route('/<trip_id>/close')
+@api.param('trip_id', 'Identifier of the trip')
+class CloseTrip(Resource):
+    @api.doc('Close trip')
+    @api.response(200, 'Trip successfully closed')
+    @api.response(401, 'User cannot access this trip.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown trip.')
+    @token_required
+    @trip_participant_required
+    def patch(self, trip_id):
+        try:
+            close_trip(trip_id)
+            return 'Trip successfully closed.', 200
+        except TripNotFoundException as e:
             api.abort(404, e.value)

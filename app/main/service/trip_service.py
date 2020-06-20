@@ -1,16 +1,18 @@
 from app.main import db
 from app.main.model.step.step import Step
 from app.main.model.trip import Trip
-from app.main.model.file import File
+from app.main.model.file.file import File
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, \
     UserIdNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
+from .rating_service import get_rating
 from .user_service import get_user_by_email, get_user
 from ..model.expense import Expense
 from ..model.operation import Operation
 from ..model.reimbursement import Reimbursement
 from ..util.exception.ExpenseException import ExpenseNotFoundException
+from ..model.step.step_transport import StepTransport
 from ..util.exception.FileException import FileNotFoundException
 from ..util.exception.StepException import StepNotFoundException
 from datetime import date
@@ -39,6 +41,14 @@ def create_step(step):
     return step
 
 
+def add_ratings(step):
+    if step.start_address is not None:
+        step.start_address.rating = get_rating(step.start_address)
+
+    if isinstance(step, StepTransport) and step.end_address is not None:
+        step.end_address.rating = get_rating(step.end_address)
+
+
 def invite_to_trip(trip_id, user_to_invite_email):
     trip = get_trip_by_id(trip_id)
     if trip is None:
@@ -50,11 +60,6 @@ def invite_to_trip(trip_id, user_to_invite_email):
     trip.users_trips.append(user)
     save_changes(trip)
     pass
-
-
-def save_changes(data):
-    db.session.add(data)
-    db.session.commit()
 
 
 def get_trip_by_id(trip_id):
@@ -291,3 +296,21 @@ def switch_emitter_and_payee_because_of_negative_amount(operations):
             temp = operation.payee_id
             operation.payee_id = operation.emitter_id
             operation.emitter_id = temp
+            
+    save_changes(owe)
+    return owe
+
+
+def close_trip(trip_id):
+    trip = get_trip_by_id(trip_id)
+    if trip is None:
+        raise TripNotFoundException(trip_id)
+    if trip.closed:
+        return
+    trip.close()
+    save_changes(trip)
+
+
+def save_changes(data):
+    db.session.add(data)
+    db.session.commit()
