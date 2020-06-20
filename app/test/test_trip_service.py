@@ -1,12 +1,16 @@
 import unittest
 import datetime
 
+from app.main.model.expense import Expense
+from app.main.model.operation import Operation
+from app.main.model.reimbursement import Reimbursement
 from app.main.model.user import User
 from app.main.model.trip import Trip
 from app.main.model.step.step import Step
 from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user, add_participant_to_step, \
-    get_user_steps_participation
+    get_user_steps_participation, calculate_future_operations, get_user_reimbursements, refunds_to_get_for_user, \
+    create_reimbursement, create_expense
 from app.main.util.exception.StepException import StepNotFoundException
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
@@ -44,6 +48,22 @@ def get_step_object(name, trip_id, start_datetime):
         start_datetime=start_datetime
     )
 
+def get_expense_object(cost, user_id, trip_id):
+    return Expense(
+        cost=cost,
+        trip_id=trip_id,
+        user_id=user_id
+    )
+
+
+def get_reimbursement_object(cost, expense_id, emitter_id, payee_id, trip_id):
+    return Reimbursement(
+        cost=cost,
+        expense_id=expense_id,
+        emitter_id=emitter_id,
+        payee_id=payee_id,
+        trip_id=trip_id
+    )
 
 def close_trip(trip):
     trip.closed = True
@@ -334,6 +354,41 @@ class TestTripService(BaseTestCase):
         user = create_user("user1@mail.fr")
         with self.assertRaises(TripNotFoundException):
             get_user_steps_participation(user, 5)
+
+    def test_create_expense(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object("trip", user))
+        expense = create_expense(get_expense_object(150.50, user.id, trip.id))
+        self.assertIsInstance(expense, Expense)
+
+    def test_create_reimbursement(self):
+        user = create_user("user1@mail.fr")
+        user2 = create_user("user2@mail.fr")
+        trip = create_trip(get_trip_object("trip", user))
+        expense = create_expense(get_expense_object(150.50, user.id, trip.id))
+        reimbursement = create_reimbursement(get_reimbursement_object(100.50, expense.id, user.id, user2.id, trip.id))
+        self.assertIsInstance(reimbursement, Reimbursement)
+
+    def test_calculate_future_operations(self):
+        user = create_user("user1@mail.fr")
+        user2 = create_user("user2@mail.fr")
+        user3 = create_user("user3@mail.fr")
+        trip = create_trip(get_trip_object("trip", user))
+        expense = create_expense(get_expense_object(150.50, user.id, trip.id))
+        reimbursement = create_reimbursement(get_reimbursement_object(100, expense.id, user.id, user2.id, trip.id))
+        reimbursement2 = create_reimbursement(get_reimbursement_object(100, expense.id, user.id, user2.id, trip.id))
+        reimbursement3 = create_reimbursement(get_reimbursement_object(100, expense.id, user3.id, user.id, trip.id))
+        operations = calculate_future_operations(refunds_to_get_for_user(trip.id, user.id),
+                                                 get_user_reimbursements(trip.id, user.id))
+        expected_result = [Operation(amount=100, emitter_id=user3.id, payee_id=user.id),
+                           Operation(amount=200, emitter_id=user.id, payee_id=user2.id)]
+
+        self.assertEquals(operations[0].amount, expected_result[0].amount)
+        self.assertEquals(operations[1].amount, expected_result[1].amount)
+        self.assertEquals(operations[0].emitter_id, expected_result[0].emitter_id)
+        self.assertEquals(operations[1].emitter_id, expected_result[1].emitter_id)
+        self.assertEquals(operations[0].payee_id, expected_result[0].payee_id)
+        self.assertEquals(operations[1].payee_id, expected_result[1].payee_id)
 
 
 if __name__ == '__main__':

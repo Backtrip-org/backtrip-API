@@ -372,6 +372,39 @@ class TestTripController(BaseTestCase):
                                                      content_type='application/json')
         self.assertEqual(personal_timeline_response.status_code, 404)
 
+    def test_create_expense_should_return_ok(self):
+        user_id = json.loads(register_user(self).data)['id']
+        login_response = login_user(self)
+        headers = dict(Authorization=json.loads(login_response.data)['Authorization'])
+        trip_payload = json.dumps(dict(name='trip', picture_path='picture/path'))
+        create_trip_response = \
+            self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
+        trip_id = json.loads(create_trip_response.data)['id']
+        expense_payload = json.dumps(dict(cost=150.50, user_id=user_id, trip_id=trip_id))
+        create_expense_response = \
+            self.client.post('/trip/{}/expense'.format(str(trip_id)), headers=headers, data=expense_payload,
+                             content_type='application/json')
+        self.assertEqual(create_expense_response.status_code, 200)
+
+    def test_create_reimbursement_should_return_ok(self):
+        user_id = json.loads(register_user(self).data)['id']
+        login_response = login_user(self)
+        headers = dict(Authorization=json.loads(login_response.data)['Authorization'])
+        trip_payload = json.dumps(dict(name='trip', picture_path='picture/path'))
+        create_trip_response = \
+            self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
+        trip_id = json.loads(create_trip_response.data)['id']
+        expense_payload = json.dumps(dict(cost=150.50, user_id=user_id, trip_id=trip_id))
+        create_expense_response = \
+            self.client.post('/trip/{}/expense'.format(str(trip_id)), headers=headers, data=expense_payload,
+                             content_type='application/json')
+        expense_id = json.loads(create_expense_response.data)['id']
+        reimbursement_payload = json.dumps(
+            dict(cost=100.50, expense_id=expense_id, emitter_id=user_id, payee_id=user_id, trip_id=trip_id))
+        create_reimbursement_response = \
+            self.client.post('/trip/{}/reimbursement'.format(str(trip_id)), headers=headers, data=reimbursement_payload,
+                             content_type='application/json')
+        self.assertEqual(create_reimbursement_response.status_code, 200)
 
 if __name__ == '__main__':
     unittest.main()
