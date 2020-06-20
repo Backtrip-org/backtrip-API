@@ -9,6 +9,8 @@ from app.main.util.exception.GlobalException import StringLengthOutOfRangeExcept
 from .rating_service import get_rating
 from .user_service import get_user_by_email, get_user
 from ..model.expense import Expense
+from ..model.operation import Operation
+from ..model.reimbursement import Reimbursement
 from ..util.exception.ExpenseException import ExpenseNotFoundException
 from ..model.step.step_transport import StepTransport
 from ..util.exception.FileException import FileNotFoundException
@@ -224,14 +226,77 @@ def create_expense(expense):
     return expense
 
 
-def create_owe(owe):
-    expense = get_expense(owe.expense_id)
+def create_reimbursement(reimbursement):
+    expense = get_expense(reimbursement.expense_id)
     if not expense:
-        raise ExpenseNotFoundException(owe.expense_id)
+        raise ExpenseNotFoundException(reimbursement.expense_id)
 
-    if not get_user(owe.user_id):
-        raise UserIdNotFoundException(owe.user_id)
+    if not get_user(reimbursement.emitter_id):
+        raise UserIdNotFoundException(reimbursement.emitter_id)
 
+    save_changes(reimbursement)
+    return reimbursement
+
+
+def refunds_to_get_for_user(trip_id, payee_id):
+    return Reimbursement.query.filter_by(trip_id=trip_id).filter_by(payee_id=payee_id).all()
+
+
+def get_user_reimbursements(trip_id, emitter_id):
+    return Reimbursement.query.filter_by(trip_id=trip_id).filter_by(emitter_id=emitter_id).all()
+
+
+def calculate_future_operations(refunds_to_get, user_reimbursements):
+    operations = []
+    reimbursements_to_remove = []
+    for reimbursement in refunds_to_get:
+        operation = Operation(reimbursement.emitter_id, reimbursement.payee_id, reimbursement.cost)
+        add_reimbursements_that_concern_operation(user_reimbursements, operation, reimbursements_to_remove)
+        append_operation(operations, operation)
+        remove_done_reimbursements(user_reimbursements, reimbursements_to_remove)
+
+    add_reimbursements_that_doesnt_concern_any_operation(user_reimbursements, operations)
+    switch_emitter_and_payee_because_of_negative_amount(operations)
+
+    return operations
+
+
+def add_reimbursements_that_concern_operation(user_reimbursements, operation, reimbursements_to_remove):
+    for user_reimbursement in user_reimbursements:
+        if operation.payee_id == user_reimbursement.emitter_id and operation.emitter_id == user_reimbursement.payee_id:
+            operation.amount -= user_reimbursement.cost
+            reimbursements_to_remove.append(user_reimbursement)
+
+
+def append_operation(operations, operation):
+    for ope in operations:
+        if ope.emitter_id == operation.emitter_id and ope.payee_id == operation.payee_id:
+            ope.amount += operation.amount
+            return operations
+    if operation.amount > 0:
+        operations.append(operation)
+
+
+def remove_done_reimbursements(user_reimbursements, reimbursements_to_remove):
+    for reimbursementToRemove in reimbursements_to_remove:
+        if reimbursementToRemove in user_reimbursements:
+            user_reimbursements.remove(reimbursementToRemove)
+
+
+def add_reimbursements_that_doesnt_concern_any_operation(user_reimbursements, operations):
+    for user_reimbursement in user_reimbursements:
+        operation = Operation(user_reimbursement.emitter_id, user_reimbursement.payee_id, user_reimbursement.cost)
+        append_operation(operations, operation)
+
+
+def switch_emitter_and_payee_because_of_negative_amount(operations):
+    for operation in operations:
+        if operation.amount < 0:
+            operation.amount = abs(operation.amount)
+            temp = operation.payee_id
+            operation.payee_id = operation.emitter_id
+            operation.emitter_id = temp
+            
     save_changes(owe)
     return owe
 
@@ -249,4 +314,3 @@ def close_trip(trip_id):
 def save_changes(data):
     db.session.add(data)
     db.session.commit()
-

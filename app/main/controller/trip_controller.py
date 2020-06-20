@@ -3,7 +3,8 @@ from flask import request
 from flask_restplus import Resource
 
 from ..model.expense import Expense
-from ..model.owe import Owe
+from ..model.reimbursement import Reimbursement
+from ..service.file_service import upload
 from ..util.exception.ExpenseException import ExpenseNotFoundException
 from ..model.file.file_type import FileType
 from ..service.file_service import upload
@@ -12,13 +13,10 @@ from ..model.step.step_factory import StepFactory
 from ..util.exception.StepException import StepNotFoundException, UnknownStepTypeException
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
-from ..util.dto import ExpenseDto, OweDto
-from ..service.trip_service import create_expense, create_owe
-from ..util.decorator import token_required, trip_participant_required
-from ..util.dto import TripDto, UserDto, FileDto
+from ..util.dto import TripDto, UserDto, FileDto, ExpenseDto, ReimbursementDto, OperationDto
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
-    get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
-    add_file_to_step, add_ratings, close_trip
+    user_participates_in_trip, get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
+    add_file_to_step, create_expense, create_reimbursement, refunds_to_get_for_user, get_user_reimbursements, calculate_future_operations, close_trip, add_ratings, close_trip
 from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, \
@@ -30,7 +28,8 @@ _step = TripDto.step
 _user = UserDto.user
 _file = FileDto.file
 _expense = ExpenseDto.expense
-_owe = OweDto.owe
+_reimbursement = ReimbursementDto.reimbursement
+_operation = OperationDto.operation
 
 
 @api.route('/')
@@ -277,34 +276,55 @@ class UserExpense(Resource):
             api.abort(404, e.value)
 
 
-@api.route('/<trip_id>/owe')
+@api.route('/<trip_id>/reimbursement')
 @api.param('trip_id', 'Identifier of the trip')
-class UserOwed(Resource):
-    @api.doc('Create a user owe')
+class UserReimbursement(Resource):
+    @api.doc('Create a user reimbursement')
     @api.response(401, 'Unknown access token.')
     @api.response(404, 'Unknown expense.')
     @api.response(404, 'Unknown user.')
-    @api.marshal_with(_owe)
+    @api.marshal_with(_reimbursement)
     @token_required
     def post(self, trip_id):
         try:
             expense_id = request.json.get('expense_id')
-            user_id = request.json.get('user_id')
+            emitter_id = request.json.get('emitter_id')
+            payee_id = request.json.get('payee_id')
             cost = request.json.get('cost')
 
-            owe = Owe(
+            reimbursement = Reimbursement(
                 cost=cost,
-                user_id=user_id,
-                expense_id=expense_id
+                emitter_id=emitter_id,
+                expense_id=expense_id,
+                payee_id=payee_id,
+                trip_id=trip_id
             )
 
-            return create_owe(owe)
+            return create_reimbursement(reimbursement)
         except ExpenseNotFoundException as e:
             api.abort(404, e.value)
         except UserIdNotFoundException as e:
             api.abort(404, e.value)
 
-
+            
+@api.route('/<trip_id>/transactionsToBeMade/<user_id>')
+@api.param('trip_id', 'Identifier of the trip')
+@api.param('user_id', 'Identifier of the user')
+class TransactionsToBeMade(Resource):
+    @api.doc('Transactions to be made for a specific user')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown user.')
+    @api.marshal_with(_operation)
+    @token_required
+    def get(self, trip_id, user_id):
+        try:
+            refunds_to_get = refunds_to_get_for_user(trip_id, user_id)
+            user_reimbursements = get_user_reimbursements(trip_id, user_id)
+            return calculate_future_operations(refunds_to_get, user_reimbursements)
+        except UserIdNotFoundException as e:
+            api.abort(404, e.value)
+        
+        
 @api.route('/<trip_id>/close')
 @api.param('trip_id', 'Identifier of the trip')
 class CloseTrip(Resource):
