@@ -227,9 +227,10 @@ def create_expense(expense):
 
 
 def create_reimbursement(reimbursement):
-    expense = get_expense(reimbursement.expense_id)
-    if not expense:
-        raise ExpenseNotFoundException(reimbursement.expense_id)
+    if reimbursement.expense_id:
+        expense = get_expense(reimbursement.expense_id)
+        if not expense:
+            raise ExpenseNotFoundException(reimbursement.expense_id)
 
     if not get_user(reimbursement.emitter_id):
         raise UserIdNotFoundException(reimbursement.emitter_id)
@@ -272,8 +273,11 @@ def append_operation(operations, operation):
     for ope in operations:
         if ope.emitter_id == operation.emitter_id and ope.payee_id == operation.payee_id:
             ope.amount += operation.amount
+            if ope.amount == 0:
+                operations.remove(ope)
             return operations
-    operations.append(operation)
+    if operation.amount != 0:
+        operations.append(operation)
 
 
 def remove_done_reimbursements(user_reimbursements, reimbursements_to_remove):
