@@ -105,7 +105,7 @@ class ChatMessageDto:
 
 
 class ExpenseDto:
-    api = Namespace('expense', description='Expense create by a user')
+    api = Namespace('expense', description='Expenses related operations')
     expense = api.model('expense', {
         'id': fields.Integer(required=False, description="Expense id"),
         'cost': fields.Float(required=True, description="Expense value"),
@@ -113,9 +113,6 @@ class ExpenseDto:
         'user_id': fields.Integer(required=False, description='User id')
     })
 
-
-class ReimbursementDto:
-    api = Namespace('reimbursement', description='User reimbursement')
     reimbursement = api.model('reimbursement', {
         'id': fields.Integer(required=False, description="Expense id"),
         'cost': fields.Float(required=True, description="Reimbursement value"),
@@ -125,9 +122,6 @@ class ReimbursementDto:
         'trip_id': fields.Integer(required=False, description='Trip id'),
     })
 
-
-class OperationDto:
-    api = Namespace('operation', description='Operation')
     operation = api.model('operation', {
         'amount': fields.Float(required=True, description="Amount value"),
         'emitter_id': fields.Integer(required=False, description='Emitter id'),

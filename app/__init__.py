@@ -5,7 +5,7 @@ from flask import Blueprint
 
 from .main.controller.user_controller import api as user_ns
 from .main.controller.auth_controller import api as auth_ns
-from .main.controller.trip_controller import api as trip_ns
+from .main.controller.trip_controller import trip_api as trip_ns
 from .main.controller.chat_message_controller import api as chat_ns
 from .main.controller.file_controller import api as file_ns
 
