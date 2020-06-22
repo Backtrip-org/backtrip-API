@@ -10,6 +10,7 @@ from app.main.model.user import User
 from app.main.service.travel_journal_service import TravelJournalService
 from app.main.service.trip_service import create_trip, create_step, add_file_to_step
 from app.main.service.user_service import create_user
+from app.main.util.exception.TripException import TripMustBeClosedException
 from app.test.base import BaseTestCase
 
 
@@ -25,12 +26,12 @@ def create_test_user() -> User:
     return User.query.filter_by(email=user.email).first()
 
 
-def create_test_trip(creator: User) -> Trip:
+def create_test_trip(creator: User, closed: bool) -> Trip:
     trip = Trip(
         name='Road-trip Tanzanie',
         picture_path="picture/path",
         creator_id=creator.id,
-        closed=True,
+        closed=closed,
         users_trips=[creator]
     )
     return create_trip(trip)
@@ -65,7 +66,7 @@ def add_photo_to_test_step(step_id: int, name: str, extension: str):
 class MyTestCase(BaseTestCase):
     def test_travel_journal_creation(self):
         user = create_test_user()
-        trip = create_test_trip(user)
+        trip = create_test_trip(user, closed=True)
 
         step_1 = add_test_step(trip, [user], 'Safari', datetime.datetime(2020, 5, 21, 15, 00), datetime.datetime(2020, 5, 21, 16, 00))
         add_photo_to_test_step(step_1.id, 'test/test_picture_safari', "jpg")
@@ -78,7 +79,13 @@ class MyTestCase(BaseTestCase):
 
         TravelJournalService(trip, user).generate_travel_journal()
 
-        self.assertEqual(True, True)
+    def test_travel_creation_with_open_trip_should_raise_exception(self):
+        user = create_test_user()
+        trip = create_test_trip(user, closed=False)
+        with self.assertRaises(TripMustBeClosedException):
+            TravelJournalService(trip, user)
+
+
 
 
 if __name__ == '__main__':

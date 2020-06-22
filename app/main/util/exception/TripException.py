@@ -15,7 +15,7 @@ class TripNotFoundException(Exception):
 
 
 class TripMustBeClosedException(Exception):
-    def __init__(self, trip_id):
+    def __init__(self):
         self.value = "Trip must be closed."
 
     def __str__(self):
