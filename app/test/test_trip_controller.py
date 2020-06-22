@@ -255,7 +255,7 @@ class TestTripController(BaseTestCase):
         get_timeline_response = self.client.get('/trip/{}/timeline'.format(str(trip_id + 1)), headers=headers)
         self.assertEqual(get_timeline_response.status_code, 404)
 
-    def test_add_participant_to_step_should_return_204(self):
+    def test_add_participant_to_step_should_return_200(self):
         user_id = json.loads(register_user(self).data)['id']
         login_response = login_user(self)
         headers = dict(Authorization=json.loads(login_response.data)['Authorization'])
@@ -271,7 +271,7 @@ class TestTripController(BaseTestCase):
         add_participant_response = self.client.post('trip/{}/step/{}/participant'.format(str(trip_id), str(step_id)),
                                                     headers=headers, data=add_participant_payload,
                                                     content_type='application/json')
-        self.assertEqual(add_participant_response.status_code, 204)
+        self.assertEqual(add_participant_response.status_code, 200)
 
     def test_add_participant_to_step_should_return_401_invalid_token(self):
         user_id = json.loads(register_user(self).data)['id']

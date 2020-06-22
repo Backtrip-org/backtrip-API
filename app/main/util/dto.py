@@ -93,19 +93,6 @@ class TripDto:
         'files': fields.List(fields.Nested(FileDto.file), description='related files')
     })
 
-
-class ChatMessageDto:
-    api = Namespace('chat_message', description='Chat message related operations')
-    chat_message = api.model('chat_message', {
-        'id': fields.Integer(required=False, description='Chat message id'),
-        'message': fields.String(required=True, description='Message content'),
-        'trip_id': fields.Integer(required=False, description='Trip id'),
-        'user_id': fields.Integer(required=False, description='User id')
-    })
-
-
-class ExpenseDto:
-    api = Namespace('expense', description='Expenses related operations')
     expense = api.model('expense', {
         'id': fields.Integer(required=False, description="Expense id"),
         'cost': fields.Float(required=True, description="Expense value"),
@@ -127,3 +114,14 @@ class ExpenseDto:
         'emitter_id': fields.Integer(required=False, description='Emitter id'),
         'payee_id': fields.Integer(required=False, description='Payee id'),
     })
+
+
+class ChatMessageDto:
+    api = Namespace('chat_message', description='Chat message related operations')
+    chat_message = api.model('chat_message', {
+        'id': fields.Integer(required=False, description='Chat message id'),
+        'message': fields.String(required=True, description='Message content'),
+        'trip_id': fields.Integer(required=False, description='Trip id'),
+        'user_id': fields.Integer(required=False, description='User id')
+    })
+
