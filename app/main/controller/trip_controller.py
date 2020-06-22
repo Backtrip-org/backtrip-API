@@ -1,3 +1,5 @@
+import io
+
 import sqlalchemy
 from flask import request, send_file
 from flask_restplus import Resource
@@ -20,7 +22,7 @@ from ..util.exception.ExpenseException import ExpenseNotFoundException
 from ..util.exception.FileException import FileNotFoundException, UploadFileNotFoundException
 from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.StepException import StepNotFoundException, UnknownStepTypeException
-from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
+from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException, TripMustBeClosedException
 from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, \
     UserIdNotFoundException
 
@@ -351,7 +353,7 @@ class TravelJournal(Resource):
     @api.doc('Create travel journal')
     @api.response(200, 'Travel journal successfully created')
     @api.response(401, 'User cannot access this trip.')
-    @api.response(401, 'The trip must be closed.')
+    @api.response(401, 'Trip must be closed.')
     @api.response(401, 'Unknown access token.')
     @api.response(404, 'Unknown trip.')
     @token_required
@@ -360,7 +362,11 @@ class TravelJournal(Resource):
         user_data, status = Auth.get_logged_in_user(request)
         user = user_data.get('data')
         trip = get_trip_by_id(trip_id)
-        travel_journal_service = TravelJournalService(trip, user)
-        travel_journal_service.generate_travel_journal()
-        file_name, bytes = travel_journal_service.get_file_as_bytes_string()
-        return send_file(bytes, attachment_filename=file_name, mimetype='application/pdf')
+
+        try:
+            travel_journal_service = TravelJournalService(trip, user)
+            travel_journal_service.generate_travel_journal()
+            file_name, bytes_str = travel_journal_service.get_file_as_bytes_string()
+            return send_file(io.BytesIO(bytes_str), attachment_filename=file_name, mimetype='application/pdf')
+        except TripMustBeClosedException as e:
+            api.abort(401, e.value)

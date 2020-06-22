@@ -12,3 +12,11 @@ class TripNotFoundException(Exception):
 
     def __str__(self):
         return repr(self.value)
+
+
+class TripMustBeClosedException(Exception):
+    def __init__(self, trip_id):
+        self.value = "Trip must be closed."
+
+    def __str__(self):
+        return repr(self.value)

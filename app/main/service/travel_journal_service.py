@@ -2,12 +2,13 @@ import os
 import uuid
 from random import choice
 
+from app.main.config import ROOT_FOLDER
 from app.main.model.trip import Trip
 from fpdf import FPDF
 
 from app.main.model.user import User
 from app.main.service.trip_service import get_user_steps_participation
-from manage import ROOT_DIR
+from app.main.util.exception.TripException import TripMustBeClosedException
 
 
 class TravelJournalService:
@@ -17,8 +18,11 @@ class TravelJournalService:
         self.user = user
         self.document = FPDF()
 
+        if not trip.closed:
+            raise TripMustBeClosedException()
+
     def generate_travel_journal(self):
-        self.document.add_font(family='tahu', fname=os.path.join(ROOT_DIR, 'resources', 'fonts', 'tahu.ttf'), uni=True, style='')
+        self.document.add_font(family='tahu', fname=os.path.join(ROOT_FOLDER, 'resources', 'fonts', 'tahu.ttf'), uni=True, style='')
         self.document.add_page()
 
         self.__add_title()
@@ -40,14 +44,14 @@ class TravelJournalService:
 
     def __display_step_name(self, step_name):
         self.document.set_font('Arial', size=20)
-        flag_image_url = os.path.join(ROOT_DIR, 'resources', 'images', 'flag.png')
+        flag_image_url = os.path.join(ROOT_FOLDER, 'resources', 'images', 'flag.png')
         self.document.image(name=flag_image_url, x=10, y=self.document.get_y(), h=9)
         self.document.set_x(20)
         self.document.cell(w=0, h=10, txt=step_name, ln=1)
 
     def __display_step_datetime(self, step_start_datetime, step_end_datetime):
         self.document.set_font('Arial', size=15)
-        flag_image_url = os.path.join(ROOT_DIR, 'resources', 'images', 'clock.png')
+        flag_image_url = os.path.join(ROOT_FOLDER, 'resources', 'images', 'clock.png')
         self.document.image(name=flag_image_url, x=11, y=self.document.get_y(), h=6)
         self.document.set_x(20)
         text = step_start_datetime.strftime("%d/%m/%Y, %H:%M")
@@ -68,4 +72,3 @@ class TravelJournalService:
         id = str(uuid.uuid4())
         file_name = 'travel_journal_{}.pdf'.format(id)
         return file_name, self.document.output(dest='S')
-        # self.document.output(os.path.join(os.getenv('FILES_DIRECTORY'), 'travel_journal.pdf'))

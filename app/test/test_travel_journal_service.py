@@ -1,6 +1,5 @@
 import datetime
 import unittest
-import uuid
 
 from app.main import db
 from app.main.model.file.file import File
@@ -69,13 +68,13 @@ class MyTestCase(BaseTestCase):
         trip = create_test_trip(user)
 
         step_1 = add_test_step(trip, [user], 'Safari', datetime.datetime(2020, 5, 21, 15, 00), datetime.datetime(2020, 5, 21, 16, 00))
-        add_photo_to_test_step(step_1.id, 'test_picture_safari', "jpg")
+        add_photo_to_test_step(step_1.id, 'test/test_picture_safari', "jpg")
         step_2 = add_test_step(trip, [user], 'Repas', datetime.datetime(2020, 5, 21, 19, 00))
-        add_photo_to_test_step(step_2.id, 'test_picture_restaurant', 'jpg')
+        add_photo_to_test_step(step_2.id, 'test/test_picture_restaurant', 'jpg')
         step_3 = add_test_step(trip, [user], 'Hotel', datetime.datetime(2020, 5, 21, 21, 00))
-        add_photo_to_test_step(step_3.id, 'test_picture_hotel', 'jpg')
+        add_photo_to_test_step(step_3.id, 'test/test_picture_hotel', 'jpg')
         step_4 = add_test_step(trip, [user], 'Concert', datetime.datetime(2020, 5, 21, 22, 00))
-        add_photo_to_test_step(step_4.id, 'test_picture_concert', 'jpg')
+        add_photo_to_test_step(step_4.id, 'test/test_picture_concert', 'jpg')
 
         TravelJournalService(trip, user).generate_travel_journal()
 
