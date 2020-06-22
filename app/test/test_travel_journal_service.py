@@ -8,7 +8,7 @@ from app.main.model.step.step import Step
 
 from app.main.model.trip import Trip
 from app.main.model.user import User
-from app.main.service.travel_journal_service import TravelJournal
+from app.main.service.travel_journal_service import TravelJournalService
 from app.main.service.trip_service import create_trip, create_step, add_file_to_step
 from app.main.service.user_service import create_user
 from app.test.base import BaseTestCase
@@ -77,7 +77,7 @@ class MyTestCase(BaseTestCase):
         step_4 = add_test_step(trip, [user], 'Concert', datetime.datetime(2020, 5, 21, 22, 00))
         add_photo_to_test_step(step_4.id, 'test_picture_concert', 'jpg')
 
-        TravelJournal(trip, user).generate_travel_journal()
+        TravelJournalService(trip, user).generate_travel_journal()
 
         self.assertEqual(True, True)
 

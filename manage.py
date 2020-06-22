@@ -2,7 +2,6 @@ import os
 import unittest
 
 from app.init_app import socketIo, app
-
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from app import blueprint

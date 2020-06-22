@@ -1,4 +1,5 @@
 import os
+import uuid
 from random import choice
 
 from app.main.model.trip import Trip
@@ -8,10 +9,8 @@ from app.main.model.user import User
 from app.main.service.trip_service import get_user_steps_participation
 from manage import ROOT_DIR
 
-DIRECTORY_PATH = os.getenv('FILES_DIRECTORY')
 
-
-class TravelJournal:
+class TravelJournalService:
 
     def __init__(self, trip: Trip, user: User):
         self.trip = trip
@@ -23,17 +22,14 @@ class TravelJournal:
         self.document.add_page()
 
         self.__add_title()
-
-        personal_timeline: list = get_user_steps_participation(self.user, self.trip.id)
-        self.__display_steps(personal_timeline)
-
-        self.document.output(os.path.join(os.getenv('FILES_DIRECTORY'), 'travel_journal.pdf'))
+        self.__display_steps()
 
     def __add_title(self):
         self.document.set_font('tahu', size=60)
         self.document.cell(w=0, h=40, txt=self.trip.name, align='C', ln=1)
 
-    def __display_steps(self, personal_timeline: list):
+    def __display_steps(self):
+        personal_timeline: list = get_user_steps_participation(self.user, self.trip.id)
         for index, step in enumerate(personal_timeline):
             if (index + 1) % 4 == 0:
                 self.document.add_page()
@@ -54,9 +50,9 @@ class TravelJournal:
         flag_image_url = os.path.join(ROOT_DIR, 'resources', 'images', 'clock.png')
         self.document.image(name=flag_image_url, x=11, y=self.document.get_y(), h=6)
         self.document.set_x(20)
-        text = step_start_datetime.strftime("%m/%d/%Y, %H:%M")
+        text = step_start_datetime.strftime("%d/%m/%Y, %H:%M")
         if step_end_datetime is not None:
-            text += ' - {}'.format(step_end_datetime.strftime("%m/%d/%Y, %H:%M"))
+            text += ' - {}'.format(step_end_datetime.strftime("%d/%m/%Y, %H:%M"))
         self.document.cell(w=0, h=7, txt=text, ln=1)
 
     def __display_random_photo(self, step):
@@ -67,3 +63,9 @@ class TravelJournal:
         photo_url = os.path.join(os.getenv('FILES_DIRECTORY'), '{}.{}'.format(selected_photo.id, selected_photo.extension))
         self.document.cell(w=0, h=3, ln=1)
         self.document.image(name=photo_url, x=20, h=50)
+
+    def get_file_as_bytes_string (self):
+        id = str(uuid.uuid4())
+        file_name = 'travel_journal_{}.pdf'.format(id)
+        return file_name, self.document.output(dest='S')
+        # self.document.output(os.path.join(os.getenv('FILES_DIRECTORY'), 'travel_journal.pdf'))
