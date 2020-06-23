@@ -279,15 +279,19 @@ class UserExpense(Resource):
         except UserIdNotFoundException as e:
             api.abort(404, e.value)
 
+
+@api.route('/<trip_id>/user/<user_id>/expenses')
+@api.param('trip_id', 'Identifier of the trip')
+@api.param('user_id', 'Identifier of the user')
+class UserExpense(Resource):
     @api.doc('Get a user expenses')
     @api.response(401, 'Unknown access token.')
     @api.response(404, 'Unknown trip.')
     @api.response(404, 'Unknown user.')
     @api.marshal_with(_expense)
     @token_required
-    def get(self, trip_id):
+    def get(self, trip_id, user_id):
         try:
-            user_id = request.json.get('user_id')
             return get_expenses(trip_id, user_id)
         except TripNotFoundException as e:
             api.abort(404, e.value)
@@ -325,7 +329,7 @@ class UserReimbursement(Resource):
         except UserIdNotFoundException as e:
             api.abort(404, e.value)
 
-            
+
 @api.route('/<trip_id>/transactionsToBeMade/<user_id>')
 @api.param('trip_id', 'Identifier of the trip')
 @api.param('user_id', 'Identifier of the user')
@@ -342,8 +346,8 @@ class TransactionsToBeMade(Resource):
             return calculate_future_operations(refunds_to_get, user_reimbursements)
         except UserIdNotFoundException as e:
             api.abort(404, e.value)
-        
-        
+
+
 @api.route('/<trip_id>/close')
 @api.param('trip_id', 'Identifier of the trip')
 class CloseTrip(Resource):

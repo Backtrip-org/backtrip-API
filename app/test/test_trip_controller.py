@@ -420,7 +420,7 @@ class TestTripController(BaseTestCase):
             self.client.post('/trip/{}/expense'.format(str(trip_id)), headers=headers, data=expense_payload,
                              content_type='application/json')
         expense_payload = json.dumps(dict(user_id=user_id))
-        expenses = step = self.client.get('/trip/{}/expense'.format(str(trip_id)), headers=headers,
+        expenses = self.client.get('/trip/{}/user/{}/expenses'.format(str(trip_id), str(user_id)), headers=headers,
                                           data=expense_payload, content_type='application/json')
         self.assertEqual(expenses.status_code, 200)
 
