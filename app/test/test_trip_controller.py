@@ -381,7 +381,7 @@ class TestTripController(BaseTestCase):
         create_trip_response = \
             self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
         trip_id = json.loads(create_trip_response.data)['id']
-        expense_payload = json.dumps(dict(cost=150.50, user_id=user_id, trip_id=trip_id))
+        expense_payload = json.dumps(dict(cost=150.50, name="test", user_id=user_id, trip_id=trip_id))
         create_expense_response = \
             self.client.post('/trip/{}/expense'.format(str(trip_id)), headers=headers, data=expense_payload,
                              content_type='application/json')

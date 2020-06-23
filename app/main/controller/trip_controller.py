@@ -266,9 +266,11 @@ class UserExpense(Resource):
         try:
             user_id = request.json.get('user_id')
             cost = request.json.get('cost')
+            name = request.json.get('name')
 
             expense = Expense(
                 cost=cost,
+                name=name,
                 user_id=user_id,
                 trip_id=trip_id
             )

@@ -48,9 +48,11 @@ def get_step_object(name, trip_id, start_datetime):
         start_datetime=start_datetime
     )
 
-def get_expense_object(cost, user_id, trip_id):
+
+def get_expense_object(cost, name, user_id, trip_id):
     return Expense(
         cost=cost,
+        name=name,
         trip_id=trip_id,
         user_id=user_id
     )
@@ -64,6 +66,7 @@ def get_reimbursement_object(cost, expense_id, emitter_id, payee_id, trip_id):
         payee_id=payee_id,
         trip_id=trip_id
     )
+
 
 def create_trips(trips):
     created_trips = list(map(create_trip, trips))
@@ -352,14 +355,14 @@ class TestTripService(BaseTestCase):
     def test_create_expense(self):
         user = create_user("user1@mail.fr")
         trip = create_trip(get_trip_object("trip", user))
-        expense = create_expense(get_expense_object(150.50, user.id, trip.id))
+        expense = create_expense(get_expense_object(150.50, "test", user.id, trip.id))
         self.assertIsInstance(expense, Expense)
 
     def test_create_reimbursement(self):
         user = create_user("user1@mail.fr")
         user2 = create_user("user2@mail.fr")
         trip = create_trip(get_trip_object("trip", user))
-        expense = create_expense(get_expense_object(150.50, user.id, trip.id))
+        expense = create_expense(get_expense_object(150.50, "test", user.id, trip.id))
         reimbursement = create_reimbursement(get_reimbursement_object(100.50, expense.id, user.id, user2.id, trip.id))
         self.assertIsInstance(reimbursement, Reimbursement)
 
@@ -368,7 +371,7 @@ class TestTripService(BaseTestCase):
         user2 = create_user("user2@mail.fr")
         user3 = create_user("user3@mail.fr")
         trip = create_trip(get_trip_object("trip", user))
-        expense = create_expense(get_expense_object(150.50, user.id, trip.id))
+        expense = create_expense(get_expense_object(150.50, "test", user.id, trip.id))
         reimbursement = create_reimbursement(get_reimbursement_object(100, expense.id, user.id, user2.id, trip.id))
         reimbursement2 = create_reimbursement(get_reimbursement_object(100, expense.id, user.id, user2.id, trip.id))
         reimbursement3 = create_reimbursement(get_reimbursement_object(100, expense.id, user3.id, user.id, trip.id))
@@ -383,7 +386,7 @@ class TestTripService(BaseTestCase):
         self.assertEquals(operations[1].emitter_id, expected_result[1].emitter_id)
         self.assertEquals(operations[0].payee_id, expected_result[0].payee_id)
         self.assertEquals(operations[1].payee_id, expected_result[1].payee_id)
-        
+
     def test_close_unknown_trip_should_raise_tripnotfoundexception(self):
         unknown_trip_id = 1
         with self.assertRaises(TripNotFoundException):
