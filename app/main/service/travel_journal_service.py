@@ -29,14 +29,14 @@ class TravelJournalService:
             raise TripMustBeClosedException()
 
     def generate_travel_journal(self):
-        self.document.add_font(family='tahu', fname=os.path.join(ROOT_FOLDER, 'resources', 'fonts', 'tahu.ttf'), uni=True, style='')
+        self.document.add_font(family='title_font', fname=os.path.join(ROOT_FOLDER, 'resources', 'fonts', 'get_show.ttf'), uni=True, style='')
         self.document.add_page()
 
         self.__add_title()
         self.__display_steps()
 
     def __add_title(self):
-        self.document.set_font('tahu', size=60)
+        self.document.set_font('title_font', size=70)
         self.document.cell(w=0, h=40, txt=self.trip.name, align='C', ln=1)
 
     def __display_steps(self):
