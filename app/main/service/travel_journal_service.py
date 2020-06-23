@@ -11,12 +11,19 @@ from app.main.service.trip_service import get_user_steps_participation
 from app.main.util.exception.TripException import TripMustBeClosedException
 
 
+class BacktripPDF(FPDF):
+    def footer(self):
+        self.set_y(-15)
+        self.set_font('Arial', 'I', 8)
+        self.cell(0, 10, 'Généré avec Backtrip   -   Page %s' % self.page_no(), 0, 0, 'R')
+
+
 class TravelJournalService:
 
     def __init__(self, trip: Trip, user: User):
         self.trip = trip
         self.user = user
-        self.document = FPDF()
+        self.document = BacktripPDF()
 
         if not trip.closed:
             raise TripMustBeClosedException()
@@ -34,6 +41,11 @@ class TravelJournalService:
 
     def __display_steps(self):
         personal_timeline: list = get_user_steps_participation(self.user, self.trip.id)
+
+        if len(personal_timeline) < 1:
+            self.__display_no_step_message()
+            return
+
         for index, step in enumerate(personal_timeline):
             if (index + 1) % 4 == 0:
                 self.document.add_page()
@@ -41,6 +53,10 @@ class TravelJournalService:
             self.__display_step_datetime(step.start_datetime, step.end_datetime)
             self.__display_random_photo(step)
             self.document.cell(w=0, h=5, ln=1)
+
+    def __display_no_step_message(self):
+        self.document.set_font('Arial', size=20)
+        self.document.cell(w=0, h=20, align='C', txt="Vous n'avez participé à aucune étape !", ln=1)
 
     def __display_step_name(self, step_name):
         self.document.set_font('Arial', size=20)
@@ -69,6 +85,4 @@ class TravelJournalService:
         self.document.image(name=photo_url, x=20, h=50)
 
     def get_file_as_bytes_string (self):
-        id = str(uuid.uuid4())
-        file_name = 'travel_journal_{}.pdf'.format(id)
-        return file_name, self.document.output(dest='S')
+        return self.document.output(dest='S')

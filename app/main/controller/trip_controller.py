@@ -366,7 +366,7 @@ class TravelJournal(Resource):
         try:
             travel_journal_service = TravelJournalService(trip, user)
             travel_journal_service.generate_travel_journal()
-            file_name, bytes_str = travel_journal_service.get_file_as_bytes_string()
-            return send_file(io.BytesIO(bytes_str), attachment_filename=file_name, mimetype='application/pdf')
+            bytes_str = travel_journal_service.get_file_as_bytes_string()
+            return send_file(io.BytesIO(bytes_str), mimetype='application/pdf')
         except TripMustBeClosedException as e:
             api.abort(401, e.value)
