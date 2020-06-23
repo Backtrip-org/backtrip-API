@@ -242,7 +242,8 @@ class TestTripController(BaseTestCase):
         trip_id = json.loads(create_trip_response.data)['id']
         get_timeline_response = self.client.get('/trip/{}/timeline'.format(str(trip_id)), headers=auth_headers_user_2)
         self.assertEqual(get_timeline_response.status_code, 401)
-        self.assertEqual(json.loads(get_timeline_response.data).get('message'), 'Unauthorized, you can\'t access this trip')
+        self.assertEqual(json.loads(get_timeline_response.data).get('message'),
+                         'Unauthorized, you can\'t access this trip')
 
     def test_get_unknown_trip_timeline_should_return_not_found(self):
         register_user(self)
@@ -405,6 +406,24 @@ class TestTripController(BaseTestCase):
             self.client.post('/trip/{}/reimbursement'.format(str(trip_id)), headers=headers, data=reimbursement_payload,
                              content_type='application/json')
         self.assertEqual(create_reimbursement_response.status_code, 200)
+
+    def test_get_expenses_should_return_ok(self):
+        user_id = json.loads(register_user(self).data)['id']
+        login_response = login_user(self)
+        headers = dict(Authorization=json.loads(login_response.data)['Authorization'])
+        trip_payload = json.dumps(dict(name='trip', picture_path='picture/path'))
+        create_trip_response = \
+            self.client.post('/trip/', headers=headers, data=trip_payload, content_type='application/json')
+        trip_id = json.loads(create_trip_response.data)['id']
+        expense_payload = json.dumps(dict(cost=150.50, user_id=user_id, trip_id=trip_id))
+        create_expense_response = \
+            self.client.post('/trip/{}/expense'.format(str(trip_id)), headers=headers, data=expense_payload,
+                             content_type='application/json')
+        expense_payload = json.dumps(dict(user_id=user_id))
+        expenses = step = self.client.get('/trip/{}/expense'.format(str(trip_id)), headers=headers,
+                                          data=expense_payload, content_type='application/json')
+        self.assertEqual(expenses.status_code, 200)
+
 
 if __name__ == '__main__':
     unittest.main()

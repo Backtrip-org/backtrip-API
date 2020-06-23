@@ -15,7 +15,7 @@ from ..service.travel_journal_service import TravelJournalService
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
     add_file_to_step, create_expense, create_reimbursement, refunds_to_get_for_user, get_user_reimbursements, \
-    calculate_future_operations, add_ratings, close_trip, get_trip_by_id
+    calculate_future_operations, add_ratings, close_trip, get_trip_by_id, get_expenses
 from ..util.decorator import token_required, trip_participant_required
 from ..util.dto import TripDto, UserDto, FileDto
 from ..util.exception.ExpenseException import ExpenseNotFoundException
@@ -274,6 +274,21 @@ class UserExpense(Resource):
             )
 
             return create_expense(expense)
+        except TripNotFoundException as e:
+            api.abort(404, e.value)
+        except UserIdNotFoundException as e:
+            api.abort(404, e.value)
+
+    @api.doc('Get a user expenses')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown trip.')
+    @api.response(404, 'Unknown user.')
+    @api.marshal_with(_expense)
+    @token_required
+    def get(self, trip_id):
+        try:
+            user_id = request.json.get('user_id')
+            return get_expenses(trip_id, user_id)
         except TripNotFoundException as e:
             api.abort(404, e.value)
         except UserIdNotFoundException as e:

@@ -10,7 +10,7 @@ from app.main.model.step.step import Step
 from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user, add_participant_to_step, \
     get_user_steps_participation, calculate_future_operations, get_user_reimbursements, refunds_to_get_for_user, \
-    create_reimbursement, create_expense, close_trip, get_trip_by_id
+    create_reimbursement, create_expense, close_trip, get_trip_by_id, get_expenses
 from app.main.util.exception.StepException import StepNotFoundException
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
@@ -404,6 +404,16 @@ class TestTripService(BaseTestCase):
         self.assertTrue(get_trip_by_id(trip.id).closed)
         close_trip(trip.id)
         self.assertTrue(get_trip_by_id(trip.id).closed)
+
+    def test_get_expenses_should_raise_tripnotfoundexception(self):
+        with self.assertRaises(TripNotFoundException):
+            get_expenses(trip_id=1, user_id=1)
+
+    def test_get_expenses_should_raise_useridnotfoundexception(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object("trip", user))
+        with self.assertRaises(UserIdNotFoundException):
+            get_expenses(trip_id=trip.id, user_id=user.id + 1)
 
 
 if __name__ == '__main__':
