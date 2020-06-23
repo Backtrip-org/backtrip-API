@@ -1,5 +1,7 @@
+import io
+
 import sqlalchemy
-from flask import request
+from flask import request, send_file
 from flask_restplus import Resource
 
 from ..model.expense import Expense
@@ -9,17 +11,18 @@ from ..model.step.step_factory import StepFactory
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..service.file_service import upload
+from ..service.travel_journal_service import TravelJournalService
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
     get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
     add_file_to_step, create_expense, create_reimbursement, refunds_to_get_for_user, get_user_reimbursements, \
-    calculate_future_operations, add_ratings, close_trip
+    calculate_future_operations, add_ratings, close_trip, get_trip_by_id
 from ..util.decorator import token_required, trip_participant_required
 from ..util.dto import TripDto, UserDto, FileDto
 from ..util.exception.ExpenseException import ExpenseNotFoundException
 from ..util.exception.FileException import FileNotFoundException, UploadFileNotFoundException
 from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.StepException import StepNotFoundException, UnknownStepTypeException
-from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
+from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException, TripMustBeClosedException
 from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, \
     UserIdNotFoundException
 
@@ -342,3 +345,28 @@ class CloseTrip(Resource):
             return 'Trip successfully closed.', 200
         except TripNotFoundException as e:
             api.abort(404, e.value)
+
+
+@api.route('/<trip_id>/travelJournal')
+@api.param('trip_id', 'Identifier of the trip')
+class TravelJournal(Resource):
+    @api.doc('Create travel journal')
+    @api.response(200, 'Travel journal successfully created')
+    @api.response(401, 'User cannot access this trip.')
+    @api.response(401, 'Trip must be closed.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown trip.')
+    @token_required
+    @trip_participant_required
+    def get(self, trip_id):
+        user_data, status = Auth.get_logged_in_user(request)
+        user = user_data.get('data')
+        trip = get_trip_by_id(trip_id)
+
+        try:
+            travel_journal_service = TravelJournalService(trip, user)
+            travel_journal_service.generate_travel_journal()
+            bytes_str = travel_journal_service.get_file_as_bytes_string()
+            return send_file(io.BytesIO(bytes_str), mimetype='application/pdf')
+        except TripMustBeClosedException as e:
+            api.abort(401, e.value)

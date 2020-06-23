@@ -1,4 +1,5 @@
 from app.main import db
+from app.main.model.file.file_type import FileType
 from app.main.model.place.place import Place
 from app.main.model.step.step_type import StepType
 from app.main.model.steps_files import steps_files
@@ -29,6 +30,9 @@ class Step(db.Model):
         'polymorphic_identity': StepType.Base.name,
         'polymorphic_on': type
     }
+
+    def get_photos(self):
+        return [file for file in self.files if file.type == FileType.Photo]
 
     @staticmethod
     def from_json(dto, trip_id):

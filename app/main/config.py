@@ -1,3 +1,6 @@
+import os
+
+
 class Config:
     SECRET_KEY = 'tobedefinedandstored'
     DEBUG = False
@@ -23,3 +26,4 @@ config_by_name = dict(
 )
 
 key = Config.SECRET_KEY
+ROOT_FOLDER = os.path.split(os.environ['VIRTUAL_ENV'])[0]
