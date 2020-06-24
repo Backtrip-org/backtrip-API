@@ -316,7 +316,7 @@ def update_notes(step_id, notes):
     if step is None:
         raise StepNotFoundException(step_id)
     if len(notes) > Step.notes_max_length:
-        raise StringLengthOutOfRangeException('Notes', 0, 200)
+        raise StringLengthOutOfRangeException('Notes', 0, Step.notes_max_length)
 
     step.notes = notes
     save_changes(step)
