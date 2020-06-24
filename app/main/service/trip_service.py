@@ -88,6 +88,14 @@ def get_expenses(trip_id, user_id):
     return Expense.query.filter_by(trip_id=trip_id).filter_by(user_id=user_id).all()
 
 
+def get_reimbursements(expense_id):
+    expense = get_expense(expense_id)
+    if not expense:
+        raise ExpenseNotFoundException(expense_id)
+
+    return Reimbursement.query.filter_by(expense_id=expense_id).all()
+
+
 def get_file(file_id):
     return File.query.filter_by(id=file_id).first()
 
