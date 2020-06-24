@@ -11,6 +11,7 @@ class Step(db.Model):
 
     name_min_length = 2
     name_max_length = 20
+    notes_max_length = 200
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     trip_id = db.Column(db.Integer, db.ForeignKey('trip.id'))
@@ -19,7 +20,7 @@ class Step(db.Model):
     end_datetime = db.Column(db.DateTime)
     start_address_id = db.Column(db.Integer, db.ForeignKey('place.id'))
     phone_number = db.Column(db.String(15))
-    notes = db.Column(db.String(200))
+    notes = db.Column(db.String(notes_max_length))
     type = db.Column(db.String(15))
 
     start_address = db.relationship('Place')
