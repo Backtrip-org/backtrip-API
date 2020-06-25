@@ -17,7 +17,7 @@ def get_rating(place):
         business_id = get_business_id(place)
         reviews = get_reviews(business_id)
         return calculate_average_rating(reviews)
-    except (BusinessNotFoundException, ReviewsNotFoundException):
+    except (BusinessNotFoundException, ReviewsNotFoundException, NotEnoughReviewsException):
         return None
 
 
