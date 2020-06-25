@@ -291,6 +291,7 @@ class UserExpenses(Resource):
     @api.response(404, 'Unknown trip.')
     @api.response(404, 'Unknown user.')
     @api.marshal_with(_expense)
+    @trip_participant_required
     @token_required
     def get(self, trip_id, user_id):
         try:
@@ -313,6 +314,7 @@ class UserReimbursement(Resource):
     @api.response(404, 'Unknown expense.')
     @api.response(404, 'Unknown user.')
     @api.marshal_with(_reimbursement)
+    @trip_participant_required
     @token_required
     def post(self, trip_id):
         try:
