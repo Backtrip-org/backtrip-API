@@ -15,7 +15,7 @@ from ..service.travel_journal_service import TravelJournalService
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step_by_id, get_timeline, \
     get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
     add_file_to_step, create_expense, create_reimbursement, refunds_to_get_for_user, get_user_reimbursements, \
-    calculate_future_operations, add_ratings, close_trip, get_trip_by_id, update_notes
+    calculate_future_operations, add_ratings, close_trip, get_trip_by_id, get_expenses, get_expense, get_reimbursements, update_notes
 from ..util.decorator import token_required, trip_participant_required
 from ..util.dto import TripDto, UserDto, FileDto
 from ..util.exception.ExpenseException import ExpenseNotFoundException
@@ -268,14 +268,40 @@ class UserExpense(Resource):
         try:
             user_id = request.json.get('user_id')
             cost = request.json.get('cost')
+            name = request.json.get('name')
 
             expense = Expense(
                 cost=cost,
+                name=name,
                 user_id=user_id,
                 trip_id=trip_id
             )
 
             return create_expense(expense)
+        except TripNotFoundException as e:
+            api.abort(404, e.value)
+        except UserIdNotFoundException as e:
+            api.abort(404, e.value)
+
+
+@api.route('/<trip_id>/user/<user_id>/expenses')
+@api.param('trip_id', 'Identifier of the trip')
+@api.param('user_id', 'Identifier of the user')
+class UserExpenses(Resource):
+    @api.doc('Get a user expenses')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown trip.')
+    @api.response(404, 'Unknown user.')
+    @api.marshal_with(_expense)
+    @trip_participant_required
+    @token_required
+    def get(self, trip_id, user_id):
+        try:
+            expenses = get_expenses(trip_id, user_id)
+            reimbursements = get_user_reimbursements(trip_id, user_id)
+            for reimbursement in reimbursements:
+                expenses.append(get_expense(reimbursement.expense_id))
+            return expenses
         except TripNotFoundException as e:
             api.abort(404, e.value)
         except UserIdNotFoundException as e:
@@ -290,6 +316,7 @@ class UserReimbursement(Resource):
     @api.response(404, 'Unknown expense.')
     @api.response(404, 'Unknown user.')
     @api.marshal_with(_reimbursement)
+    @trip_participant_required
     @token_required
     def post(self, trip_id):
         try:
@@ -312,7 +339,23 @@ class UserReimbursement(Resource):
         except UserIdNotFoundException as e:
             api.abort(404, e.value)
 
-            
+
+@api.route('/<trip_id>/expense/<expense_id>/reimbursements')
+@api.param('trip_id', 'Identifier of the trip')
+@api.param('expense_id', 'Identifier of the expense')
+class ExpenseReimbursements(Resource):
+    @api.doc('Get expense reimbursements')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown expense.')
+    @api.marshal_with(_reimbursement)
+    @token_required
+    def get(self, trip_id, expense_id):
+        try:
+            return get_reimbursements(expense_id)
+        except ExpenseNotFoundException as e:
+            api.abort(404, e.value)
+
+
 @api.route('/<trip_id>/transactionsToBeMade/<user_id>')
 @api.param('trip_id', 'Identifier of the trip')
 @api.param('user_id', 'Identifier of the user')

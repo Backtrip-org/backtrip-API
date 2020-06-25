@@ -99,6 +99,7 @@ class TripDto:
 
     expense = api.model('expense', {
         'id': fields.Integer(required=False, description="Expense id"),
+        'name': fields.String(required=True, description="Expense name"),
         'cost': fields.Float(required=True, description="Expense value"),
         'trip_id': fields.Integer(required=False, description='Trip id'),
         'user_id': fields.Integer(required=False, description='User id')
