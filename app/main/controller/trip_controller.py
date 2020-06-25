@@ -12,10 +12,10 @@ from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..service.file_service import upload
 from ..service.travel_journal_service import TravelJournalService
-from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
+from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step_by_id, get_timeline, \
     get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
     add_file_to_step, create_expense, create_reimbursement, refunds_to_get_for_user, get_user_reimbursements, \
-    calculate_future_operations, add_ratings, close_trip, get_trip_by_id, get_expenses, get_expense, get_reimbursements
+    calculate_future_operations, add_ratings, close_trip, get_trip_by_id, get_expenses, get_expense, get_reimbursements, update_notes
 from ..util.decorator import token_required, trip_participant_required
 from ..util.dto import TripDto, UserDto, FileDto
 from ..util.exception.ExpenseException import ExpenseNotFoundException
@@ -29,6 +29,7 @@ from ..util.exception.UserException import UserEmailNotFoundException, UserDoesN
 api = TripDto.api
 _trip = TripDto.trip
 _step = TripDto.step
+_notes = TripDto.notes
 _file = FileDto.file
 _user = UserDto.user
 _expense = TripDto.expense
@@ -42,6 +43,7 @@ class TripList(Resource):
     @api.expect(_trip, validate=True)
     @api.marshal_with(_trip)
     @api.response(201, 'Trip successfully created.')
+    @api.response(400, 'String length out of range')
     @api.response(401, 'Unknown access token.')
     @api.response(409, 'Trip already exist.')
     @token_required
@@ -128,7 +130,7 @@ class TripStepWithId(Resource):
     @token_required
     @trip_participant_required
     def get(self, trip_id, step_id):
-        step = get_step(step_id)
+        step = get_step_by_id(step_id)
         if not step:
             api.abort(404, 'Step not found')
         else:
@@ -370,6 +372,30 @@ class TransactionsToBeMade(Resource):
             return calculate_future_operations(refunds_to_get, user_reimbursements)
         except UserIdNotFoundException as e:
             api.abort(404, e.value)
+        
+        
+@api.route('/<trip_id>/step/<step_id>/notes')
+@api.param('trip_id', 'Identifier of the trip')
+@api.param('step_id', 'Identifier of the step')
+class PatchNotes(Resource):
+    @api.doc('Modify step notes')
+    @api.expect(_notes, validate=True)
+    @api.response(200, 'Step notes successfully updated')
+    @api.response(400, 'Note length out of range')
+    @api.response(401, 'User cannot access this trip.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown trip.')
+    @api.response(404, 'Step not found.')
+    @token_required
+    @trip_participant_required
+    def put(self, trip_id, step_id):
+        try:
+            update_notes(step_id, request.json.get('notes'))
+            return 'Step notes successfully updated.', 200
+        except StepNotFoundException as e:
+            api.abort(404, e.value)
+        except StringLengthOutOfRangeException as e:
+            api.abort(400, e.value)
 
 
 @api.route('/<trip_id>/close')

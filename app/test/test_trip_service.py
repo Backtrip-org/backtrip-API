@@ -7,10 +7,10 @@ from app.main.model.reimbursement import Reimbursement
 from app.main.model.user import User
 from app.main.model.trip import Trip
 from app.main.model.step.step import Step
-from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step, get_timeline, \
+from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step_by_id, get_timeline, \
     get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user, add_participant_to_step, \
     get_user_steps_participation, calculate_future_operations, get_user_reimbursements, refunds_to_get_for_user, \
-    create_reimbursement, create_expense, close_trip, get_trip_by_id, get_expenses
+    create_reimbursement, create_expense, close_trip, get_trip_by_id, get_expenses, update_notes
 from app.main.util.exception.StepException import StepNotFoundException
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
@@ -229,7 +229,7 @@ class TestTripService(BaseTestCase):
         trip = create_trip(get_trip_object(name="trip", creator=user))
         start_datetime = "2020-04-10 21:00:00"
         created_step = create_step(get_step_object(name="step", trip_id=trip.id, start_datetime=start_datetime))
-        step = get_step(created_step.id)
+        step = get_step_by_id(created_step.id)
         self.assertIsInstance(step, Step)
 
     def test_get_uncreated_step_should_return_none(self):
@@ -237,7 +237,7 @@ class TestTripService(BaseTestCase):
         trip = create_trip(get_trip_object(name="trip", creator=user))
         start_datetime = "2020-04-10 21:00:00"
         created_step = create_step(get_step_object(name="step", trip_id=trip.id, start_datetime=start_datetime))
-        step = get_step(created_step.id + 1)
+        step = get_step_by_id(created_step.id + 1)
         self.assertEqual(step, None)
 
     def test_get_timeline_should_return_steps_ordered(self):
@@ -407,7 +407,7 @@ class TestTripService(BaseTestCase):
         self.assertTrue(get_trip_by_id(trip.id).closed)
         close_trip(trip.id)
         self.assertTrue(get_trip_by_id(trip.id).closed)
-
+    
     def test_get_expenses_should_raise_tripnotfoundexception(self):
         with self.assertRaises(TripNotFoundException):
             get_expenses(trip_id=1, user_id=1)
@@ -417,6 +417,28 @@ class TestTripService(BaseTestCase):
         trip = create_trip(get_trip_object("trip", user))
         with self.assertRaises(UserIdNotFoundException):
             get_expenses(trip_id=trip.id, user_id=user.id + 1)
+            
+    def test_update_notes_of_unknown_step_should_raise_exception(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object("trip", user))
+        with self.assertRaises(StepNotFoundException):
+            update_notes(1, "notes")
+
+    def test_update_notes_with_too_long_string_should_raise_exception(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object("trip", user))
+        step = create_step(get_step_object("step", trip.id, "2020-05-03 10:00:00"))
+        with self.assertRaises(StringLengthOutOfRangeException):
+            update_notes(step.id, 's' * 201)
+
+    def test_should_update_notes(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object("trip", user))
+        step = create_step(get_step_object("step", trip.id, "2020-05-03 10:00:00"))
+        notes = 's' * 200
+        update_notes(step.id, notes)
+        self.assertEqual(notes, get_step_by_id(step.id).notes)
+
 
 
 if __name__ == '__main__':

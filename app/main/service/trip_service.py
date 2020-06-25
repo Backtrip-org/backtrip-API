@@ -70,7 +70,7 @@ def trip_exists(trip_id):
     return get_trip_by_id(trip_id) is not None
 
 
-def get_step(step_id):
+def get_step_by_id(step_id):
     return Step.query.filter_by(id=step_id).first()
 
 
@@ -203,7 +203,7 @@ def get_user_steps_participation(user, trip_id):
 
 
 def add_participant_to_step(user_id, step_id):
-    step = get_step(step_id)
+    step = get_step_by_id(step_id)
     if not step:
         raise StepNotFoundException(step_id)
 
@@ -221,7 +221,7 @@ def get_participants_of_step(step_id):
 
 
 def add_file_to_step(file_id, step_id):
-    step = get_step(step_id)
+    step = get_step_by_id(step_id)
     if not step:
         raise StepNotFoundException(step_id)
 
@@ -327,6 +327,17 @@ def close_trip(trip_id):
         return
     trip.close()
     save_changes(trip)
+
+
+def update_notes(step_id, notes):
+    step = get_step_by_id(step_id)
+    if step is None:
+        raise StepNotFoundException(step_id)
+    if len(notes) > Step.notes_max_length:
+        raise StringLengthOutOfRangeException('Notes', 0, Step.notes_max_length)
+
+    step.notes = notes
+    save_changes(step)
 
 
 def save_changes(data):

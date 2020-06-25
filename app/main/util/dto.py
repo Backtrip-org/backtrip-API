@@ -93,6 +93,10 @@ class TripDto:
         'files': fields.List(fields.Nested(FileDto.file), description='related files')
     })
 
+    notes = api.model('notes', {
+        'notes': fields.String(required=True, description='notes')
+    })
+
     expense = api.model('expense', {
         'id': fields.Integer(required=False, description="Expense id"),
         'name': fields.String(required=True, description="Expense name"),
