@@ -1,12 +1,13 @@
 import os
 import requests
 
+from app.main.config import config_variables
 from app.main.service.pycountry_service import country_to_isocode
 from app.main.util.exception.RatingException import BusinessNotFoundException, ReviewsNotFoundException, \
     NotEnoughReviewsException
 
 url = 'https://api.yelp.com/v3/businesses'
-api_key = os.getenv('YELP_API_KEY')
+api_key = config_variables.get('yelp_api_key')
 
 
 def get_rating(place):

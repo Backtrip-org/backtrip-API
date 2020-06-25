@@ -6,9 +6,10 @@ from werkzeug.utils import secure_filename
 
 from app.main import db
 from app.main.model.file.file import File
+from ..config import config_variables
 from ..util.exception.FileException import UploadFileNotFoundException, IdFileNotFoundException
 
-DIRECTORY_PATH = os.getenv('FILES_DIRECTORY')
+DIRECTORY_PATH = config_variables.get('files_directory')
 
 
 def upload(files, file_type):

@@ -4,7 +4,7 @@ from .. import db, flask_bcrypt
 import datetime
 import jwt
 from app.main.model.blacklist import BlacklistToken
-from ..config import key
+from ..config import config_variables
 from ..model.users_trips import users_trips
 from .users_steps import users_steps
 
@@ -48,7 +48,7 @@ class User(db.Model):
             }
             return jwt.encode(
                 payload,
-                key,
+                config_variables.get('secret_key'),
                 algorithm='HS256'
             )
         except Exception as e:
@@ -57,7 +57,7 @@ class User(db.Model):
     @staticmethod
     def decode_auth_token(auth_token):
         try:
-            payload = jwt.decode(auth_token, key)
+            payload = jwt.decode(auth_token, config_variables.get('secret_key'))
             is_blacklisted_token = BlacklistToken.check_blacklist(auth_token)
             if is_blacklisted_token:
                 return 'Token blacklisted. Please log in again.'
