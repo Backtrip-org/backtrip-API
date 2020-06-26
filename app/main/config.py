@@ -18,7 +18,6 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:@localhost/backtrip'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
