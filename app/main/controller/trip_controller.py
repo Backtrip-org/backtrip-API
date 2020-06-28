@@ -15,7 +15,8 @@ from ..service.travel_journal_service import TravelJournalService
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step_by_id, get_timeline, \
     get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
     add_file_to_step, create_expense, create_reimbursement, refunds_to_get_for_user, get_user_reimbursements, \
-    calculate_future_operations, add_ratings, close_trip, get_trip_by_id, get_expenses, get_expense, get_reimbursements, update_notes
+    calculate_future_operations, add_ratings, close_trip, get_trip_by_id, get_expenses, get_expense, get_reimbursements, \
+    update_notes, update_trip_cover_picture
 from ..util.decorator import token_required, trip_participant_required
 from ..util.dto import TripDto, UserDto, FileDto
 from ..util.exception.ExpenseException import ExpenseNotFoundException
@@ -188,6 +189,7 @@ class StepParticipant(Resource):
     @api.response(200, 'Participant successfully added.')
     @api.response(401, 'Unknown access token.')
     @api.response(401, 'User cannot access this trip.')
+    @api.response(404, 'Trip not found.')
     @api.response(404, 'Step not found.')
     @api.marshal_with(_user)
     @token_required
@@ -213,6 +215,7 @@ class StepDocument(Resource):
     @api.response(200, 'Document successfully added.')
     @api.response(401, 'Unknown access token.')
     @api.response(401, 'User cannot access this trip.')
+    @api.response(404, 'Trip not found.')
     @api.response(404, 'Step not found.')
     @api.response(404, 'File not found.')
     @api.marshal_with(_file)
@@ -234,13 +237,15 @@ class StepDocument(Resource):
 @api.route('/<trip_id>/step/<step_id>/photo')
 @api.param('trip_id', 'Identifier of the trip')
 @api.param('step_id', 'Identifier of the step')
-class StepDocument(Resource):
+class StepPhoto(Resource):
     @api.doc('Add photo to step')
     @api.response(200, 'Photo successfully added.')
     @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Trip not found.')
     @api.response(404, 'Step not found.')
     @api.response(404, 'File not found.')
     @api.marshal_with(_file)
+    @trip_participant_required
     @token_required
     def post(self, trip_id, step_id):
         try:
@@ -248,6 +253,30 @@ class StepDocument(Resource):
             add_file_to_step(file.id, step_id)
             return file
         except StepNotFoundException as e:
+            api.abort(404, e.value)
+        except FileNotFoundException as e:
+            api.abort(404, e.value)
+        except UploadFileNotFoundException as e:
+            api.abort(400, e.value)
+
+
+@api.route('/<trip_id>/coverPicture')
+@api.param('trip_id', 'Identifier of the trip')
+class TripCoverPicture(Resource):
+    @api.doc('Add cover picture to trip')
+    @api.response(200, 'Photo successfully added.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Trip not found.')
+    @api.response(404, 'File not found.')
+    @api.marshal_with(_file)
+    @trip_participant_required
+    @token_required
+    def post(self, trip_id):
+        try:
+            file = upload(request.files, FileType.Photo)
+            update_trip_cover_picture(file.id, trip_id)
+            return file
+        except TripNotFoundException as e:
             api.abort(404, e.value)
         except FileNotFoundException as e:
             api.abort(404, e.value)

@@ -6,6 +6,7 @@ from app.main.util.exception.TripException import TripAlreadyExistsException, Tr
 from app.main.util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, \
     UserIdNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
+from .file_service import delete
 from .rating_service import get_rating
 from .user_service import get_user_by_email, get_user
 from ..model.expense import Expense
@@ -231,6 +232,22 @@ def add_file_to_step(file_id, step_id):
 
     step.files.append(file)
     save_changes(step)
+
+
+def update_trip_cover_picture(file_id, trip_id):
+    trip: Trip = get_trip_by_id(trip_id)
+    if not trip:
+        raise TripNotFoundException(trip_id)
+
+    file: File = get_file(file_id)
+    if not file:
+        raise FileNotFoundException()
+
+    if trip.picture_path is not None:
+        delete(trip.picture_path)
+
+    trip.picture_path = file.id
+    save_changes(trip)
 
 
 def create_expense(expense):
