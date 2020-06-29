@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from app.main import db
 from app.main.model.file.file import File
 from ..config import config_variables
-from ..util.exception.FileException import UploadFileNotFoundException, IdFileNotFoundException
+from ..util.exception.FileException import UploadFileNotFoundException, IdFileNotFoundException, FileNotFoundException
 
 DIRECTORY_PATH = config_variables.get('files_directory')
 
@@ -53,6 +53,22 @@ def download(file_id):
     document.headers.add('extension', file.extension)
 
     return document
+
+
+def delete(file_id):
+    file: File = File.query.filter_by(id=file_id).first()
+
+    if file is None:
+        raise FileNotFoundException()
+
+    file_path: str = file.get_path(DIRECTORY_PATH)
+    if os.path.isfile(file_path):
+        os.remove(file_path)
+
+    db.session.delete(file)
+    db.session.commit()
+
+
 
 
 def db_save(file):
