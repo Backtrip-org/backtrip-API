@@ -1,8 +1,7 @@
 import os
-import uuid
 from random import choice
 
-from app.main.config import ROOT_FOLDER
+from app.main.config import root_folder, config_variables
 from app.main.model.trip import Trip
 from fpdf import FPDF
 
@@ -29,7 +28,7 @@ class TravelJournalService:
             raise TripMustBeClosedException()
 
     def generate_travel_journal(self):
-        self.document.add_font(family='title_font', fname=os.path.join(ROOT_FOLDER, 'resources', 'fonts', 'get_show.ttf'), uni=True, style='')
+        self.document.add_font(family='title_font', fname=os.path.join(root_folder, 'resources', 'fonts', 'get_show.ttf'), uni=True, style='')
         self.document.add_page()
 
         self.__add_title()
@@ -60,14 +59,14 @@ class TravelJournalService:
 
     def __display_step_name(self, step_name):
         self.document.set_font('Arial', size=20)
-        flag_image_url = os.path.join(ROOT_FOLDER, 'resources', 'images', 'flag.png')
+        flag_image_url = os.path.join(root_folder, 'resources', 'images', 'flag.png')
         self.document.image(name=flag_image_url, x=10, y=self.document.get_y(), h=9)
         self.document.set_x(20)
         self.document.cell(w=0, h=10, txt=step_name, ln=1)
 
     def __display_step_datetime(self, step_start_datetime, step_end_datetime):
         self.document.set_font('Arial', size=15)
-        flag_image_url = os.path.join(ROOT_FOLDER, 'resources', 'images', 'clock.png')
+        flag_image_url = os.path.join(root_folder, 'resources', 'images', 'clock.png')
         self.document.image(name=flag_image_url, x=11, y=self.document.get_y(), h=6)
         self.document.set_x(20)
         text = step_start_datetime.strftime("%d/%m/%Y, %H:%M")
@@ -80,7 +79,7 @@ class TravelJournalService:
         if len(photos) < 1:
             return
         selected_photo = choice(photos)
-        photo_url = os.path.join(os.getenv('FILES_DIRECTORY'), '{}.{}'.format(selected_photo.id, selected_photo.extension))
+        photo_url = os.path.join(config_variables.get('files_directory'), '{}.{}'.format(selected_photo.id, selected_photo.extension))
         self.document.cell(w=0, h=3, ln=1)
         self.document.image(name=photo_url, x=20, h=50)
 

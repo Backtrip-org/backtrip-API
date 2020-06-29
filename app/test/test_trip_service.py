@@ -302,7 +302,7 @@ class TestTripService(BaseTestCase):
 
     def test_get_coming_trip_should_return_countdown_6(self):
         user = create_user("user1@mail.fr")
-        today = datetime.date.today()
+        today = datetime.date(2020,5,21)
         get_coming_trips(user, today + datetime.timedelta(days=5))
         service_coming_trips = get_coming_trips_by_user(user.id, today)
         self.assertEqual(6, service_coming_trips[0].countdown)
