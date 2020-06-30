@@ -8,7 +8,7 @@ from ..model.file.file_type import FileType
 from ..model.user import User as UserModel
 from ..service.file_service import upload
 from ..service.trip_service import get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user
-from ..service.user_service import create_user, get_all_users, get_user_by_id, update_profile_picture
+from ..service.user_service import create_user, get_all_users, get_user_by_id, update_profile_picture, get_trip_stats
 from ..util.decorator import admin_token_required, user_token_required, token_required
 from ..util.dto import TripDto, FileDto
 from ..util.dto import UserDto
@@ -17,6 +17,7 @@ from ..util.exception.UserException import UserAlreadyExistsException, UserNotFo
 
 api = UserDto.api
 _user = UserDto.user
+_stats = UserDto.stats
 _trip = TripDto.trip
 _coming_trip = TripDto.coming_trip
 _step = TripDto.step
@@ -127,13 +128,30 @@ class UserTripsComing(Resource):
         return get_coming_trips_by_user(user_id)
 
 
+@api.route('/<user_id>/trips/stats')
+@api.param('user_id', 'The User identifier')
+class UserTripsStats(Resource):
+    @api.doc('Trips stats for the user')
+    @api.marshal_with(_stats)
+    @api.response(200, 'User trip stats.')
+    @api.response(404, 'User not found.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(401, 'Access token does not correspond to requested user')
+    @token_required
+    def get(self, user_id):
+        try:
+            return get_trip_stats(user_id)
+        except UserNotFoundException as e:
+            api.abort(404, e.value)
+
+
 @api.route('/<user_id>/profilePicture')
 @api.param('user_id', 'The User identifier')
 class ProfilePicture(Resource):
     @api.doc('Update profile picture')
     @api.response(200, 'Picture successfully added.')
     @api.response(401, 'Unknown access token.')
-    @api.response(401, 'Unauthorized, you can\'t access this user.')
+    @api.response(401, 'Access token does not correspond to requested user')
     @api.response(404, 'User not found.')
     @api.response(404, 'File not found.')
     @api.marshal_with(_file)

@@ -1,5 +1,8 @@
 from app.main import db
 from app.main.model.file.file import File
+from app.main.model.step.step import Step
+from app.main.model.step.step_transport import StepTransport
+from app.main.model.trip import Trip
 from app.main.model.user import User
 from app.main.service.file_service import get_file, delete
 from app.main.util.exception.FileException import FileNotFoundException
@@ -26,6 +29,7 @@ def get_user_by_id(id):
 def get_user_by_email(email):
     return User.query.filter_by(email=email).first()
 
+
 def generate_token(user):
     try:
         auth_token = user.encode_auth_token(user.id)
@@ -42,6 +46,39 @@ def generate_token(user):
             'message': 'Some error occurred. Please try again.'
         }
         return response_object, 401
+
+
+def get_trip_stats(user_id: int):
+    user: User = get_user_by_id(user_id)
+    if not user:
+        raise UserNotFoundException(user_id)
+
+    return {
+        'trips_number': len(user.users_trips),
+        'steps_number': len(user.users_steps),
+        'countries_visited': count_countries(user.users_steps),
+        'cities_visited': count_cities(user.users_steps)
+    }
+
+
+def count_countries(steps):
+    countries = []
+    for step in steps:
+        if step.start_address is not None and step.start_address.country is not None:
+            countries.append(step.start_address.country)
+        if step is StepTransport and step.end_address is not None and step.end_address.country is not None:
+            countries.append(step.end_address.country)
+    return len(set(countries))
+
+
+def count_cities(steps):
+    cities = []
+    for step in steps:
+        if step.start_address is not None and step.start_address.city is not None:
+            cities.append(step.start_address.city)
+        if step is StepTransport and step.end_address is not None and step.end_address.city is not None:
+            cities.append(step.end_address.city)
+    return len(set(cities))
 
 
 def update_profile_picture(file_id, user_id):
