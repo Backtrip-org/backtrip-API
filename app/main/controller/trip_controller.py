@@ -25,7 +25,7 @@ from ..util.exception.GlobalException import StringLengthOutOfRangeException
 from ..util.exception.StepException import StepNotFoundException, UnknownStepTypeException
 from ..util.exception.TripException import TripAlreadyExistsException, TripNotFoundException, TripMustBeClosedException
 from ..util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, \
-    UserIdNotFoundException
+    UserNotFoundException
 
 api = TripDto.api
 _trip = TripDto.trip
@@ -309,7 +309,7 @@ class UserExpense(Resource):
             return create_expense(expense)
         except TripNotFoundException as e:
             api.abort(404, e.value)
-        except UserIdNotFoundException as e:
+        except UserNotFoundException as e:
             api.abort(404, e.value)
 
 
@@ -333,7 +333,7 @@ class UserExpenses(Resource):
             return expenses
         except TripNotFoundException as e:
             api.abort(404, e.value)
-        except UserIdNotFoundException as e:
+        except UserNotFoundException as e:
             api.abort(404, e.value)
 
 
@@ -365,7 +365,7 @@ class UserReimbursement(Resource):
             return create_reimbursement(reimbursement)
         except ExpenseNotFoundException as e:
             api.abort(404, e.value)
-        except UserIdNotFoundException as e:
+        except UserNotFoundException as e:
             api.abort(404, e.value)
 
 
@@ -399,7 +399,7 @@ class TransactionsToBeMade(Resource):
             refunds_to_get = refunds_to_get_for_user(trip_id, user_id)
             user_reimbursements = get_user_reimbursements(trip_id, user_id)
             return calculate_future_operations(refunds_to_get, user_reimbursements)
-        except UserIdNotFoundException as e:
+        except UserNotFoundException as e:
             api.abort(404, e.value)
         
         

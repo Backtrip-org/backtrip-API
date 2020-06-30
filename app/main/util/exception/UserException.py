@@ -14,7 +14,7 @@ class UserEmailNotFoundException(Exception):
         return repr(self.value)
 
 
-class UserIdNotFoundException(Exception):
+class UserNotFoundException(Exception):
     def __init__(self, user_id):
         self.value = "User with id '{}' does not exist.".format(user_id)
 

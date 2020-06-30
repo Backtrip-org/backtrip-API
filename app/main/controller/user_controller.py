@@ -4,19 +4,23 @@ import sqlalchemy
 from flask import request
 from flask_restplus import Resource
 
+from ..model.file.file_type import FileType
 from ..model.user import User as UserModel
+from ..service.file_service import upload
 from ..service.trip_service import get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user
-from ..service.user_service import create_user, get_all_users, get_user
+from ..service.user_service import create_user, get_all_users, get_user_by_id, update_profile_picture
 from ..util.decorator import admin_token_required, user_token_required, token_required
-from ..util.dto import TripDto
+from ..util.dto import TripDto, FileDto
 from ..util.dto import UserDto
-from ..util.exception.UserException import UserAlreadyExistsException
+from ..util.exception.FileException import FileNotFoundException, UploadFileNotFoundException
+from ..util.exception.UserException import UserAlreadyExistsException, UserNotFoundException
 
 api = UserDto.api
 _user = UserDto.user
 _trip = TripDto.trip
 _coming_trip = TripDto.coming_trip
 _step = TripDto.step
+_file = FileDto.file
 
 
 @api.route('/')
@@ -60,7 +64,7 @@ class User(Resource):
     @api.response(404, 'User not found.')
     @token_required
     def get(self, user_id):
-        user = get_user(user_id)
+        user = get_user_by_id(user_id)
         if not user:
             api.abort(404, 'User not found.')
         else:
@@ -77,7 +81,7 @@ class UserTrips(Resource):
     @api.response(404, 'User not found.')
     @user_token_required
     def get(self, user_id):
-        user = get_user(user_id)
+        user = get_user_by_id(user_id)
         if not user:
             api.abort(404, 'User not found.')
         else:
@@ -121,3 +125,28 @@ class UserTripsComing(Resource):
     @user_token_required
     def get(self, user_id):
         return get_coming_trips_by_user(user_id)
+
+
+@api.route('/<user_id>/profilePicture')
+@api.param('user_id', 'The User identifier')
+class ProfilePicture(Resource):
+    @api.doc('Update profile picture')
+    @api.response(200, 'Picture successfully added.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(401, 'Unauthorized, you can\'t access this user.')
+    @api.response(404, 'User not found.')
+    @api.response(404, 'File not found.')
+    @api.marshal_with(_file)
+    @token_required
+    @user_token_required
+    def post(self, user_id):
+        try:
+            file = upload(request.files, FileType.Photo)
+            update_profile_picture(file.id, user_id)
+            return file
+        except UserNotFoundException as e:
+            api.abort(404, e.value)
+        except FileNotFoundException as e:
+            api.abort(404, e.value)
+        except UploadFileNotFoundException as e:
+            api.abort(400, e.value)
