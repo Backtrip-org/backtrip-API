@@ -4,11 +4,11 @@ from app.main.model.trip import Trip
 from app.main.model.file.file import File
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.UserException import UserEmailNotFoundException, UserDoesNotParticipatesToTrip, \
-    UserIdNotFoundException
+    UserNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
-from .file_service import delete
+from .file_service import delete, get_file
 from .rating_service import get_rating
-from .user_service import get_user_by_email, get_user
+from .user_service import get_user_by_email, get_user_by_id
 from ..model.expense import Expense
 from ..model.operation import Operation
 from ..model.reimbursement import Reimbursement
@@ -83,8 +83,8 @@ def get_expenses(trip_id, user_id):
     if not trip_exists(trip_id):
         raise TripNotFoundException(trip_id)
 
-    if not get_user(user_id):
-        raise UserIdNotFoundException(user_id)
+    if not get_user_by_id(user_id):
+        raise UserNotFoundException(user_id)
 
     return Expense.query.filter_by(trip_id=trip_id).filter_by(user_id=user_id).all()
 
@@ -95,10 +95,6 @@ def get_reimbursements(expense_id):
         raise ExpenseNotFoundException(expense_id)
 
     return Reimbursement.query.filter_by(expense_id=expense_id).all()
-
-
-def get_file(file_id):
-    return File.query.filter_by(id=file_id).first()
 
 
 def get_timeline(trip_id):
@@ -122,9 +118,9 @@ def user_participates_in_trip(user_id, trip_id):
 
 
 def get_finished_trips_by_user(user_id):
-    user = get_user(user_id)
+    user = get_user_by_id(user_id)
     if not user:
-        raise UserIdNotFoundException(user_id)
+        raise UserNotFoundException(user_id)
 
     closed_trips = list(filter(lambda trip: trip.closed, user.users_trips))
     return closed_trips
@@ -151,9 +147,9 @@ def get_ongoing_trips(trips, current_date):
 
 
 def get_ongoing_trips_by_user(user_id, current_date=date.today()):
-    user = get_user(user_id)
+    user = get_user_by_id(user_id)
     if not user:
-        raise UserIdNotFoundException(user_id)
+        raise UserNotFoundException(user_id)
 
     ongoing_trips = get_ongoing_trips(user.users_trips, current_date)
     return ongoing_trips
@@ -179,9 +175,9 @@ def get_coming_trips(trips, current_date):
 
 
 def get_coming_trips_by_user(user_id, current_date=date.today()):
-    user = get_user(user_id)
+    user = get_user_by_id(user_id)
     if not user:
-        raise UserIdNotFoundException(user_id)
+        raise UserNotFoundException(user_id)
 
     coming_trips = get_coming_trips(user.users_trips, current_date)
 
@@ -211,7 +207,7 @@ def add_participant_to_step(user_id, step_id):
     if not user_participates_in_trip(user_id, step.trip_id):
         raise UserDoesNotParticipatesToTrip(user_id, step.trip_id)
 
-    user = get_user(user_id)
+    user = get_user_by_id(user_id)
     step.users_steps.append(user)
     save_changes(step)
     return step
@@ -254,8 +250,8 @@ def create_expense(expense):
     if not trip_exists(expense.trip_id):
         raise TripNotFoundException(expense.trip_id)
 
-    if not get_user(expense.user_id):
-        raise UserIdNotFoundException(expense.user_id)
+    if not get_user_by_id(expense.user_id):
+        raise UserNotFoundException(expense.user_id)
 
     save_changes(expense)
     return expense
@@ -267,8 +263,8 @@ def create_reimbursement(reimbursement):
         if not expense:
             raise ExpenseNotFoundException(reimbursement.expense_id)
 
-    if not get_user(reimbursement.emitter_id):
-        raise UserIdNotFoundException(reimbursement.emitter_id)
+    if not get_user_by_id(reimbursement.emitter_id):
+        raise UserNotFoundException(reimbursement.emitter_id)
 
     save_changes(reimbursement)
     return reimbursement

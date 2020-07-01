@@ -15,6 +15,12 @@ class UserDto:
         'password': fields.String(required=True, description='user password'),
         'picture_path': fields.String(required=False, description='user picture path')
     })
+    stats = api.model('stats', {
+        'trips_number': fields.Integer(required=True, description='Number of trips'),
+        'steps_number': fields.Integer(required=True, description='Number of steps'),
+        'countries_visited': fields.Integer(required=True, description='Countries visited'),
+        'cities_visited': fields.Integer(required=True, description='Cities visited'),
+    })
 
 
 class AuthDto:

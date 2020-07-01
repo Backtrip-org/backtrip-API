@@ -14,7 +14,7 @@ from app.main.service.trip_service import create_trip, create_step, invite_to_tr
 from app.main.util.exception.StepException import StepNotFoundException
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
-from app.main.util.exception.UserException import UserEmailNotFoundException, UserIdNotFoundException, \
+from app.main.util.exception.UserException import UserEmailNotFoundException, UserNotFoundException, \
     UserDoesNotParticipatesToTrip
 from app.test.base import BaseTestCase
 from app.main import db
@@ -272,7 +272,7 @@ class TestTripService(BaseTestCase):
         self.assertEqual(timeline[0].users_steps, participants)
 
     def test_get_finished_trips_should_raise_useridnotfoundexception(self):
-        with self.assertRaises(UserIdNotFoundException):
+        with self.assertRaises(UserNotFoundException):
             get_finished_trips_by_user(1)
 
     def test_get_finished_trips_should_return_finished_trips(self):
@@ -287,7 +287,7 @@ class TestTripService(BaseTestCase):
         self.assertEqual(get_ongoing_trips_by_user(user.id, today), ongoing_trips)
 
     def test_get_ongoing_trips_should_raise_useridnotfoundexception(self):
-        with self.assertRaises(UserIdNotFoundException):
+        with self.assertRaises(UserNotFoundException):
             get_ongoing_trips_by_user(1)
 
     def test_get_coming_trips_should_return_coming_trips(self):
@@ -297,7 +297,7 @@ class TestTripService(BaseTestCase):
         self.assertEqual(get_coming_trips_by_user(user.id, today), coming_trips)
 
     def test_get_coming_trips_should_raise_useridnotfoundexception(self):
-        with self.assertRaises(UserIdNotFoundException):
+        with self.assertRaises(UserNotFoundException):
             get_coming_trips_by_user(1)
 
     def test_get_coming_trip_should_return_countdown_6(self):
@@ -415,7 +415,7 @@ class TestTripService(BaseTestCase):
     def test_get_expenses_should_raise_useridnotfoundexception(self):
         user = create_user("user1@mail.fr")
         trip = create_trip(get_trip_object("trip", user))
-        with self.assertRaises(UserIdNotFoundException):
+        with self.assertRaises(UserNotFoundException):
             get_expenses(trip_id=trip.id, user_id=user.id + 1)
             
     def test_update_notes_of_unknown_step_should_raise_exception(self):

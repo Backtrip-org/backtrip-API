@@ -69,6 +69,8 @@ def delete(file_id):
     db.session.commit()
 
 
+def get_file(file_id):
+    return File.query.filter_by(id=file_id).first()
 
 
 def db_save(file):
