@@ -107,6 +107,13 @@ def get_timeline(trip_id):
     return Step.query.filter_by(trip_id=trip_id).order_by(Step.start_datetime).all()
 
 
+def get_user_steps_participation(user, trip_id):
+    if not trip_exists(trip_id):
+        raise TripNotFoundException(trip_id)
+    return sorted(list(filter(lambda step: step.trip_id == int(trip_id), user.users_steps)),
+                  key=lambda step: step.start_datetime)
+
+
 def user_participates_in_trip(user_id, trip_id):
     if not trip_exists(trip_id):
         raise TripNotFoundException(trip_id)
@@ -194,13 +201,6 @@ def get_countdown(trip, current_date):
         return (first_step.start_datetime.date() - current_date).days
 
     return 0
-
-
-def get_user_steps_participation(user, trip_id):
-    if not trip_exists(trip_id):
-        raise TripNotFoundException(trip_id)
-
-    return list(filter(lambda step: step.trip_id == int(trip_id), user.users_steps))
 
 
 def add_participant_to_step(user_id, step_id):
