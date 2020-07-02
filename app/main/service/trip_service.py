@@ -353,6 +353,17 @@ def update_notes(step_id, notes):
     save_changes(step)
 
 
+def leave_step(step_id, user_id):
+    step = get_step_by_id(step_id)
+    if not step:
+        raise StepNotFoundException(step_id)
+
+    user = get_user_by_id(user_id)
+    step.users_steps.clear(user)
+    save_changes(step)
+    return step
+
+
 def save_changes(data):
     db.session.add(data)
     db.session.commit()

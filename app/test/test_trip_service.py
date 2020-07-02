@@ -10,7 +10,7 @@ from app.main.model.step.step import Step
 from app.main.service.trip_service import create_trip, create_step, invite_to_trip, get_step_by_id, get_timeline, \
     get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user, add_participant_to_step, \
     get_user_steps_participation, calculate_future_operations, get_user_reimbursements, refunds_to_get_for_user, \
-    create_reimbursement, create_expense, close_trip, get_trip_by_id, get_expenses, update_notes
+    create_reimbursement, create_expense, close_trip, get_trip_by_id, get_expenses, update_notes, leave_step
 from app.main.util.exception.StepException import StepNotFoundException
 from app.main.util.exception.TripException import TripAlreadyExistsException, TripNotFoundException
 from app.main.util.exception.GlobalException import StringLengthOutOfRangeException
@@ -439,6 +439,14 @@ class TestTripService(BaseTestCase):
         update_notes(step.id, notes)
         self.assertEqual(notes, get_step_by_id(step.id).notes)
 
+    def test_remove_participant_from_step(self):
+        user = create_user("user1@mail.fr")
+        trip = create_trip(get_trip_object("trip", user))
+        step = create_step(get_step_object("step", trip.id, "2020-05-03 10:00:00"))
+        step = add_participant_to_step(user.id, step.id)
+        self.assertTrue(user in step.users_steps)
+        step = leave_step(step.id, user.id)
+        self.assertTrue(user not in step.users_steps)
 
 
 if __name__ == '__main__':
