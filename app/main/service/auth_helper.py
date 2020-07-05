@@ -34,6 +34,36 @@ class Auth:
             return response_object, 500
 
     @staticmethod
+    def login_admin_user(data):
+        try:
+            user = User.query.filter_by(email=data.get('email')).first()
+            if user and user.check_password(data.get('password')) and user.admin:
+                auth_token = user.encode_auth_token(user.id)
+                if auth_token:
+                    response_object = {
+                        'id': user.id,
+                        'status': 'success',
+                        'message': 'Successfully logged in.',
+                        'Authorization': auth_token.decode()
+                    }
+                    return response_object, 200
+            else:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'email or password does not match.'
+                }
+                return response_object, 400
+
+        except Exception as e:
+            print(e)
+            response_object = {
+                'status': 'fail',
+                'message': 'Try again'
+            }
+            return response_object, 500
+
+
+    @staticmethod
     def logout_user(data):
         if data:
             auth_token = data.split(" ")[0]
