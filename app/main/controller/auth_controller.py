@@ -18,6 +18,16 @@ class UserLogin(Resource):
         return Auth.login_user(data=post_data)
 
 
+@api.route('/adminLogin')
+class UserLogin(Resource):
+    @api.doc('admin login')
+    @api.response(400, 'Email or password incorrect.')
+    @api.expect(user_auth, validate=True)
+    def post(self):
+        post_data = request.json
+        return Auth.login_admin_user(data=post_data)
+
+
 @api.route('/logout')
 class LogoutAPI(Resource):
     @api.doc('logout a user')
