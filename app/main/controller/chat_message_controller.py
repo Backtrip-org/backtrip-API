@@ -1,4 +1,5 @@
 from flask_restplus import Resource
+from flask_socketio import emit
 
 from app.init_app import socketIo, send, join_room
 from ..model.chat_message import ChatMessage
@@ -46,3 +47,13 @@ def chat_message(message, trip_id, user_id):
         'trip_id': saved_message.trip_id,
         'user_id': saved_message.user_id
     }, room=trip_id)
+
+
+@socketIo.on('isWriting')
+def user_is_writing(user_id, trip_id):
+    emit('isWriting', {'user_id': user_id}, room=trip_id)
+
+
+@socketIo.on('stopWriting')
+def user_stop_writing(user_id, trip_id):
+    emit('stopWriting', {'user_id': user_id}, room=trip_id)
