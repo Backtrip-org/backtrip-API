@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from app.main.service.stats_service import get_global_stats, get_top_visited_countries, get_daily_registration, \
-    get_step_types_distribution, get_transport_step_types_distribution
+    get_step_types_distribution, get_transport_step_types_distribution, get_daily_trip_creation
 from app.main.util.decorator import admin_token_required
 from app.main.util.dto import StatsDto
 from flask_restplus import Resource
@@ -45,6 +45,18 @@ class DailyRegistration(Resource):
     @admin_token_required
     def get(self):
         return get_daily_registration(10, datetime.today())
+
+
+@api.route('/last10DaysDailyTripCreation')
+class DailyTripCreation(Resource):
+    @api.doc('Get last 10 days daily trip creation')
+    @api.marshal_with(_stats)
+    @api.response(200, 'Last 10 days daily trip creation.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(401, 'Admin only.')
+    @admin_token_required
+    def get(self):
+        return get_daily_trip_creation(10, datetime.today())
 
 
 @api.route('/stepTypesDistribution')

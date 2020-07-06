@@ -51,6 +51,23 @@ def get_daily_registration(number_of_days: int, end_date: datetime):
     }
 
 
+def get_daily_trip_creation(number_of_days: int, end_date: datetime):
+    end_date = end_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    start_date = (end_date - timedelta(days=number_of_days - 1))
+    delta = timedelta(days=1)
+    labels = []
+    values = []
+    while start_date <= end_date:
+        labels.append(start_date.strftime("%d/%m"))
+        values.append(Trip.query.filter(db.func.date(Trip.created_on) == start_date).count())
+        start_date += delta
+
+    return {
+        'labels': labels,
+        'values': values
+    }
+
+
 def get_step_types_distribution():
     steps = Step.query.all()
     labels = ['Restaurant', 'Loisir', 'Logement', 'Transport', 'Autre']

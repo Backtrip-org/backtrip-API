@@ -1,4 +1,5 @@
 import io
+from datetime import datetime
 
 import sqlalchemy
 from flask import request, send_file
@@ -58,7 +59,8 @@ class TripList(Resource):
                 picture_path=picture_path,
                 creator_id=response.get('data').id,
                 users_trips=[response.get('data')],
-                closed=False
+                closed=False,
+                created_on=datetime.utcnow()
             )
             return create_trip(trip=new_trip), 201
         except TripAlreadyExistsException as e:
