@@ -359,7 +359,7 @@ def leave_step(step_id, user_id):
         raise StepNotFoundException(step_id)
 
     user = get_user_by_id(user_id)
-    step.users_steps.clear(user)
+    step.users_steps.remove(user)
     save_changes(step)
     return step
 
