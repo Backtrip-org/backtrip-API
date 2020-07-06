@@ -146,3 +146,8 @@ class StatsDto:
         'users_number': fields.Integer(required=True, description='Number of users')
     })
 
+    stats = api.model('stats', {
+        'labels': fields.List(fields.String),
+        'values': fields.List(fields.Integer),
+    })
+
