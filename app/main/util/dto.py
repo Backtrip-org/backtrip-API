@@ -136,3 +136,13 @@ class ChatMessageDto:
         'user_id': fields.Integer(required=False, description='User id')
     })
 
+
+class StatsDto:
+    api = Namespace('stats', description='Stats (admin only)')
+    global_stats = api.model('global_stats', {
+        'open_trips': fields.Integer(required=True, description='Open trips'),
+        'closed_trips': fields.Integer(required=True, description='Closed trips'),
+        'created_steps': fields.Integer(required=True, description='Created steps'),
+        'users_number': fields.Integer(required=True, description='Number of users')
+    })
+
