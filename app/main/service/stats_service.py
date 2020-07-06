@@ -64,3 +64,18 @@ def get_step_types_distribution():
         'labels': labels,
         'values': [food, leisure, lodging, transport, other]
     }
+
+
+def get_transport_step_types_distribution():
+    steps = Step.query.all()
+    labels = ['Bus', 'Avion', 'Taxi', 'Train', 'Autre']
+    bus = len(list(filter(lambda step: StepType.from_string(step.type) == StepType.TransportBus, steps)))
+    plane = len(list(filter(lambda step: StepType.from_string(step.type) == StepType.TransportPlane, steps)))
+    taxi = len(list(filter(lambda step: StepType.from_string(step.type) == StepType.TransportTaxi, steps)))
+    train = len(list(filter(lambda step: StepType.from_string(step.type) == StepType.TransportTrain, steps)))
+    other = len(list(filter(lambda step: StepType.from_string(step.type) == StepType.Transport, steps)))
+
+    return {
+        'labels': labels,
+        'values': [bus, plane, taxi, train, other]
+    }
