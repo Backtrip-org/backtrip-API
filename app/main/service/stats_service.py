@@ -1,8 +1,6 @@
-from collections import OrderedDict
+from datetime import datetime, timedelta
 
-from flask import session
-from sqlalchemy import func
-
+from app.main import db
 from app.main.model.place.place import Place
 from app.main.model.step.step import Step
 from app.main.model.trip import Trip
@@ -18,7 +16,7 @@ def get_global_stats():
     }
 
 
-def get_top_5_visited_countries():
+def get_top_visited_countries(number: int):
     places = Place.query.filter(Place.country.isnot(None)).all()
     top = dict()
     for place in places:
@@ -27,9 +25,27 @@ def get_top_5_visited_countries():
         else:
             top[place.country] = 1
 
-    top = sorted(top.items(), key=lambda x: x[1], reverse=True)[:5]
+    top = sorted(top.items(), key=lambda x: x[1], reverse=True)[:number]
 
     return {
         'labels': [label for label, value in top],
         'values': [value for label, value in top]
     }
+
+
+def get_daily_registration(number_of_days: int, end_date: datetime):
+    end_date = end_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    start_date = (end_date - timedelta(days=number_of_days - 1))
+    delta = timedelta(days=1)
+    labels = []
+    values = []
+    while start_date <= end_date:
+        labels.append(start_date.strftime("%d/%m"))
+        values.append(User.query.filter(db.func.date(User.registered_on) == start_date).count())
+        start_date += delta
+
+    return {
+        'labels': labels,
+        'values': values
+    }
+
