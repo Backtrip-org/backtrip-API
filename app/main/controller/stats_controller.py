@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from app.main.service.stats_service import get_global_stats, get_top_visited_countries, get_daily_registration
+from app.main.service.stats_service import get_global_stats, get_top_visited_countries, get_daily_registration, \
+    get_step_types_distribution
 from app.main.util.decorator import admin_token_required
 from app.main.util.dto import StatsDto
 from flask_restplus import Resource
@@ -44,3 +45,15 @@ class TopVisitedCountries(Resource):
     @admin_token_required
     def get(self):
         return get_daily_registration(10, datetime.today())
+
+
+@api.route('/stepTypesDistribution')
+class TopVisitedCountries(Resource):
+    @api.doc('Get step types distribution')
+    @api.marshal_with(_stats)
+    @api.response(200, 'Step types distribution.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(401, 'Admin only.')
+    @admin_token_required
+    def get(self):
+        return get_step_types_distribution()

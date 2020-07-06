@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from app.main import db
 from app.main.model.place.place import Place
 from app.main.model.step.step import Step
+from app.main.model.step.step_type import StepType, get_transport_step_types
 from app.main.model.trip import Trip
 from app.main.model.user import User
 
@@ -49,3 +50,17 @@ def get_daily_registration(number_of_days: int, end_date: datetime):
         'values': values
     }
 
+
+def get_step_types_distribution():
+    steps = Step.query.all()
+    labels = ['Restaurant', 'Loisir', 'Logement', 'Transport', 'Autre']
+    food = len(list(filter(lambda step: StepType.from_string(step.type) == StepType.Food, steps)))
+    leisure = len(list(filter(lambda step: StepType.from_string(step.type) == StepType.Leisure, steps)))
+    lodging = len(list(filter(lambda step: StepType.from_string(step.type) == StepType.Lodging, steps)))
+    transport = len(list(filter(lambda step: StepType.from_string(step.type) in get_transport_step_types(), steps)))
+    other = len(list(filter(lambda step: StepType.from_string(step.type) == StepType.Base, steps)))
+
+    return {
+        'labels': labels,
+        'values': [food, leisure, lodging, transport, other]
+    }

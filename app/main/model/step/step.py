@@ -35,6 +35,9 @@ class Step(db.Model):
     def get_photos(self):
         return [file for file in self.files if file.type == FileType.Photo]
 
+    def get_step_type(self):
+        return StepType.f
+
     @staticmethod
     def from_json(dto, trip_id):
         return Step(
