@@ -97,6 +97,16 @@ def update_profile_picture(file_id, user_id):
     save_changes(user)
 
 
+def ban(user_id):
+    user = get_user_by_id(user_id)
+    if user is None:
+        raise UserNotFoundException(user_id)
+    if user.banned:
+        return
+    user.ban()
+    save_changes(user)
+
+
 def save_changes(data):
     db.session.add(data)
     db.session.commit()

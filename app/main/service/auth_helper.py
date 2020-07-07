@@ -9,6 +9,12 @@ class Auth:
         try:
             user = User.query.filter_by(email=data.get('email')).first()
             if user and user.check_password(data.get('password')):
+                if user.banned:
+                    response_object = {
+                        'status': 'fail',
+                        'message': 'banned user.'
+                    }
+                    return response_object, 403
                 auth_token = user.encode_auth_token(user.id)
                 if auth_token:
                     response_object = {

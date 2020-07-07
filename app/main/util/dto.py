@@ -13,7 +13,9 @@ class UserDto:
         'firstname': fields.String(required=True, description='user firstname'),
         'lastname': fields.String(required=True, description='user lastname'),
         'password': fields.String(required=True, description='user password'),
-        'picture_path': fields.String(required=False, description='user picture path')
+        'picture_path': fields.String(required=False, description='user picture path'),
+        'admin': fields.Boolean(required=False, description='admin status'),
+        'banned': fields.Boolean(required=False, description='banishment status'),
     })
     stats = api.model('stats', {
         'trips_number': fields.Integer(required=True, description='Number of trips'),

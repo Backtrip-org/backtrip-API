@@ -8,7 +8,8 @@ from ..model.file.file_type import FileType
 from ..model.user import User as UserModel
 from ..service.file_service import upload
 from ..service.trip_service import get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user
-from ..service.user_service import create_user, get_all_users, get_user_by_id, update_profile_picture, get_trip_stats
+from ..service.user_service import create_user, get_all_users, get_user_by_id, update_profile_picture, get_trip_stats, \
+    ban
 from ..util.decorator import admin_token_required, user_token_required, token_required
 from ..util.dto import TripDto, FileDto
 from ..util.dto import UserDto
@@ -168,3 +169,19 @@ class ProfilePicture(Resource):
             api.abort(404, e.value)
         except UploadFileNotFoundException as e:
             api.abort(400, e.value)
+
+
+@api.route('/<user_id>/ban')
+@api.param('user_id', 'The User identifier')
+class BanUser(Resource):
+    @api.doc('Close trip')
+    @api.response(200, 'User successfully banned.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown trip.')
+    @admin_token_required
+    def patch(self, user_id):
+        try:
+            ban(user_id)
+            return 'User successfully banned.', 200
+        except UserNotFoundException as e:
+            api.abort(404, e.value)
