@@ -4,7 +4,6 @@ import sqlalchemy
 from flask import request, send_file
 from flask_restplus import Resource
 
-from service.suggest_step_service import suggest_step
 from ..model.expense import Expense
 from ..model.file.file_type import FileType
 from ..model.reimbursement import Reimbursement
@@ -12,6 +11,7 @@ from ..model.step.step_factory import StepFactory
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..service.file_service import upload
+from ..service.suggest_step_service import suggest_step
 from ..service.travel_journal_service import TravelJournalService
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step_by_id, get_timeline, \
     get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
@@ -489,6 +489,7 @@ class TravelJournal(Resource):
             return send_file(io.BytesIO(bytes_str), mimetype='application/pdf')
         except TripMustBeClosedException as e:
             api.abort(401, e.value)
+
 
 @api.route('/step/suggest')
 class StepSuggestion(Resource):
