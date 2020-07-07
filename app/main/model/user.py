@@ -39,9 +39,6 @@ class User(db.Model):
     def __repr__(self):
         return "<User '{}'>".format(self.email)
 
-    def ban(self):
-        self.banned = True
-
     @staticmethod
     def encode_auth_token(id):
         try:

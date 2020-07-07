@@ -9,7 +9,7 @@ from ..model.user import User as UserModel
 from ..service.file_service import upload
 from ..service.trip_service import get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user
 from ..service.user_service import create_user, get_all_users, get_user_by_id, update_profile_picture, get_trip_stats, \
-    ban
+    ban, make_admin
 from ..util.decorator import admin_token_required, user_token_required, token_required
 from ..util.dto import TripDto, FileDto
 from ..util.dto import UserDto
@@ -174,14 +174,78 @@ class ProfilePicture(Resource):
 @api.route('/<user_id>/ban')
 @api.param('user_id', 'The User identifier')
 class BanUser(Resource):
-    @api.doc('Close trip')
+    @api.doc('Ban user')
     @api.response(200, 'User successfully banned.')
     @api.response(401, 'Unknown access token.')
     @api.response(404, 'Unknown trip.')
     @admin_token_required
     def patch(self, user_id):
         try:
-            ban(user_id)
+            ban(user_id, True)
             return 'User successfully banned.', 200
+        except UserNotFoundException as e:
+            api.abort(404, e.value)
+
+
+@api.route('/<user_id>/unban')
+@api.param('user_id', 'The User identifier')
+class UnbanUser(Resource):
+    @api.doc('Unban user')
+    @api.response(200, 'User successfully unbanned.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown trip.')
+    @admin_token_required
+    def patch(self, user_id):
+        try:
+            ban(user_id, False)
+            return 'User successfully unbanned.', 200
+        except UserNotFoundException as e:
+            api.abort(404, e.value)
+
+
+@api.route('/<user_id>/ban')
+@api.param('user_id', 'The User identifier')
+class BanUser(Resource):
+    @api.doc('Ban user')
+    @api.response(200, 'User successfully banned.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown trip.')
+    @admin_token_required
+    def patch(self, user_id):
+        try:
+            ban(user_id, True)
+            return 'User successfully banned.', 200
+        except UserNotFoundException as e:
+            api.abort(404, e.value)
+
+
+@api.route('/<user_id>/makeAdmin')
+@api.param('user_id', 'The User identifier')
+class MakeAdmin(Resource):
+    @api.doc('Make admin')
+    @api.response(200, 'User is admin.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown trip.')
+    @admin_token_required
+    def patch(self, user_id):
+        try:
+            make_admin(user_id, True)
+            return 'User is admin.', 200
+        except UserNotFoundException as e:
+            api.abort(404, e.value)
+
+
+@api.route('/<user_id>/revokeAdmin')
+@api.param('user_id', 'The User identifier')
+class RevokeAdmin(Resource):
+    @api.doc('Revoke admin')
+    @api.response(200, 'User is not admin.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown trip.')
+    @admin_token_required
+    def patch(self, user_id):
+        try:
+            make_admin(user_id, False)
+            return 'User is not admin.', 200
         except UserNotFoundException as e:
             api.abort(404, e.value)
