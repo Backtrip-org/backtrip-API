@@ -16,7 +16,7 @@ from ..service.trip_service import create_trip, create_step, invite_to_trip, get
     get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
     add_file_to_step, create_expense, create_reimbursement, refunds_to_get_for_user, get_user_reimbursements, \
     calculate_future_operations, add_ratings, close_trip, get_trip_by_id, get_expenses, get_expense, get_reimbursements, \
-    update_notes, update_trip_cover_picture
+    update_notes, update_trip_cover_picture, leave_step
 from ..util.decorator import token_required, trip_participant_required
 from ..util.dto import TripDto, UserDto, FileDto
 from ..util.exception.ExpenseException import ExpenseNotFoundException
@@ -136,6 +136,26 @@ class TripStepWithId(Resource):
             api.abort(404, 'Step not found')
         else:
             return step
+
+
+@api.route('/<trip_id>/step/<step_id>/user/<user_id>/leave')
+@api.param('trip_id', 'Identifier of the trip')
+@api.param('step_id', 'Identifier of the step')
+@api.param('user_id', 'Identifier of the user')
+class TripStepWithId(Resource):
+    @api.doc('Leave step in a trip')
+    @api.marshal_with(_step)
+    @api.response(200, 'Step is leaved.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(404, 'Unknown step.')
+    @token_required
+    @trip_participant_required
+    def delete(self, trip_id, step_id, user_id):
+        try:
+            return leave_step(step_id, user_id)
+        except StepNotFoundException as e:
+            api.abort(404, e.value)
+
 
 
 @api.route('/<trip_id>/timeline')
@@ -401,8 +421,8 @@ class TransactionsToBeMade(Resource):
             return calculate_future_operations(refunds_to_get, user_reimbursements)
         except UserNotFoundException as e:
             api.abort(404, e.value)
-        
-        
+
+
 @api.route('/<trip_id>/step/<step_id>/notes')
 @api.param('trip_id', 'Identifier of the trip')
 @api.param('step_id', 'Identifier of the step')
