@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 
+from sqlalchemy import or_
+
 from app.main import db
 from app.main.model.place.place import Place
 from app.main.model.step.step import Step
@@ -60,6 +62,24 @@ def get_daily_trip_creation(number_of_days: int, end_date: datetime):
     while start_date <= end_date:
         labels.append(start_date.strftime("%d/%m"))
         values.append(Trip.query.filter(db.func.date(Trip.created_on) == start_date).count())
+        start_date += delta
+
+    return {
+        'labels': labels,
+        'values': values
+    }
+
+
+def get_daily_steps(number_of_days: int, end_date: datetime):
+    end_date = end_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    start_date = (end_date - timedelta(days=number_of_days - 1))
+    delta = timedelta(days=1)
+    labels = []
+    values = []
+    while start_date <= end_date:
+        labels.append(start_date.strftime("%d/%m"))
+        values.append(Step.query.filter(or_(db.func.date(Step.start_datetime) == start_date,
+                                            db.func.date(Step.end_datetime) == start_date)).count())
         start_date += delta
 
     return {
