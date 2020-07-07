@@ -4,6 +4,7 @@ import sqlalchemy
 from flask import request, send_file
 from flask_restplus import Resource
 
+from service.suggest_step_service import suggest_step
 from ..model.expense import Expense
 from ..model.file.file_type import FileType
 from ..model.reimbursement import Reimbursement
@@ -488,3 +489,17 @@ class TravelJournal(Resource):
             return send_file(io.BytesIO(bytes_str), mimetype='application/pdf')
         except TripMustBeClosedException as e:
             api.abort(401, e.value)
+
+@api.route('/step/suggest')
+class StepSuggestion(Resource):
+    @api.doc('Suggest steps for requesting users')
+    @api.response(200, 'Steps suggested')
+    @api.response(401, 'Unknown access token.')
+    @token_required
+    def get(self):
+        response, status = Auth.get_logged_in_user(request)
+        if status != 200:
+            return status
+
+        requesting_user_id = response.get('data').id
+        return suggest_step(requesting_user_id)
