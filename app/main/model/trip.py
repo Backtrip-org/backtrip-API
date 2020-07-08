@@ -13,6 +13,7 @@ class Trip(db.Model):
     picture_path = db.Column(db.String(255), unique=False)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     closed = db.Column(db.Boolean, nullable=False, default=False)
+    created_on = db.Column(db.DateTime)
 
     users_trips = db.relationship('User', secondary=users_trips)
 

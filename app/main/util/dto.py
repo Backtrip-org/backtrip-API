@@ -13,7 +13,9 @@ class UserDto:
         'firstname': fields.String(required=True, description='user firstname'),
         'lastname': fields.String(required=True, description='user lastname'),
         'password': fields.String(required=True, description='user password'),
-        'picture_path': fields.String(required=False, description='user picture path')
+        'picture_path': fields.String(required=False, description='user picture path'),
+        'admin': fields.Boolean(required=False, description='admin status'),
+        'banned': fields.Boolean(required=False, description='banishment status'),
     })
     stats = api.model('stats', {
         'trips_number': fields.Integer(required=True, description='Number of trips'),
@@ -134,5 +136,20 @@ class ChatMessageDto:
         'message': fields.String(required=True, description='Message content'),
         'trip_id': fields.Integer(required=False, description='Trip id'),
         'user_id': fields.Integer(required=False, description='User id')
+    })
+
+
+class StatsDto:
+    api = Namespace('stats', description='Stats (admin only)')
+    global_stats = api.model('global_stats', {
+        'open_trips': fields.Integer(required=True, description='Open trips'),
+        'closed_trips': fields.Integer(required=True, description='Closed trips'),
+        'created_steps': fields.Integer(required=True, description='Created steps'),
+        'users_number': fields.Integer(required=True, description='Number of users')
+    })
+
+    stats = api.model('stats', {
+        'labels': fields.List(fields.String),
+        'values': fields.List(fields.Integer),
     })
 

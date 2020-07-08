@@ -20,6 +20,7 @@ class User(db.Model):
     lastname = db.Column(db.String(50))
     password_hash = db.Column(db.String(100))
     picture_path = db.Column(db.String(255), unique=False)
+    banned = db.Column(db.Boolean, nullable=False, default=False)
 
     users_trips = db.relationship('Trip', secondary=users_trips)
     users_steps = db.relationship('Step', secondary=users_steps)
