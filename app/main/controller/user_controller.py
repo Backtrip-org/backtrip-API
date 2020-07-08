@@ -9,7 +9,7 @@ from ..model.user import User as UserModel
 from ..service.file_service import upload
 from ..service.trip_service import get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user
 from ..service.user_service import create_user, get_all_users, get_user_by_id, update_profile_picture, get_trip_stats, \
-    get_all_user_information
+    get_all_user_information, delete_all_user_information
 from ..util.decorator import admin_token_required, user_token_required, token_required
 from ..util.dto import TripDto, FileDto
 from ..util.dto import UserDto
@@ -186,5 +186,11 @@ class GDPRUserInformation(Resource):
     def get(self, user_id):
         try:
             return get_all_user_information(user_id)
+        except UserNotFoundException as e:
+            api.abort(404, e.value)
+
+    def delete(self, user_id):
+        try:
+            return delete_all_user_information(user_id)
         except UserNotFoundException as e:
             api.abort(404, e.value)

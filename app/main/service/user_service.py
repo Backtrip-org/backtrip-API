@@ -110,7 +110,8 @@ def get_all_user_information(user_id):
 
 
 def get_user_trips(user):
-    from app.main.service.trip_service import get_coming_trips_by_user, get_ongoing_trips_by_user, get_finished_trips_by_user
+    from app.main.service.trip_service import get_coming_trips_by_user, get_ongoing_trips_by_user, \
+        get_finished_trips_by_user
     trips = get_coming_trips_by_user(user.id)
     trips += get_ongoing_trips_by_user(user.id)
     trips += get_finished_trips_by_user(user.id)
@@ -149,9 +150,25 @@ def get_user_reimbursements_by_trips(user, user_trips):
         expenses = get_expenses(user_trip.id, user.id)
         for expense in expenses:
             reimbursements += list(filter(
-                    lambda reimbursement: reimbursement.emitter_id == user.id or reimbursement.payee_id == user.id,
-                    get_reimbursements(expense.id)))
+                lambda reimbursement: reimbursement.emitter_id == user.id or reimbursement.payee_id == user.id,
+                get_reimbursements(expense.id)))
     return reimbursements
+
+
+def delete_all_user_information(user_id):
+    user = get_user_by_id(user_id)
+    if not user:
+        raise UserNotFoundException(user_id)
+    user = remove_user_informations(user)
+    save_changes(user)
+
+
+def remove_user_informations(user):
+    user.email = 'deleted'
+    user.firstname = 'deleted'
+    user.lastname = 'deleted'
+    user.picture_path = None
+    return user
 
 
 def save_changes(data):
