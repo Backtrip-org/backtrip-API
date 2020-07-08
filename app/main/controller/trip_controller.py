@@ -1,4 +1,5 @@
 import io
+from datetime import datetime
 
 import sqlalchemy
 from flask import request, send_file
@@ -11,6 +12,7 @@ from ..model.step.step_factory import StepFactory
 from ..model.trip import Trip
 from ..service.auth_helper import Auth
 from ..service.file_service import upload
+from ..service.suggest_step_service import suggest_step
 from ..service.travel_journal_service import TravelJournalService
 from ..service.trip_service import create_trip, create_step, invite_to_trip, get_step_by_id, get_timeline, \
     get_user_steps_participation, add_participant_to_step, get_participants_of_step, \
@@ -58,7 +60,8 @@ class TripList(Resource):
                 picture_path=picture_path,
                 creator_id=response.get('data').id,
                 users_trips=[response.get('data')],
-                closed=False
+                closed=False,
+                created_on=datetime.utcnow()
             )
             return create_trip(trip=new_trip), 201
         except TripAlreadyExistsException as e:
@@ -488,3 +491,18 @@ class TravelJournal(Resource):
             return send_file(io.BytesIO(bytes_str), mimetype='application/pdf')
         except TripMustBeClosedException as e:
             api.abort(401, e.value)
+
+
+@api.route('/step/suggest')
+class StepSuggestion(Resource):
+    @api.doc('Suggest steps for requesting users')
+    @api.response(200, 'Steps suggested')
+    @api.response(401, 'Unknown access token.')
+    @token_required
+    def get(self):
+        response, status = Auth.get_logged_in_user(request)
+        if status != 200:
+            return status
+
+        requesting_user_id = response.get('data').id
+        return suggest_step(requesting_user_id)

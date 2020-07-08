@@ -169,6 +169,24 @@ def remove_user_informations(user):
     user.lastname = 'deleted'
     user.picture_path = None
     return user
+  
+  
+def ban(user_id, to_ban: bool):
+    user = get_user_by_id(user_id)
+    if user is None:
+        raise UserNotFoundException(user_id)
+    if user.banned != to_ban:
+        user.banned = to_ban
+        save_changes(user)
+
+
+def make_admin(user_id, to_do: bool):
+    user = get_user_by_id(user_id)
+    if user is None:
+        raise UserNotFoundException(user_id)
+    if user.admin != to_do:
+        user.admin = to_do
+        save_changes(user)
 
 
 def save_changes(data):
