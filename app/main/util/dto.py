@@ -137,7 +137,7 @@ class ChatMessageDto:
         'trip_id': fields.Integer(required=False, description='Trip id'),
         'user_id': fields.Integer(required=False, description='User id')
     })
-
+    
 
 class StatsDto:
     api = Namespace('stats', description='Stats (admin only)')
@@ -152,4 +152,3 @@ class StatsDto:
         'labels': fields.List(fields.String),
         'values': fields.List(fields.Integer),
     })
-
