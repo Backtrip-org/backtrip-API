@@ -228,22 +228,6 @@ class UnbanUser(Resource):
             api.abort(404, e.value)
 
 
-@api.route('/<user_id>/ban')
-@api.param('user_id', 'The User identifier')
-class BanUser(Resource):
-    @api.doc('Ban user')
-    @api.response(200, 'User successfully banned.')
-    @api.response(401, 'Unknown access token.')
-    @api.response(404, 'Unknown trip.')
-    @admin_token_required
-    def patch(self, user_id):
-        try:
-            ban(user_id, True)
-            return 'User successfully banned.', 200
-        except UserNotFoundException as e:
-            api.abort(404, e.value)
-
-
 @api.route('/<user_id>/makeAdmin')
 @api.param('user_id', 'The User identifier')
 class MakeAdmin(Resource):
