@@ -8,12 +8,14 @@ from ..model.file.file_type import FileType
 from ..model.user import User as UserModel
 from ..service.file_service import upload
 from ..service.trip_service import get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user
-from ..service.user_service import create_user, get_all_users, get_user_by_id, update_profile_picture, get_trip_stats
+from ..service.user_service import create_user, get_all_users, get_user_by_id, update_profile_picture, get_trip_stats, \
+    get_all_user_information
 from ..util.decorator import admin_token_required, user_token_required, token_required
 from ..util.dto import TripDto, FileDto
 from ..util.dto import UserDto
 from ..util.exception.FileException import FileNotFoundException, UploadFileNotFoundException
 from ..util.exception.UserException import UserAlreadyExistsException, UserNotFoundException
+from ..util.gdpr_dto import GDPRDto
 
 api = UserDto.api
 _user = UserDto.user
@@ -22,6 +24,7 @@ _trip = TripDto.trip
 _coming_trip = TripDto.coming_trip
 _step = TripDto.step
 _file = FileDto.file
+_GDPR_user_information = GDPRDto.GDPR
 
 
 @api.route('/')
@@ -168,3 +171,20 @@ class ProfilePicture(Resource):
             api.abort(404, e.value)
         except UploadFileNotFoundException as e:
             api.abort(400, e.value)
+
+
+@api.route('/<user_id>/GDPR_all_user_information')
+@api.param('user_id', 'The User identifier')
+class GDPRUserInformation(Resource):
+    @api.doc('Get profile picture')
+    @api.marshal_with(_GDPR_user_information)
+    @api.response(200, 'User trip stats.')
+    @api.response(404, 'User not found.')
+    @api.response(401, 'Unknown access token.')
+    @api.response(401, 'Access token does not correspond to requested user')
+    @token_required
+    def get(self, user_id):
+        try:
+            return get_all_user_information(user_id)
+        except UserNotFoundException as e:
+            api.abort(404, e.value)

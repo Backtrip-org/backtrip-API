@@ -1,8 +1,7 @@
 from app.main import db
+from app.main.model.GDPR import GDPR
 from app.main.model.file.file import File
-from app.main.model.step.step import Step
 from app.main.model.step.step_transport import StepTransport
-from app.main.model.trip import Trip
 from app.main.model.user import User
 from app.main.service.file_service import get_file, delete
 from app.main.util.exception.FileException import FileNotFoundException
@@ -95,6 +94,64 @@ def update_profile_picture(file_id, user_id):
 
     user.picture_path = file.id
     save_changes(user)
+
+
+def get_all_user_information(user_id):
+    user = get_user_by_id(user_id)
+    if not user:
+        raise UserNotFoundException(user_id)
+
+    trips = get_user_trips(user)
+    steps = get_user_steps_by_trips(user, trips)
+    messages = get_user_messages_by_trips(user, trips)
+    expenses = get_user_expenses_by_trips(user, trips)
+    reimbursements = get_user_reimbursements_by_trips(user, trips)
+    return GDPR(user, trips, steps, messages, expenses, reimbursements)
+
+
+def get_user_trips(user):
+    from app.main.service.trip_service import get_coming_trips_by_user, get_ongoing_trips_by_user, get_finished_trips_by_user
+    trips = get_coming_trips_by_user(user.id)
+    trips += get_ongoing_trips_by_user(user.id)
+    trips += get_finished_trips_by_user(user.id)
+    return trips
+
+
+def get_user_steps_by_trips(user, user_trips):
+    from app.main.service.trip_service import get_user_steps_participation
+    steps = list()
+    for user_trip in user_trips:
+        steps += (get_user_steps_participation(user, user_trip.id))
+    return steps
+
+
+def get_user_messages_by_trips(user, user_trips):
+    messages = []
+    for user_trip in user_trips:
+        from app.main.service.chat_message_service import get_messages
+        messages += list(filter(lambda message: message.user_id == user.id, get_messages(user_trip.id)))
+    return messages
+
+
+def get_user_expenses_by_trips(user, user_trips):
+    from app.main.service.trip_service import get_expenses
+    expenses = []
+    for user_trip in user_trips:
+        expenses += get_expenses(user_trip.id, user.id)
+    return expenses
+
+
+def get_user_reimbursements_by_trips(user, user_trips):
+    from app.main.service.trip_service import get_expenses
+    from app.main.service.trip_service import get_reimbursements
+    reimbursements = []
+    for user_trip in user_trips:
+        expenses = get_expenses(user_trip.id, user.id)
+        for expense in expenses:
+            reimbursements += list(filter(
+                    lambda reimbursement: reimbursement.emitter_id == user.id or reimbursement.payee_id == user.id,
+                    get_reimbursements(expense.id)))
+    return reimbursements
 
 
 def save_changes(data):

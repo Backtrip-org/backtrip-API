@@ -135,4 +135,3 @@ class ChatMessageDto:
         'trip_id': fields.Integer(required=False, description='Trip id'),
         'user_id': fields.Integer(required=False, description='User id')
     })
-
