@@ -8,8 +8,8 @@ from ..model.file.file_type import FileType
 from ..model.user import User as UserModel
 from ..service.file_service import upload
 from ..service.trip_service import get_finished_trips_by_user, get_ongoing_trips_by_user, get_coming_trips_by_user
-from ..service.user_service import create_user, get_all_users, get_user_by_id, update_profile_picture, get_trip_stats, \
-    get_all_user_information, delete_all_user_information, ban, make_admin
+from ..service.user_service import create_user, get_user_by_id, update_profile_picture, get_trip_stats, \
+    get_all_user_information, delete_all_user_information, ban, make_admin, get_active_users
 from ..util.decorator import admin_token_required, user_token_required, token_required
 from ..util.dto import TripDto, FileDto
 from ..util.dto import UserDto
@@ -35,7 +35,7 @@ class UserList(Resource):
     @api.response(401, 'Unknown access token.')
     @admin_token_required
     def get(self):
-        return get_all_users()
+        return get_active_users()
 
     @api.doc('create a new user')
     @api.expect(_user, validate=True)

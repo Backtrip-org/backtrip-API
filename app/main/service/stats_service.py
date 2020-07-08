@@ -15,7 +15,7 @@ def get_global_stats():
         'open_trips': Trip.query.filter_by(closed=False).count(),
         'closed_trips': Trip.query.filter_by(closed=True).count(),
         'created_steps': Step.query.count(),
-        'users_number': User.query.count()
+        'users_number': User.query.filter(User.is_active).count()
     }
 
 

@@ -21,6 +21,10 @@ def get_all_users():
     return User.query.all()
 
 
+def get_active_users():
+    return User.query.filter(User.is_active).all()
+
+
 def get_user_by_id(id):
     return User.query.filter_by(id=id).first()
 
