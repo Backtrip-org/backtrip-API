@@ -60,7 +60,7 @@ def invite_to_trip(trip_id, user_to_invite_email):
 
     trip.users_trips.append(user)
     save_changes(trip)
-    pass
+    return trip.users_trips
 
 
 def get_trip_by_id(trip_id):

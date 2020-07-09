@@ -126,7 +126,7 @@ class TestTripController(BaseTestCase):
                                                 data=step_payload, content_type='application/json')
         self.assertEqual(create_step_response.status_code, 401)
 
-    def test_invite_to_trip_should_return_no_content(self):
+    def test_invite_to_trip_should_return_ok(self):
         register_user(self)
         participant_email = 'participant@mail.com'
         register_user(self, participant_email)
@@ -139,7 +139,7 @@ class TestTripController(BaseTestCase):
         invitation_payload = json.dumps(dict(email=participant_email))
         invitation_response = self.client.post('/trip/{}/invite'.format(str(trip_id)), headers=headers,
                                                data=invitation_payload, content_type='application/json')
-        self.assertEqual(invitation_response.status_code, 204)
+        self.assertEqual(invitation_response.status_code, 200)
 
     def test_invite_to_trip_should_return_bad_request(self):
         register_user(self)
