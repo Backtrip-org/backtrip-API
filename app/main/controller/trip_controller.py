@@ -104,7 +104,8 @@ class TripStep(Resource):
 @api.param('trip_id', 'Identifier of the trip')
 class TripInvitation(Resource):
     @api.doc('Invite someone to a trip')
-    @api.response(204, 'User as been added to trip')
+    @api.marshal_with(_user)
+    @api.response(200, 'User has been added to trip')
     @api.response(400, 'User email not found')
     @api.response(401, 'Unknown access token')
     @api.response(401, 'User cannot access this trip.')
@@ -113,8 +114,7 @@ class TripInvitation(Resource):
     @trip_participant_required
     def post(self, trip_id):
         try:
-            invite_to_trip(trip_id, request.json.get('email'))
-            return '', 204
+            return invite_to_trip(trip_id, request.json.get('email')), 200
         except TripNotFoundException as e:
             api.abort(404, e.value)
         except UserEmailNotFoundException as e:
