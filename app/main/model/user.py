@@ -1,4 +1,5 @@
 import sqlalchemy
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from .. import db, flask_bcrypt
 import datetime
@@ -35,6 +36,10 @@ class User(db.Model):
 
     def check_password(self, password):
         return flask_bcrypt.check_password_hash(self.password_hash, password)
+
+    @hybrid_property
+    def is_active(self):
+        return self.email != 'deleted'
 
     def __repr__(self):
         return "<User '{}'>".format(self.email)
