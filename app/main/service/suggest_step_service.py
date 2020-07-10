@@ -13,9 +13,11 @@ def suggest_step(user_id):
 
     if len(requesting_user_steps) < 3:
         requesting_user_steps = []
-        similar_users_steps = get_similar_user_for_new_requester(steps_by_users)
+        similar_users_steps = get_all_users_steps(steps_by_users)
     else:
         similar_users_steps = get_similar_user_steps(steps_by_users, requesting_user_steps)
+        if len(similar_users_steps) < 1:
+            similar_users_steps = get_all_users_steps(steps_by_users)
 
     steps = combine_steps(similar_users_steps)
     remove_requesting_user_steps(steps, requesting_user_steps[0: 3])
@@ -71,7 +73,7 @@ def get_top_4(steps_by_users):
         steps_by_users[user] = steps_by_users[user][0:4]
     return steps_by_users
 
-def get_similar_user_for_new_requester(steps_by_users):
+def get_all_users_steps(steps_by_users):
     result = []
     for user in steps_by_users.keys():
         result.append(steps_by_users[user])
