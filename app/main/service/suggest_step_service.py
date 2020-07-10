@@ -109,7 +109,8 @@ def combine_steps(similar_users_steps):
 
 def remove_requesting_user_steps(steps, steps_to_remove):
     for step in steps_to_remove:
-        del steps[step[0]]
+        if step[0] in steps:
+            del steps[step[0]]
 
 def convert_step(steps):
     result = []
