@@ -352,7 +352,8 @@ class UserExpenses(Resource):
             expenses = get_expenses(trip_id, user_id)
             reimbursements = get_user_reimbursements(trip_id, user_id)
             for reimbursement in reimbursements:
-                expenses.append(get_expense(reimbursement.expense_id))
+                if reimbursement.expense_id is not None:
+                    expenses.append(get_expense(reimbursement.expense_id))
             return expenses
         except TripNotFoundException as e:
             api.abort(404, e.value)
