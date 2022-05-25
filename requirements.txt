@@ -30,7 +30,7 @@ numpy==1.19.0
 Pillow==6.2.2
 pycountry==19.8.18
 pycparser==2.20
-PyJWT==1.7.1
+PyJWT==2.4.0
 PyMySQL==0.9.3
 pyOpenSSL==19.1.0
 pyrsistent==0.16.0
