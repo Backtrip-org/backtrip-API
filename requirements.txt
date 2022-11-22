@@ -27,7 +27,7 @@ jsonschema==3.2.0
 Mako==1.1.2
 MarkupSafe==1.1.1
 numpy==1.19.0
-Pillow==6.2.2
+Pillow==9.3.0
 pycountry==19.8.18
 pycparser==2.20
 PyJWT==1.7.1
